@@ -96,7 +96,44 @@ public class Block {
 
     public Block() {}
 
-    public Block(GameLogic game, Grid grid, Piece piece, BlockType blockType) {
+    public enum AnimationState {
+        NORMAL,
+        DROPPING,
+        TOUCHING_BOTTOM,
+        SET_AT_BOTTOM,
+        FLASHING,
+        REMOVING,
+        PRESSURE
+    }
+
+    public AnimationState animationState = AnimationState.NORMAL;
+    public int animationFrame = 0;
+    public long animationFrameTicks = 0;
+    public int animationFrameSpeed = 100;
+
+    public int counterCount = -2;
+
+    public boolean didFlashingColoredDiamond = false;
+    public boolean ateBlocks = false;
+    public int direction = -1;
+    public long directionChangeTicksCounter = 0;
+
+    public static final int UP = 0;
+    public static final int LEFT = 1;
+    public static final int DOWN = 2;
+    public static final int RIGHT = 3;
+
+    public boolean connectedUp = false;
+    public boolean connectedDown = false;
+    public boolean connectedLeft = false;
+    public boolean connectedRight = false;
+
+    public boolean connectedUpRight = false;
+    public boolean connectedDownRight = false;
+    public boolean connectedUpLeft = false;
+    public boolean connectedDownLeft = false;
+
+    public Block(GameLogic gameInstance, Grid grid, Piece piece, BlockType blockType) {
         this.game = game;
         this.grid = grid;
         this.piece = piece;
@@ -164,6 +201,11 @@ public class Block {
         return color;
     }
 
+    public BobColor specialColor() {
+        if (blockType != null && blockType.isSpecialType()) return color;
+        return null;
+    }
+
     public void setColor(BobColor color) {
         this.color = color;
     }
@@ -176,38 +218,29 @@ public class Block {
     }
 
     public void render(float screenX, float screenY, float a, float scale, boolean interpolate, boolean ghost) {
+        BobColor renderColor = color;
+        if (renderColor == null) renderColor = BobColor.gray;
+        if (overrideAnySpecialBehavior == false && blockType != null && blockType.specialColor != null) renderColor = blockType.specialColor;
+
         float w = grid.cellW() * scale;
         float h = grid.cellH() * scale;
 
-        BobColor renderColor = color;
-        if (renderColor == null) renderColor = BobColor.gray;
-
-        if (slamming && ticksSinceSlam < 100) {
-             float xDiff = screenX - slamX;
-             float yDiff = screenY - slamY;
-             screenX = slamX;
-             screenY = slamY;
-             // Stretch
-             w += xDiff;
-             h += yDiff;
+        if (interpolateSwappingWithX != 0) {
+            float ratio = (float) swapTicks / (17 * 6);
+            screenX += (interpolateSwappingWithX * grid.cellW() * ratio);
+        }
+        if (interpolateSwappingWithY != 0) {
+            float ratio = (float) swapTicks / (17 * 6);
+            screenY += (interpolateSwappingWithY * grid.cellH() * ratio);
         }
 
-        if (interpolate && ticksSinceLastMovement < 100 && lastScreenX != -1) {
-             // Simple lerp
-             float t = (float)ticksSinceLastMovement / 100.0f;
-             if (t > 1.0f) t = 1.0f;
-             screenX = lastScreenX + (screenX - lastScreenX) * t;
-             screenY = lastScreenY + (screenY - lastScreenY) * t;
-        } else {
-             lastScreenX = screenX;
-             lastScreenY = screenY;
+        if (flashingToBeRemoved) {
+            float flash = (float) Math.sin(System.currentTimeMillis() / 50.0) * 0.5f + 0.5f;
+            a *= flash;
         }
 
-        // Draw colored rectangle for now
         GLUtils.drawFilledRectXYWH(screenX, screenY, w, h, renderColor.rf(), renderColor.gf(), renderColor.bf(), a);
-
-        // Outline
-        GLUtils.drawBox(screenX, screenX+w, screenY, screenY+h, 255, 255, 255);
+        GLUtils.drawBox(screenX, screenX + w, screenY, screenY + h, 0, 0, 0);
     }
 
     public void renderDisappearing() {
@@ -215,6 +248,20 @@ public class Block {
     }
 
     public void renderOutlines(float screenX, float screenY, float s) {
-        // TODO
+        float w = grid.cellW() * s;
+        float h = grid.cellH() * s;
+
+        if (setInGrid && !fadingOut) {
+            float gridAlpha = 1.0f;
+            int gridOutlineWidth = 2;
+
+            for (int j = 0; j < gridOutlineWidth; j++) {
+                float i = (float) j;
+                if (xGrid - 1 < 0 || grid.get(xGrid - 1, yGrid) == null) GLUtils.drawFilledRectXYWH(screenX - i, screenY, 1, h, 1, 1, 1, gridAlpha);
+                if (xGrid + 1 >= grid.getWidth() || grid.get(xGrid + 1, yGrid) == null) GLUtils.drawFilledRectXYWH(screenX + w + i, screenY, 1, h, 1, 1, 1, gridAlpha);
+                if (yGrid - 1 < 0 || grid.get(xGrid, yGrid - 1) == null) GLUtils.drawFilledRectXYWH(screenX, screenY - i, w, 1, 1, 1, 1, gridAlpha);
+                if (yGrid + 1 >= grid.getHeight() || grid.get(xGrid, yGrid + 1) == null) GLUtils.drawFilledRectXYWH(screenX, screenY + h + i, w, 1, 1, 1, 1, gridAlpha);
+            }
+        }
     }
 }

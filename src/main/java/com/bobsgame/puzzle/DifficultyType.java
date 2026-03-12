@@ -26,4 +26,10 @@ public class DifficultyType implements Serializable {
 
     public ArrayList<String> pieceTypesToDisallow_UUID = new ArrayList<>();
     public ArrayList<String> blockTypesToDisallow_UUID = new ArrayList<>();
+
+    public DifficultyType() {}
+
+    public DifficultyType(String name) {
+        this.name = name;
+    }
 }

@@ -7,9 +7,12 @@ plugins {
 
 repositories {
     mavenCentral()
+    maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
+    maven { url "https://oss.sonatype.org/content/repositories/releases/" }
 }
 
 project.ext.lwjglVersion = "3.3.3"
+project.ext.gdxVersion = "1.12.1"
 
 switch (OperatingSystem.current()) {
     case OperatingSystem.LINUX:
@@ -39,6 +42,11 @@ dependencies {
     runtimeOnly "org.lwjgl:lwjgl-openal::$lwjglNatives"
     runtimeOnly "org.lwjgl:lwjgl-stb::$lwjglNatives"
     runtimeOnly "org.lwjgl:lwjgl-jemalloc::$lwjglNatives"
+
+    // LibGDX
+    implementation "com.badlogicgames.gdx:gdx:$gdxVersion"
+    implementation "com.badlogicgames.gdx:gdx-backend-lwjgl3:$gdxVersion"
+    implementation "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop"
 
     // Local JARs
     implementation files('libs/TWL.jar')
@@ -70,6 +78,7 @@ dependencies {
     implementation 'net.java.jinput:jinput:2.0.9'
     implementation 'xpp3:xpp3:1.1.4c'
     implementation 'at.favre.lib:bcrypt:0.9.0'
+    implementation 'com.zaxxer:HikariCP:5.0.1'
 
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.9.1'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.9.1'
@@ -97,7 +106,7 @@ java {
 }
 
 application {
-    mainClass = 'com.bobsgame.ClientMain'
+    mainClass = 'com.bobsgame.client.DesktopLauncher'
 }
 
 tasks.withType(JavaCompile) {
