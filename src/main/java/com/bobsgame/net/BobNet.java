@@ -7,7 +7,35 @@ public class BobNet {
     public static String endline = "\n";
     public static boolean debugMode = false;
 
-    public static String toBase64GZippedGSON(Object o) { return ""; }
+    public static String toBase64GZippedGSON(Object o) {
+        try {
+            String json = gson.toJson(o);
+            java.io.ByteArrayOutputStream obj = new java.io.ByteArrayOutputStream();
+            java.util.zip.GZIPOutputStream gzip = new java.util.zip.GZIPOutputStream(obj);
+            gzip.write(json.getBytes("UTF-8"));
+            gzip.close();
+            return java.util.Base64.getEncoder().encodeToString(obj.toByteArray());
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "";
+        }
+    }
+
+    public static Object fromBase64GZippedGSON(String b64, Class<?> type) {
+        try {
+            byte[] bytes = java.util.Base64.getDecoder().decode(b64);
+            java.io.ByteArrayInputStream bais = new java.io.ByteArrayInputStream(bytes);
+            java.util.zip.GZIPInputStream gzip = new java.util.zip.GZIPInputStream(bais);
+            java.io.BufferedReader br = new java.io.BufferedReader(new java.io.InputStreamReader(gzip, "UTF-8"));
+            StringBuilder sb = new StringBuilder();
+            String line;
+            while ((line = br.readLine()) != null) sb.append(line);
+            return gson.fromJson(sb.toString(), type);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
 
     public static String debugServerAddress = "localhost";
     public static String releaseServerAddress = "server.bobsgame.com";

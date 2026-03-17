@@ -1,10 +1,15 @@
 package com.bobsgame.puzzle;
 
+import com.bobsgame.client.engine.entity.Sprite;
 import com.bobsgame.shared.BobColor;
 import com.bobsgame.client.GLUtils;
 import java.util.ArrayList;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class Block {
+    public static final Logger log = LoggerFactory.getLogger(Block.class);
+
     public GameLogic game = null;
     public Grid grid = null;
 
@@ -21,6 +26,7 @@ public class Block {
     public BlockType blockType = null;
 
     private BobColor color = null;
+    public BobColor overrideColor = null;
 
     public float effectAlphaFrom = 0.5f;
     public float effectAlphaTo = 0.8f;
@@ -106,35 +112,8 @@ public class Block {
         PRESSURE
     }
 
-    public AnimationState animationState = AnimationState.NORMAL;
-    public int animationFrame = 0;
-    public long animationFrameTicks = 0;
-    public int animationFrameSpeed = 100;
-
-    public int counterCount = -2;
-
-    public boolean didFlashingColoredDiamond = false;
-    public boolean ateBlocks = false;
-    public int direction = -1;
-    public long directionChangeTicksCounter = 0;
-
-    public static final int UP = 0;
-    public static final int LEFT = 1;
-    public static final int DOWN = 2;
-    public static final int RIGHT = 3;
-
-    public boolean connectedUp = false;
-    public boolean connectedDown = false;
-    public boolean connectedLeft = false;
-    public boolean connectedRight = false;
-
-    public boolean connectedUpRight = false;
-    public boolean connectedDownRight = false;
-    public boolean connectedUpLeft = false;
-    public boolean connectedDownLeft = false;
-
     public Block(GameLogic gameInstance, Grid grid, Piece piece, BlockType blockType) {
-        this.game = game;
+        this.game = gameInstance;
         this.grid = grid;
         this.piece = piece;
         this.blockType = blockType;
@@ -183,8 +162,8 @@ public class Block {
     }
 
     public void breakConnectionsInPiece() {
-        if(connectedBlocksByPiece != null) connectedBlocksByPiece.clear();
-        if(connectedBlocksByColor != null) connectedBlocksByColor.clear();
+        connectedBlocksByPiece.clear();
+        connectedBlocksByColor.clear();
     }
 
     public float getScreenX() {
@@ -198,16 +177,17 @@ public class Block {
     }
 
     public BobColor getColor() {
+        if (overrideColor != null) return overrideColor;
         return color;
+    }
+
+    public void setColor(BobColor color) {
+        this.color = color;
     }
 
     public BobColor specialColor() {
         if (blockType != null && blockType.isSpecialType()) return color;
         return null;
-    }
-
-    public void setColor(BobColor color) {
-        this.color = color;
     }
 
     public void setRandomBlockTypeColor() {
@@ -218,7 +198,7 @@ public class Block {
     }
 
     public void render(float screenX, float screenY, float a, float scale, boolean interpolate, boolean ghost) {
-        BobColor renderColor = color;
+        BobColor renderColor = getColor();
         if (renderColor == null) renderColor = BobColor.gray;
         if (overrideAnySpecialBehavior == false && blockType != null && blockType.specialColor != null) renderColor = blockType.specialColor;
 
@@ -234,12 +214,49 @@ public class Block {
             screenY += (interpolateSwappingWithY * grid.cellH() * ratio);
         }
 
-        if (flashingToBeRemoved) {
-            float flash = (float) Math.sin(System.currentTimeMillis() / 50.0) * 0.5f + 0.5f;
-            a *= flash;
+        BobColor textureColor = new BobColor(renderColor);
+        if (game.currentGameType.fadeBlocksDarkerWhenLocking && locking) {
+            for (int i = 0; i < lockingAnimationFrame; i++) textureColor.darker(0.1f);
+            if (lockingAnimationFrame > 5) textureColor = new BobColor(BobColor.white);
+        } else if (game.currentGameType.blockRule_drawBlocksDarkerWhenLocked && setInGrid && !flashingToBeRemoved) {
+            textureColor.darker(0.5f);
         }
 
-        GLUtils.drawFilledRectXYWH(screenX, screenY, w, h, renderColor.rf(), renderColor.gf(), renderColor.bf(), a);
+        if (flashingToBeRemoved) {
+            if (flashingToBeRemovedLightDarkToggle) textureColor.lighter(); else textureColor.darker();
+        }
+
+        if (slamming && ticksSinceSlam < 100) {
+            float xDiff = screenX - slamX;
+            float yDiff = screenY - slamY;
+            screenX = slamX; screenY = slamY;
+            w += xDiff; h += yDiff;
+        }
+
+        if (blockType != null && blockType.spriteName != null && !blockType.spriteName.isEmpty()) {
+            Sprite s = game.manager.getSpriteManager().getSpriteByNameOrRequestFromServerIfNotExist(blockType.spriteName);
+            if (s != null && s.texture != null) {
+                s.drawFrame(animationFrame, screenX, screenX + w, screenY, screenY + h, textureColor.rf(), textureColor.gf(), textureColor.bf(), a, GLUtils.FILTER_NEAREST);
+            } else {
+                GLUtils.drawFilledRectXYWH(screenX, screenY, w, h, textureColor.rf(), textureColor.gf(), textureColor.bf(), a);
+            }
+        } else {
+            GLUtils.drawFilledRectXYWH(screenX, screenY, w, h, textureColor.rf(), textureColor.gf(), textureColor.bf(), a);
+        }
+        
+        if (game.currentGameType.blockRule_drawDotToSquareOffBlockCorners) {
+            float s = w * 0.04f;
+            if (connectedDown && connectedRight && !connectedDownRight) GLUtils.drawFilledRectXYWH(screenX + w - s, screenY + h - s, s, s, textureColor.rf(), textureColor.gf(), textureColor.bf(), a);
+            if (connectedDown && connectedLeft && !connectedDownLeft) GLUtils.drawFilledRectXYWH(screenX, screenY + h - s, s, s, textureColor.rf(), textureColor.gf(), textureColor.bf(), a);
+            if (connectedUp && connectedLeft && !connectedUpLeft) GLUtils.drawFilledRectXYWH(screenX, screenY, s, s, textureColor.rf(), textureColor.gf(), textureColor.bf(), a);
+            if (connectedUp && connectedRight && !connectedUpRight) GLUtils.drawFilledRectXYWH(screenX + w - s, screenY, s, s, textureColor.rf(), textureColor.gf(), textureColor.bf(), a);
+        }
+
+        if (game.currentGameType.drawDotOnCenterOfRotation && xInPiece == 0 && yInPiece == 0) {
+            BobColor dotColor = new BobColor(renderColor); dotColor.lighter(); dotColor.lighter();
+            GLUtils.drawFilledRectXYWH(screenX + 3 * scale, screenY + 3 * scale, w - 6 * scale, h - 6 * scale, dotColor.rf(), dotColor.gf(), dotColor.bf(), a);
+        }
+
         GLUtils.drawBox(screenX, screenX + w, screenY, screenY + h, 0, 0, 0);
     }
 

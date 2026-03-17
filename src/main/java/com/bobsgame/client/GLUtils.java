@@ -139,23 +139,24 @@ public class GLUtils {
 
     public static void drawTexture(Texture texture, float tx0, float tx1, float ty0, float ty1, float x0, float x1, float y0, float y1, float r, float g, float b, float a, int filter) {
         if (texture == null) return;
+        if (shapeRenderer.isDrawing()) shapeRenderer.end();
+        if (!batch.isDrawing()) batch.begin();
         batch.setColor(r, g, b, a);
         batch.draw(texture, x0 * globalDrawScale, y0 * globalDrawScale, (x1 - x0) * globalDrawScale, (y1 - y0) * globalDrawScale, tx0, ty0, tx1, ty1);
     }
 
     public static void drawTexture(float tx0, float tx1, float ty0, float ty1, float x0, float x1, float y0, float y1, float alpha, int filter) {
-        drawTexture(blankTexture, tx0, tx1, ty0, ty1, x0, x1, y0, y1, alpha, filter);
+        drawTexture(blankTexture, tx0, tx1, ty0, ty1, x0, x1, y0, y1, 1, 1, 1, alpha, filter);
     }
 
     public static void drawFilledRectXYWH(float x, float y, float w, float h, float r, float g, float b, float a) {
-        boolean wasDrawing = batch.isDrawing();
-        if (wasDrawing) batch.end();
-        shapeRenderer.setProjectionMatrix(batch.getProjectionMatrix());
-        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+        if (batch.isDrawing()) batch.end();
+        if (!shapeRenderer.isDrawing()) {
+            shapeRenderer.setProjectionMatrix(batch.getProjectionMatrix());
+            shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+        }
         shapeRenderer.setColor(r, g, b, a);
         shapeRenderer.rect(x * globalDrawScale, y * globalDrawScale, w * globalDrawScale, h * globalDrawScale);
-        shapeRenderer.end();
-        if (wasDrawing) batch.begin();
     }
 
     public static void drawFilledRect(int ri, int gi, int bi, float x0, float x1, float y0, float y1, float alpha) {
@@ -163,25 +164,25 @@ public class GLUtils {
     }
 
     public static void drawBox(float x1, float x2, float y1, float y2, int r, int g, int b) {
-        boolean wasDrawing = batch.isDrawing();
-        if (wasDrawing) batch.end();
-        shapeRenderer.setProjectionMatrix(batch.getProjectionMatrix());
-        shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
+        if (batch.isDrawing()) batch.end();
+        if (!shapeRenderer.isDrawing() || shapeRenderer.getCurrentType() != ShapeRenderer.ShapeType.Line) {
+            if (shapeRenderer.isDrawing()) shapeRenderer.end();
+            shapeRenderer.setProjectionMatrix(batch.getProjectionMatrix());
+            shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
+        }
         shapeRenderer.setColor(r / 255f, g / 255f, b / 255f, 1f);
         shapeRenderer.rect(x1 * globalDrawScale, y1 * globalDrawScale, (x2 - x1) * globalDrawScale, (y2 - y1) * globalDrawScale);
-        shapeRenderer.end();
-        if (wasDrawing) batch.begin();
     }
 
     public static void drawLine(float x1, float y1, float x2, float y2, float r, float g, float b, float a) {
-        boolean wasDrawing = batch.isDrawing();
-        if (wasDrawing) batch.end();
-        shapeRenderer.setProjectionMatrix(batch.getProjectionMatrix());
-        shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
+        if (batch.isDrawing()) batch.end();
+        if (!shapeRenderer.isDrawing() || shapeRenderer.getCurrentType() != ShapeRenderer.ShapeType.Line) {
+            if (shapeRenderer.isDrawing()) shapeRenderer.end();
+            shapeRenderer.setProjectionMatrix(batch.getProjectionMatrix());
+            shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
+        }
         shapeRenderer.setColor(r, g, b, a);
         shapeRenderer.line(x1 * globalDrawScale, y1 * globalDrawScale, x2 * globalDrawScale, y2 * globalDrawScale);
-        shapeRenderer.end();
-        if (wasDrawing) batch.begin();
     }
 
     public static void drawLine(float x1, float y1, float x2, float y2, int r, int g, int b) {

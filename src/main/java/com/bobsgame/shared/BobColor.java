@@ -148,12 +148,34 @@ public class BobColor extends java.awt.Color {
     public static final BobColor DARKERPINK = darkerPink;
 
     public BobColor lighter() {
-        java.awt.Color c = super.brighter();
-        return new BobColor(c.getRed(), c.getGreen(), c.getBlue(), c.getAlpha());
+        float[] hsb = java.awt.Color.RGBtoHSB(ri(), gi(), bi(), null);
+        int rgb = java.awt.Color.HSBtoRGB(hsb[0], hsb[1], Math.min(1.0f, hsb[2] * 1.1f));
+        BobColor c = new BobColor(rgb);
+        return c;
     }
 
     public BobColor darker() {
-        java.awt.Color c = super.darker();
-        return new BobColor(c.getRed(), c.getGreen(), c.getBlue(), c.getAlpha());
+        float[] hsb = java.awt.Color.RGBtoHSB(ri(), gi(), bi(), null);
+        int rgb = java.awt.Color.HSBtoRGB(hsb[0], hsb[1], hsb[2] * 0.9f);
+        BobColor c = new BobColor(rgb);
+        return c;
+    }
+
+    public BobColor lighter(float ratio) {
+        float[] hsb = java.awt.Color.RGBtoHSB(ri(), gi(), bi(), null);
+        int rgb = java.awt.Color.HSBtoRGB(hsb[0], hsb[1], Math.min(1.0f, hsb[2] * (1.0f + ratio)));
+        BobColor c = new BobColor(rgb);
+        return c;
+    }
+
+    public BobColor darker(float ratio) {
+        float[] hsb = java.awt.Color.RGBtoHSB(ri(), gi(), bi(), null);
+        int rgb = java.awt.Color.HSBtoRGB(hsb[0], hsb[1], hsb[2] * (1.0f - ratio));
+        BobColor c = new BobColor(rgb);
+        return c;
+    }
+
+    public BobColor clone() {
+        return new BobColor(this);
     }
 }

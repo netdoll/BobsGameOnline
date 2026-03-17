@@ -11,8 +11,8 @@ repositories {
     maven { url "https://oss.sonatype.org/content/repositories/releases/" }
 }
 
-project.ext.lwjglVersion = "3.3.3"
-project.ext.gdxVersion = "1.12.1"
+project.ext.lwjglVersion = "3.4.1"
+project.ext.gdxVersion = "1.14.0"
 
 switch (OperatingSystem.current()) {
     case OperatingSystem.LINUX:
@@ -79,6 +79,9 @@ dependencies {
     implementation 'xpp3:xpp3:1.1.4c'
     implementation 'at.favre.lib:bcrypt:0.9.0'
     implementation 'com.zaxxer:HikariCP:5.0.1'
+    implementation ('io.socket:socket.io-client:2.1.0') {
+        exclude group: 'org.json', module: 'json'
+    }
 
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.9.1'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.9.1'

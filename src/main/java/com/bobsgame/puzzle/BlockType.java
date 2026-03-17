@@ -6,6 +6,11 @@ import java.util.ArrayList;
 import java.util.UUID;
 
 public class BlockType implements Serializable {
+    public static BlockType emptyBlockType = new BlockType();
+    static { emptyBlockType.name = "empty"; }
+    public static BlockType squareBlockType = new BlockType("square", "Square", "", null, BobColor.gray, 0, 0);
+    public static BlockType shotPieceBlockType = new BlockType("shotPiece", "Square", "", null, BobColor.gray, 0, 0);
+
     public String name = "";
     public String uuid = "";
     public String description = "";
@@ -48,6 +53,15 @@ public class BlockType implements Serializable {
     public boolean addToChainIfConnectedUpDownLeftRightToExplodingChainBlocks = false;
     public boolean matchAnyColor = false;
 
+    // Legacy/compatibility fields
+    public boolean isGarbageBlockType = false;
+    public boolean isBomb = false;
+    public boolean isWeight = false;
+    public boolean isSubtractor = false;
+    public boolean isShooter = false;
+    public boolean isBreaker = false;
+    public boolean chainMustContainAtLeastOneOfTheseBlockTypesToStartExploding = true;
+
     public static class TurnFromBlockTypeToType implements Serializable {
         public String fromType_UUID = "";
         public String toType_UUID = "";
@@ -57,6 +71,17 @@ public class BlockType implements Serializable {
 
     public BlockType() {
         this.uuid = UUID.randomUUID().toString();
+    }
+
+    public BlockType(String name, String spriteName, String description, ArrayList<BobColor> colors, BobColor specialColor, int randomSpecialBlockChanceOneOutOf, int frequencySpecialBlockTypeOnceEveryNPieces) {
+        this.uuid = UUID.randomUUID().toString();
+        this.name = name;
+        this.spriteName = spriteName;
+        this.description = description;
+        this.colors = colors != null ? colors : new ArrayList<>();
+        this.specialColor = specialColor;
+        this.randomSpecialBlockChanceOneOutOf = randomSpecialBlockChanceOneOutOf;
+        this.frequencySpecialBlockTypeOnceEveryNPieces = frequencySpecialBlockTypeOnceEveryNPieces;
     }
 
     public boolean isNormalType() {

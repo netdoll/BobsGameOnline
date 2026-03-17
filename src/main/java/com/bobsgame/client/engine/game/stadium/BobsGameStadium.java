@@ -17,15 +17,37 @@ import com.bobsgame.client.GLUtils;
 import com.bobsgame.client.LWJGLUtils;
 import com.bobsgame.client.engine.game.nd.ND;
 import com.bobsgame.client.BobsGame;
+import com.bobsgame.client.engine.entity.SpriteManager;
 import com.bobsgame.puzzle.GameLogic;
+import com.bobsgame.puzzle.GameManager;
 import com.bobsgame.puzzle.GameType;
+import com.bobsgame.puzzle.Room;
 import com.bobsgame.client.engine.map.Area;
 import com.bobsgame.net.BobNet;
-
+import java.util.ArrayList;
 
 //=========================================================================================================================
-public class BobsGameStadium extends StadiumGameEngine
+public class BobsGameStadium extends StadiumGameEngine implements GameManager
 {//=========================================================================================================================
+    public SpriteManager spriteManager = new SpriteManager(this);
+
+    @Override
+    public Room getCurrentRoom() {
+        return new Room(); // TODO: implement properly
+    }
+
+    @Override
+    public ArrayList<GameLogic> getGames() {
+        ArrayList<GameLogic> list = new ArrayList<>();
+        if (ME != null) list.add(ME);
+        return list;
+    }
+
+    @Override
+    public SpriteManager getSpriteManager() {
+        return spriteManager;
+    }
+
 
 
 	public static Logger log = (Logger) LoggerFactory.getLogger(BobsGameStadium.class);
@@ -121,7 +143,7 @@ public class BobsGameStadium extends StadiumGameEngine
 
 			randomSeed = ME.randomSeed;
 
-			originalSettings = ME.GameType();
+			originalSettings = ME.currentGameType;
 		}
 
 	}
@@ -202,7 +224,7 @@ public class BobsGameStadium extends StadiumGameEngine
 
 		super.update();
 
-		if(BobsGame.doneInitializingSprites==false)BobsGame.initSprites(SpriteManager());
+		if(BobsGame.doneInitializingSprites==false)BobsGame.initSprites(spriteManager);
 
 
 		if(updateLoadScreens()==true)return;
@@ -405,7 +427,7 @@ public class BobsGameStadium extends StadiumGameEngine
 
 
 
-			int blurPasses = ME.GameType().bloomTimes;
+			int blurPasses = ME.currentGameType.bloomTimes;
 
 			for (int i = 0; i < blurPasses; i++)
 			{
@@ -472,7 +494,7 @@ public class BobsGameStadium extends StadiumGameEngine
 			LWJGLUtils.useShader(LWJGLUtils.bloomShader);
 			{
 				LWJGLUtils.setShaderVar1f(LWJGLUtils.bloomShader, "OriginalIntensity", 0.8f);
-				LWJGLUtils.setShaderVar1f(LWJGLUtils.bloomShader, "BloomIntensity", ME.GameType().bloomIntensity);
+				LWJGLUtils.setShaderVar1f(LWJGLUtils.bloomShader, "BloomIntensity", ME.currentGameType.bloomIntensity);
 				LWJGLUtils.setShaderVar1i(LWJGLUtils.bloomShader, "u_texture0", 0);
 				LWJGLUtils.setShaderVar1i(LWJGLUtils.bloomShader, "u_texture1", 1);
 				GLUtils.drawTexture(LWJGLUtils.nDFBO_MaskTexture, 0.0f, 1.0f, 1.0f, 0.0f, 0, getWidth(), 0, getHeight(), 1.0f, GLUtils.FILTER_FBO_LINEAR_NO_MIPMAPPING);
