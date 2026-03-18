@@ -79,8 +79,8 @@ public class StuffButton extends StatusBarButton
 
 		StuffMenu().toggleActivated();
 
-		StuffMenu().stuffMenuTabs[0].getModel().setSelected(true);
-		StuffMenu().stuffMenuTabs[0].getModel().fireActionCallback();
+		StuffMenu().stuffMenuTabs[0].setChecked(true);
+		//StuffMenu().stuffMenuTabs[0].getModel().fireActionCallback();
 	}
 	//=========================================================================================================================
 	public boolean isAssociatedMenuActive()

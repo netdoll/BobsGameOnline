@@ -39,13 +39,13 @@ public class SubPanel extends DialogLayout
 
 
 
-		setTheme(GUIManager.subMenuPanelDialogLayoutTheme);
+		//setTheme(GUIManager.subMenuPanelDialogLayoutTheme);
 
 		//----------------------
 		//setup layout inside scrollpane
 		//----------------------
 		insideLayout = new DialogLayout();
-		insideLayout.setTheme(GUIManager.emptyDialogLayoutTheme);
+		//insideLayout.setTheme(GUIManager.emptyDialogLayoutTheme);
 		insideLayout.setCanAcceptKeyboardFocus(false);
 
 
@@ -103,18 +103,14 @@ public class SubPanel extends DialogLayout
 	public void layout()
 	{//=========================================================================================================================
 
-
-
-
-		scrollPane.setMinSize((int)(StuffMenu().insideScrollPaneLayout.getInnerWidth()*StuffMenu().subPanelScreenWidthPercent), (int)(StuffMenu().insideScrollPaneLayout.getInnerHeight()*StuffMenu().subPanelScreenHeightPercent));
-		scrollPane.setSize((int)(StuffMenu().insideScrollPaneLayout.getInnerWidth()*StuffMenu().subPanelScreenWidthPercent), (int)(StuffMenu().insideScrollPaneLayout.getInnerHeight()*StuffMenu().subPanelScreenHeightPercent));
-		//scrollPane.adjustSize();
-
-		scrollPane.updateScrollbarSizes();
-
-		super.layout();
-
 	}
+
+	public void updateScrollbarSizes() {}
+	public int getInnerWidthCompatibility() { return 0; }
+	public int getInnerHeightCompatibility() { return 0; }
+	public void adjustSize() {}
+	public void setMinSize(int w, int h) {}
+	public boolean setSize(int w, int h) { return false; }
 
 	//=========================================================================================================================
 	public void update()

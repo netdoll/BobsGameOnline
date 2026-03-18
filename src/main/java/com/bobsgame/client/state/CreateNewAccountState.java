@@ -1,63 +1,26 @@
 package com.bobsgame.client.state;
 
+import com.bobsgame.client.engine.Engine;
 
-
-import com.bobsgame.client.LWJGLUtils;
-
-import de.matthiasmann.twl.GUI;
-
-
-//=========================================================================================================================
-public class CreateNewAccountState extends State
-{//=========================================================================================================================
-
-
+public class CreateNewAccountState extends State {
 	public CreateNewAccount createNewAccount = null;
-	public GUI createNewAccountGUI = null;
 
-	//=========================================================================================================================
-	public CreateNewAccountState()
-	{//=========================================================================================================================
-
-
-		createNewAccount = new CreateNewAccount();
-
-		createNewAccountGUI = new GUI(createNewAccount, LWJGLUtils.TWLrenderer);
-		createNewAccountGUI.applyTheme(LWJGLUtils.TWLthemeManager);
-
+	public CreateNewAccountState(Engine engine) {
+		createNewAccount = new CreateNewAccount(engine);
 	}
 
-
-	//=========================================================================================================================
-	public void update()
-	{//=========================================================================================================================
-
-		createNewAccount.update();
-
+	public void update() {
+		createNewAccount.update(engineTicksPassed());
 	}
 
-
-	//=========================================================================================================================
-	public void render()
-	{//=========================================================================================================================
-		//SlickCallable.leaveSafeBlock();//weird slick texture errors if i dont do this
-		{
-			createNewAccount.renderBefore();
-			createNewAccountGUI.update();
-			createNewAccount.render();
-		}
-		//SlickCallable.enterSafeBlock();
-
+	public void render() {
+		//createNewAccount.renderBefore();
+		//createNewAccount.render();
 	}
 
-
-	//=========================================================================================================================
-	public void cleanup()
-	{//=========================================================================================================================
-		createNewAccountGUI.destroy();
-
+	public void cleanup() {
 	}
 
-
-
+	public boolean isActivated() { return createNewAccount.isActivated(); }
+	public void setActivated(boolean b) { createNewAccount.setActivated(b); }
 }

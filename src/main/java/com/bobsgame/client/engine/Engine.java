@@ -3,6 +3,9 @@ package com.bobsgame.client.engine;
 
 import java.util.ArrayDeque;
 
+import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.bobsgame.client.LWJGLUtils;
 import org.slf4j.LoggerFactory;
 
@@ -81,6 +84,9 @@ public class Engine extends State
 
 
 	public ArrayDeque<Cameraman> cameramanStack = new ArrayDeque<Cameraman>();
+
+	public Stage uiStage;
+	public Skin uiSkin;
 
 
 
@@ -196,7 +202,9 @@ public class Engine extends State
 
 		eventManager.init();
 
-
+		uiStage = new Stage(new ScreenViewport(), GLUtils.batch);
+		uiSkin = new Skin();
+		GLUtils.initSkin(uiSkin);
 	}
 
 
@@ -244,6 +252,7 @@ public class Engine extends State
 		eventManager.update();
 		cinematicsManager.update();
 
+		if (uiStage != null) uiStage.act(engineTicksPassed() / 1000.0f);
 
 		updateDebugText();
 
@@ -294,6 +303,7 @@ public class Engine extends State
 
 		CaptionManager().render(RenderOrder.OVER_GUI);
 
+		if (uiStage != null) uiStage.draw();
 	}
 
 

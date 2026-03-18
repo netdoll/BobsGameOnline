@@ -1,43 +1,10 @@
 package com.bobsgame.client.engine.game.gui.stuffMenu.subMenus;
 
-import com.bobsgame.client.engine.game.gui.stuffMenu.SubPanel;
+import com.bobsgame.client.engine.Engine;
+import com.bobsgame.client.engine.game.gui.stuffMenu.Scene2DSubPanel;
 
-import de.matthiasmann.twl.Label;
-
-//=========================================================================================================================
-public class FriendsPanel extends SubPanel
-{//=========================================================================================================================
-
-
-
-
-	//=========================================================================================================================
-	public FriendsPanel()
-	{//=========================================================================================================================
-
-
-		super();
-
-
-
-		Label label = new Label("Friends");
-		label.setCanAcceptKeyboardFocus(false);
-
-		insideLayout.setHorizontalGroup
-		(
-				insideLayout.createParallelGroup(label)
-		);
-
-		insideLayout.setVerticalGroup
-		(
-				insideLayout.createSequentialGroup(label)
-		);
-
-
-	}
-
-
-
-
-
+public class FriendsPanel extends Scene2DSubPanel {
+    public FriendsPanel(Engine engine) {
+        super(engine);
+    }
 }

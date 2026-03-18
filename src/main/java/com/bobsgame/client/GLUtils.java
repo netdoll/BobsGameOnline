@@ -8,6 +8,12 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+import com.badlogic.gdx.scenes.scene2d.ui.Label.LabelStyle;
+import com.badlogic.gdx.scenes.scene2d.ui.TextButton.TextButtonStyle;
+import com.badlogic.gdx.scenes.scene2d.ui.TextField.TextFieldStyle;
+import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.bobsgame.shared.BobColor;
 import java.util.HashMap;
 import java.nio.ByteBuffer;
@@ -56,6 +62,45 @@ public class GLUtils {
         } catch (Exception e) {
             log.error("Error initializing GLUtils", e);
         }
+    }
+
+    public static void initSkin(Skin skin) {
+        if (font == null) init();
+        skin.add("default", font);
+
+        TextureRegionDrawable white = new TextureRegionDrawable(new TextureRegion(blankTexture));
+        skin.add("white", white);
+
+        LabelStyle labelStyle = new LabelStyle();
+        labelStyle.font = font;
+        skin.add("default", labelStyle);
+
+        LabelStyle bigLabelStyle = new LabelStyle();
+        bigLabelStyle.font = font;
+        bigLabelStyle.fontColor = Color.YELLOW;
+        skin.add("bigLabel", bigLabelStyle);
+
+        LabelStyle errorLabelStyle = new LabelStyle();
+        errorLabelStyle.font = font;
+        errorLabelStyle.fontColor = Color.RED;
+        skin.add("errorLabel", errorLabelStyle);
+
+        TextButtonStyle textButtonStyle = new TextButtonStyle();
+        textButtonStyle.font = font;
+        textButtonStyle.up = white;
+        textButtonStyle.down = white;
+        textButtonStyle.over = white;
+        textButtonStyle.fontColor = Color.BLACK;
+        textButtonStyle.overFontColor = Color.BLUE;
+        skin.add("default", textButtonStyle);
+
+        TextFieldStyle textFieldStyle = new TextFieldStyle();
+        textFieldStyle.font = font;
+        textFieldStyle.fontColor = Color.WHITE;
+        textFieldStyle.background = white;
+        textFieldStyle.cursor = white;
+        textFieldStyle.selection = white;
+        skin.add("default", textFieldStyle);
     }
 
     public static Texture loadTexture(String path) {

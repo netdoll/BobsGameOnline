@@ -345,24 +345,24 @@ public class ClientMain {
 		if (new File(Cache.cacheDir + "session").exists() == false) {
 			//if(BobNet.debugMode==false)
 			{
-				KeyboardScreen keyboardScreen = new KeyboardScreen();
-				GUI keyboardScreenGUI = new GUI(keyboardScreen, LWJGLUtils.TWLrenderer);
-				keyboardScreenGUI.applyTheme(LWJGLUtils.TWLthemeManager);
+				KeyboardScreen keyboardScreen = new KeyboardScreen(clientGameEngine);
+				//GUI keyboardScreenGUI = new GUI(keyboardScreen, LWJGLUtils.TWLrenderer);
+				//keyboardScreenGUI.applyTheme(LWJGLUtils.TWLthemeManager);
 
-				keyboardScreen.okButton.setVisible(true);
+				//keyboardScreen.okButton.setVisible(true);
 				keyboardScreen.setActivated(true);
 
-				while (keyboardScreen.clickedOK_S() == false) {
+				while (keyboardScreen.isActivated()) {
 					glClear(GL_COLOR_BUFFER_BIT);
 
-					keyboardScreen.update();
-					keyboardScreenGUI.update();
+					keyboardScreen.update(16);
+					//keyboardScreenGUI.update();
 
 					//Display.sync(60);
 					//Display.update();
                     LWJGLUtils.updateDisplay();
 				}
-				keyboardScreen.destroy();
+				//keyboardScreen.destroy();
 				glClear(GL_COLOR_BUFFER_BIT);
 			}
 		}
@@ -535,7 +535,7 @@ public class ClientMain {
 		utils = new Utils();
 
 		LWJGLUtils.initGL("Project 2");
-		LWJGLUtils.initTWL();
+		//LWJGLUtils.initTWL();
 		LWJGLUtils.initControllers();
 
 		audioUtils = new AudioUtils();
@@ -562,10 +562,10 @@ public class ClientMain {
 			glowTileBackground = new GlowTileBackground();
 		}
 
-		loginState = new LoginState();
+		loginState = new LoginState(clientGameEngine);
 		loggedOutState = new LoggedOutState();
 		serversHaveShutDownState = new ServersHaveShutDownState();
-		createNewAccountState = new CreateNewAccountState();
+		createNewAccountState = new CreateNewAccountState(clientGameEngine);
 		titleScreenState = new TitleScreenState();
 		youWillBeNotifiedState = new YouWillBeNotifiedState();
 

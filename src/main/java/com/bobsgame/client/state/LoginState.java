@@ -1,35 +1,23 @@
 package com.bobsgame.client.state;
 
-import com.bobsgame.client.LWJGLUtils;
-
-import de.matthiasmann.twl.GUI;
+import com.bobsgame.client.engine.Engine;
 
 public class LoginState extends State {
-	public GUI loginScreenGUI = null;
 	public LoginScreen loginScreen = null;
 
-	public LoginState() {
-		loginScreen = new LoginScreen();
-
-		loginScreenGUI = new GUI(loginScreen, LWJGLUtils.TWLrenderer);
-		loginScreenGUI.applyTheme(LWJGLUtils.TWLthemeManager);
+	public LoginState(Engine engine) {
+		loginScreen = new LoginScreen(engine);
 	}
 
 	public void update() {
-		loginScreen.update();
+		loginScreen.update(engineTicksPassed());
 	}
 
 	public void render() {
-		//SlickCallable.leaveSafeBlock();//weird slick texture errors if i dont do this
-		{
-			loginScreen.renderBefore();
-			loginScreenGUI.update();
-			loginScreen.render();
-		}
-		//SlickCallable.enterSafeBlock();
+		//loginScreen.renderBefore();
+		//loginScreen.render();
 	}
 
 	public void cleanup() {
-		loginScreenGUI.destroy();
 	}
 }

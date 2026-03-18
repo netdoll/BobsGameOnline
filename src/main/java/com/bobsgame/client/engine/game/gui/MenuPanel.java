@@ -82,7 +82,7 @@ public class MenuPanel extends Widget
 		//----------------------
 
 		insideScrollPaneLayout = new DialogLayout();
-		insideScrollPaneLayout.setTheme(GUIManager.emptyDialogLayoutTheme);
+		//insideScrollPaneLayout.setTheme(GUIManager.emptyDialogLayoutTheme);
 		insideScrollPaneLayout.setCanAcceptKeyboardFocus(false);
 
 
