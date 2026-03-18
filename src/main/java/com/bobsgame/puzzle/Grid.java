@@ -472,4 +472,39 @@ public class Grid {
     public int cellH() { return game.blockHeight + game.currentGameType.gridPixelsBetweenRows; }
     public float getXInFBO() { return screenX; }
     public float getYInFBO() { return screenY; }
+
+    public Integer[][] getState() {
+        int h = getHeight();
+        int w = getWidth();
+        Integer[][] state = new Integer[h][w];
+        for (int y = 0; y < h; y++) {
+            for (int x = 0; x < w; x++) {
+                Block b = get(x, y);
+                if (b != null) {
+                    state[y][x] = b.getColor().toInt();
+                } else {
+                    state[y][x] = null;
+                }
+            }
+        }
+        return state;
+    }
+
+    public void applyState(Integer[][] state) {
+        if (state == null || state.length == 0) return;
+        int h = state.length;
+        int w = state[0].length;
+        reformat(w, h);
+        BlockType bt = game.currentGameType.getNormalBlockTypes(game.getCurrentDifficulty()).get(0);
+        for (int y = 0; y < h; y++) {
+            for (int x = 0; x < w; x++) {
+                Integer colorInt = state[y][x];
+                if (colorInt != null) {
+                    Block b = new Block(game, this, null, bt);
+                    b.getColor().copyFrom(com.bobsgame.shared.BobColor.fromInt(colorInt));
+                    set(x, y, b);
+                }
+            }
+        }
+    }
 }

@@ -50,6 +50,14 @@ public class BobColor extends java.awt.Color {
         this((argb >> 16) & 0xFF, (argb >> 8) & 0xFF, argb & 0xFF, hasAlpha ? (argb >> 24) & 0xFF : 255);
     }
 
+    public static BobColor fromInt(int rgb) {
+        return new BobColor((rgb >> 16) & 0xFF, (rgb >> 8) & 0xFF, rgb & 0xFF, (rgb >> 24) & 0xFF);
+    }
+
+    public int toInt() {
+        return (ai() << 24) | (ri() << 16) | (gi() << 8) | bi();
+    }
+
     public float rf() { return getRed() / 255.0f; }
     public float gf() { return getGreen() / 255.0f; }
     public float bf() { return getBlue() / 255.0f; }
@@ -177,5 +185,13 @@ public class BobColor extends java.awt.Color {
 
     public BobColor clone() {
         return new BobColor(this);
+    }
+
+    public void copyFrom(BobColor other) {
+        this.r = other.r;
+        this.g = other.g;
+        this.b = other.b;
+        this.a = other.a;
+        this.name = other.name;
     }
 }

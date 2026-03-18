@@ -115,6 +115,7 @@ public class GameLogic {
 
     private ArrayList<GameLogicListener> listeners = new ArrayList<>();
     public void addListener(GameLogicListener l) { listeners.add(l); }
+    public void removeListener(GameLogicListener l) { listeners.remove(l); }
 
     public GameLogic(GameManager manager, long seed) {
         this.uuid = UUID.randomUUID().toString();
@@ -720,6 +721,68 @@ public class GameLogic {
     private void updateSpecialPiecesAndBlocks() { if (currentPiece != null) currentPiece.update(); if (holdPiece != null) holdPiece.update(); }
     private void resetNextPieces() { currentPiece = null; holdPiece = null; nextPieces.clear(); }
     private void checkForFastMusic() { playingFastMusic = grid.isAnythingAboveThreeQuarters(); }
+
+    public static class CurrentPieceState {
+        public String type;
+        public int x;
+        public int y;
+        public int rot;
+    }
+
+    public static class GameStateData {
+        public Integer[][] grid;
+        public CurrentPieceState currentPiece;
+        public long score;
+        public int level;
+        public int lines;
+        public GameState state;
+    }
+
+    public GameStateData getState() {
+        GameStateData d = new GameStateData();
+        d.grid = grid.getState();
+        if (currentPiece != null && currentPiece.pieceType != null) {
+            d.currentPiece = new CurrentPieceState();
+            d.currentPiece.type = currentPiece.pieceType.name;
+            d.currentPiece.x = currentPiece.xGrid;
+            d.currentPiece.y = currentPiece.yGrid;
+            d.currentPiece.rot = currentPiece.currentRotation;
+        }
+        d.score = score;
+        d.level = currentLevel;
+        d.lines = linesClearedTotal;
+        d.state = state;
+        return d;
+    }
+
+    public void applyState(GameStateData d) {
+        if (d == null) return;
+        grid.applyState(d.grid);
+        score = d.score;
+        currentLevel = d.level;
+        linesClearedTotal = d.lines;
+        state = d.state;
+
+        if (d.currentPiece != null) {
+            PieceType pt = null;
+            for (PieceType p : currentGameType.getNormalPieceTypes(getCurrentDifficulty())) {
+                if (p.name.equals(d.currentPiece.type)) {
+                    pt = p;
+                    break;
+                }
+            }
+            if (pt != null) {
+                ArrayList<BlockType> bt = currentGameType.getNormalBlockTypes(getCurrentDifficulty());
+                currentPiece = new Piece(this, grid, pt, bt);
+                currentPiece.init();
+                currentPiece.xGrid = d.currentPiece.x;
+                currentPiece.yGrid = d.currentPiece.y;
+                currentPiece.currentRotation = d.currentPiece.rot;
+            }
+        } else {
+            currentPiece = null;
+        }
+    }
 
     public void render() {
         // Render logic handled by BobsGame in Java/libGDX
