@@ -134,9 +134,21 @@ public class NetworkManager implements GameLogicListener {
         }
     }
 
+    public void createRoom(CreateRoomOptions options) {
+        if (socket != null) {
+            socket.emit("createRoom", gson.toJson(options));
+        }
+    }
+
     public void joinRoom(String id) {
         if (socket != null) {
             socket.emit("joinRoom", id);
+        }
+    }
+
+    public void joinRoom(JoinRoomOptions options) {
+        if (socket != null) {
+            socket.emit("joinRoom", gson.toJson(options));
         }
     }
 

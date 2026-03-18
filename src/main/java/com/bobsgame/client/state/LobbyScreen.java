@@ -2,9 +2,11 @@ package com.bobsgame.client.state;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.ui.CheckBox;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.badlogic.gdx.scenes.scene2d.ui.TextField;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.bobsgame.ClientMain;
 import com.bobsgame.client.BobsGame;
@@ -21,6 +23,10 @@ import java.util.List;
 public class LobbyScreen extends Scene2DPanel {
     private Table roomListTable;
     private Label statusLabel;
+    private TextField roomNameField;
+    private TextField roomPasswordField;
+    private CheckBox privateCheckbox;
+    private TextField joinPasswordField;
     private Gson gson = new Gson();
     private float refreshTimer = 0;
 
@@ -38,11 +44,23 @@ public class LobbyScreen extends Scene2DPanel {
         Label titleLabel = new Label("Multiplayer Lobby", engine.uiSkin, "bigLabel");
         statusLabel = new Label("Connecting...", engine.uiSkin);
 
+        roomNameField = new TextField("Java Room", engine.uiSkin);
+        roomPasswordField = new TextField("", engine.uiSkin);
+        roomPasswordField.setMessageText("Password (Optional)");
+        privateCheckbox = new CheckBox(" Private", engine.uiSkin);
+        joinPasswordField = new TextField("", engine.uiSkin);
+        joinPasswordField.setMessageText("Join Password");
+
         TextButton createRoomBtn = new TextButton("Create Room", engine.uiSkin);
         createRoomBtn.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                ClientMain.clientMain.networkManager.createRoom("Java Room");
+                NetworkManager.CreateRoomOptions opts = new NetworkManager.CreateRoomOptions(
+                    roomNameField.getText(), 
+                    privateCheckbox.isChecked(), 
+                    roomPasswordField.getText()
+                );
+                ClientMain.clientMain.networkManager.createRoom(opts);
             }
         });
 
@@ -56,14 +74,23 @@ public class LobbyScreen extends Scene2DPanel {
 
         roomListTable = new Table(engine.uiSkin);
 
-        mainTable.add(titleLabel).pad(20).row();
-        mainTable.add(statusLabel).pad(10).row();
-        mainTable.add(createRoomBtn).pad(10).row();
-        mainTable.add(roomListTable).expand().fill().pad(20).row();
-        mainTable.add(backBtn).pad(20).row();
+        mainTable.add(titleLabel).colspan(2).pad(20).row();
+        mainTable.add(statusLabel).colspan(2).pad(10).row();
+        
+        mainTable.add(roomNameField).pad(5);
+        mainTable.add(roomPasswordField).pad(5).row();
+        mainTable.add(privateCheckbox).colspan(2).pad(5).row();
+        mainTable.add(createRoomBtn).colspan(2).pad(10).row();
+        
+        mainTable.add(new Label("Join Password:", engine.uiSkin)).right();
+        mainTable.add(joinPasswordField).pad(5).left().row();
+
+        mainTable.add(roomListTable).colspan(2).expand().fill().pad(20).row();
+        mainTable.add(backBtn).colspan(2).pad(20).row();
 
         add(mainTable);
     }
+
 
     private void setupNetwork() {
         NetworkManager nm = ClientMain.clientMain.networkManager;
@@ -99,14 +126,19 @@ public class LobbyScreen extends Scene2DPanel {
     private void updateRoomList(List<NetworkManager.LobbyRoom> rooms) {
         roomListTable.clear();
         for (NetworkManager.LobbyRoom room : rooms) {
-            Label nameLabel = new Label(room.name, engine.uiSkin);
+            String lockStr = room.hasPassword ? " 🔒" : "";
+            Label nameLabel = new Label(room.name + lockStr, engine.uiSkin);
             Label playersLabel = new Label(room.players + "/" + room.maxPlayers, engine.uiSkin);
             TextButton joinBtn = new TextButton("Join", engine.uiSkin);
             
             joinBtn.addListener(new ClickListener() {
                 @Override
                 public void clicked(InputEvent event, float x, float y) {
-                    ClientMain.clientMain.networkManager.joinRoom(room.id);
+                    NetworkManager.JoinRoomOptions opts = new NetworkManager.JoinRoomOptions(
+                        room.id,
+                        joinPasswordField.getText()
+                    );
+                    ClientMain.clientMain.networkManager.joinRoom(opts);
                 }
             });
 
