@@ -14,6 +14,7 @@ import java.util.Map;
 public class NetworkManager implements GameLogicListener {
     private Socket socket;
     private GameLogic game;
+    private GameLogic opponentGame;
     private Map<String, Emitter.Listener> listeners = new HashMap<>();
     private Gson gson = new Gson();
 
@@ -33,6 +34,10 @@ public class NetworkManager implements GameLogicListener {
         if (this.game != null) {
             this.game.addListener(this);
         }
+    }
+
+    public void setOpponentGame(GameLogic opponentGame) {
+        this.opponentGame = opponentGame;
     }
 
     public void connect(String url) {
@@ -75,11 +80,11 @@ public class NetworkManager implements GameLogicListener {
         });
 
         socket.on("opponentFrame", args -> {
-            if (args.length > 0 && game != null) {
+            if (args.length > 0 && opponentGame != null) {
                 try {
                     String json = args[0].toString();
                     GameLogic.GameStateData state = gson.fromJson(json, GameLogic.GameStateData.class);
-                    // Emit event internally or handle it? We can let external listeners handle it if they subscribed to opponentFrame
+                    opponentGame.applyState(state);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }

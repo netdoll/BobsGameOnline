@@ -70,13 +70,17 @@ public class NDButton extends StatusBarButton
 
 		if(PlayerEditMenu().isActivated()==true) return;
 
-		ND().toggleActivated();
+		if (ND().isActivated()) {
+			ND().toggleActivated();
+		} else {
+			GUIManager().openGameSelector();
+		}
 	}
 	//=========================================================================================================================
 	public boolean isAssociatedMenuActive()
 	{//=========================================================================================================================
 
-		return ND().isActivated();
+		return ND().isActivated() || GUIManager().gameSelector.isActivated();
 	}
 
 

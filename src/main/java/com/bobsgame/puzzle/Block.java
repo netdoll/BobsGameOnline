@@ -117,6 +117,7 @@ public class Block {
         this.grid = grid;
         this.piece = piece;
         this.blockType = blockType;
+        this.color = new BobColor();
     }
 
     public void update() {

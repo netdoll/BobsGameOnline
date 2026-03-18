@@ -10,6 +10,10 @@ public class BobColor extends java.awt.Color {
     public String name = "";
     public int r, g, b, a;
 
+    public BobColor() {
+        this(255, 255, 255, 255);
+    }
+
     public BobColor(int r, int g, int b, int a) {
         super(r, g, b, a);
         this.r = r;
