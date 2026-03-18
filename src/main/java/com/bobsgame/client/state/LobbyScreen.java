@@ -31,6 +31,9 @@ public class LobbyScreen extends Scene2DPanel {
     private TextField startLevelField;
     private CheckBox privateCheckbox;
     private TextField joinPasswordField;
+    private Table chatLogTable;
+    private TextField chatInputField;
+    private Table listsTable;
     private Gson gson = new Gson();
     private float refreshTimer = 0;
 
@@ -149,7 +152,22 @@ public class LobbyScreen extends Scene2DPanel {
         });
 
         nm.on("joinedRoom", args -> {
-            Gdx.app.postRunnable(() -> statusLabel.setText("Joined room. Waiting for players..."));
+            Gdx.app.postRunnable(() -> {
+                statusLabel.setText("Joined room. Waiting for players...");
+                showChatUI();
+            });
+        });
+
+        nm.on("chatMessage", args -> {
+            if (args.length > 0) {
+                try {
+                    String json = args[0].toString();
+                    NetworkManager.ChatMessage msg = gson.fromJson(json, NetworkManager.ChatMessage.class);
+                    Gdx.app.postRunnable(() -> addChatMessage(msg));
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
         });
 
         nm.on("gameStart", args -> {
@@ -240,10 +258,65 @@ public class LobbyScreen extends Scene2DPanel {
     public void update(long deltaTicks) {
         super.update(deltaTicks);
         refreshTimer += deltaTicks / 1000.0f;
-        if (refreshTimer > 5.0f) {
+        if (refreshTimer > 5.0f && chatLogTable == null) {
             refreshTimer = 0;
             ClientMain.clientMain.networkManager.listRooms();
             ClientMain.clientMain.networkManager.getLeaderboard("marathon");
+        }
+    }
+
+    private void showChatUI() {
+        listsTable.clear();
+        
+        chatLogTable = new Table(engine.uiSkin);
+        chatLogTable.top().left();
+        
+        com.badlogic.gdx.scenes.scene2d.ui.ScrollPane scrollPane = new com.badlogic.gdx.scenes.scene2d.ui.ScrollPane(chatLogTable, engine.uiSkin);
+        scrollPane.setFadeScrollBars(false);
+        
+        chatInputField = new TextField("", engine.uiSkin);
+        chatInputField.setMessageText("Press Enter to send...");
+        
+        TextButton sendBtn = new TextButton("Send", engine.uiSkin);
+        sendBtn.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                sendChat();
+            }
+        });
+
+        chatInputField.setTextFieldListener((textField, c) -> {
+            if (c == '\n' || c == '\r') {
+                sendChat();
+            }
+        });
+
+        Table chatContainer = new Table(engine.uiSkin);
+        chatContainer.add(scrollPane).expand().fill().colspan(2).row();
+        chatContainer.add(chatInputField).expandX().fillX();
+        chatContainer.add(sendBtn).padLeft(5);
+        
+        listsTable.add(chatContainer).expand().fill();
+    }
+
+    private void addChatMessage(NetworkManager.ChatMessage msg) {
+        if (chatLogTable == null) return;
+        
+        Label chatLabel = new Label(msg.name + ": " + msg.message, engine.uiSkin);
+        chatLabel.setWrap(true);
+        chatLogTable.add(chatLabel).expandX().fillX().left().pad(2).row();
+        
+        // Auto-scroll
+        if (chatLogTable.getParent() instanceof com.badlogic.gdx.scenes.scene2d.ui.ScrollPane) {
+            ((com.badlogic.gdx.scenes.scene2d.ui.ScrollPane)chatLogTable.getParent()).setScrollPercentY(100);
+        }
+    }
+
+    private void sendChat() {
+        String text = chatInputField.getText().trim();
+        if (!text.isEmpty()) {
+            ClientMain.clientMain.networkManager.sendChat(text, "JavaPlayer");
+            chatInputField.setText("");
         }
     }
 }

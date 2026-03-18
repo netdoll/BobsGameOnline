@@ -31,6 +31,11 @@ public class BobsGame extends NDGameEngine implements GameManager {
     private boolean isNetworkGame = false;
     private int frameCount = 0;
 
+    private com.badlogic.gdx.scenes.scene2d.ui.Table chatTable;
+    private com.badlogic.gdx.scenes.scene2d.ui.Table chatLogTable;
+    private com.badlogic.gdx.scenes.scene2d.ui.TextField chatInputField;
+    private boolean chatActive = false;
+
     public BobsGame(ND nD) {
         super(nD);
     }
@@ -106,8 +111,20 @@ public class BobsGame extends NDGameEngine implements GameManager {
                 log.info("Joined room, waiting for other player...");
             });
 
+            networkManager.on("chatMessage", args -> {
+                if (args.length > 0) {
+                    try {
+                        String json = args[0].toString();
+                        NetworkManager.ChatMessage msg = new com.google.gson.Gson().fromJson(json, NetworkManager.ChatMessage.class);
+                        Gdx.app.postRunnable(() -> addChatMessage(msg));
+                    } catch (Exception e) {}
+                }
+            });
+
             networkManager.connect("http://localhost:6065");
             networkManager.createRoom("JavaRoom");
+            
+            Gdx.app.postRunnable(this::initChatUI);
         }
 
         // Load default game type for testing
@@ -117,6 +134,12 @@ public class BobsGame extends NDGameEngine implements GameManager {
     }
 
     public void update() {
+        if (isNetworkGame && Gdx.input.isKeyJustPressed(com.badlogic.gdx.Input.Keys.T)) {
+            toggleChat();
+        }
+
+        if (chatActive) return;
+
         // This is called by ND or Engine
         if (ME != null) ME.update(0, games.size());
         
@@ -138,6 +161,63 @@ public class BobsGame extends NDGameEngine implements GameManager {
                 puzzleRenderer.render(ME, 100, 100, 32);
             }
         }
+
+        if (chatActive && chatTable != null) {
+            // Need a stage to render chatTable
+            // For now assume ND stage or Engine stage
+            com.bobsgame.client.engine.Engine.GUIManager().render();
+        }
+    }
+
+    private void initChatUI() {
+        com.badlogic.gdx.scenes.scene2d.ui.Skin skin = com.bobsgame.client.engine.Engine.GUIManager().e.uiSkin;
+        chatTable = new com.badlogic.gdx.scenes.scene2d.ui.Table(skin);
+        chatTable.setFillParent(true);
+        chatTable.bottom().left().pad(10);
+
+        chatLogTable = new com.badlogic.gdx.scenes.scene2d.ui.Table(skin);
+        chatLogTable.bottom().left();
+        com.badlogic.gdx.scenes.scene2d.ui.ScrollPane scroll = new com.badlogic.gdx.scenes.scene2d.ui.ScrollPane(chatLogTable, skin);
+        
+        chatInputField = new com.badlogic.gdx.scenes.scene2d.ui.TextField("", skin);
+        chatInputField.setMessageText("Press T to chat...");
+        chatInputField.setVisible(false);
+
+        chatTable.add(scroll).width(300).height(200).left().row();
+        chatTable.add(chatInputField).width(300).left();
+
+        com.bobsgame.client.engine.Engine.GUIManager().e.stage.addActor(chatTable);
+    }
+
+    private void toggleChat() {
+        chatActive = !chatActive;
+        chatInputField.setVisible(chatActive);
+        if (chatActive) {
+            com.bobsgame.client.engine.Engine.GUIManager().e.stage.setKeyboardFocus(chatInputField);
+            chatInputField.setText("");
+            chatInputField.setTextFieldListener((textField, c) -> {
+                if (c == '\n' || c == '\r') {
+                    sendChat();
+                    toggleChat();
+                }
+            });
+        } else {
+            com.bobsgame.client.engine.Engine.GUIManager().e.stage.setKeyboardFocus(null);
+        }
+    }
+
+    private void sendChat() {
+        String text = chatInputField.getText().trim();
+        if (!text.isEmpty()) {
+            networkManager.sendChat(text, "JavaPlayer");
+        }
+    }
+
+    private void addChatMessage(NetworkManager.ChatMessage msg) {
+        if (chatLogTable == null) return;
+        com.badlogic.gdx.scenes.scene2d.ui.Label label = new com.badlogic.gdx.scenes.scene2d.ui.Label(msg.name + ": " + msg.message, chatLogTable.getSkin());
+        label.setWrap(true);
+        chatLogTable.add(label).width(280).left().row();
     }
 
     public static void initSprites(SpriteManager sm) {

@@ -46,6 +46,12 @@ public class NetworkManager implements GameLogicListener {
         }
     }
 
+    public static class ChatMessage {
+        public String message;
+        public String name;
+        public long timestamp;
+    }
+
     private Socket socket;
     private GameLogic game;
     private GameLogic opponentGame;
@@ -165,6 +171,15 @@ public class NetworkManager implements GameLogicListener {
     public void sendFrame(GameLogic.GameStateData state) {
         if (socket != null && socket.connected()) {
             socket.emit("frame", gson.toJson(state));
+        }
+    }
+
+    public void sendChat(String message, String name) {
+        if (socket != null && socket.connected()) {
+            Map<String, String> data = new HashMap<>();
+            data.put("message", message);
+            data.put("name", name);
+            socket.emit("chatMessage", gson.toJson(data));
         }
     }
 
