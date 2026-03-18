@@ -128,6 +128,12 @@ public class NetworkManager implements GameLogicListener {
         }
     }
 
+    public void getLeaderboard(String mode) {
+        if (socket != null) {
+            socket.emit("getLeaderboard", mode);
+        }
+    }
+
     public void createRoom(String name) {
         if (socket != null) {
             socket.emit("createRoom", name);

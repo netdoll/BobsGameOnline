@@ -22,6 +22,7 @@ import java.util.List;
 
 public class LobbyScreen extends Scene2DPanel {
     private Table roomListTable;
+    private Table leaderboardTable;
     private Label statusLabel;
     private TextField roomNameField;
     private TextField roomPasswordField;
@@ -73,6 +74,11 @@ public class LobbyScreen extends Scene2DPanel {
         });
 
         roomListTable = new Table(engine.uiSkin);
+        leaderboardTable = new Table(engine.uiSkin);
+
+        Table listsTable = new Table(engine.uiSkin);
+        listsTable.add(roomListTable).expand().fill().pad(10);
+        listsTable.add(leaderboardTable).expand().fill().pad(10);
 
         mainTable.add(titleLabel).colspan(2).pad(20).row();
         mainTable.add(statusLabel).colspan(2).pad(10).row();
@@ -85,7 +91,7 @@ public class LobbyScreen extends Scene2DPanel {
         mainTable.add(new Label("Join Password:", engine.uiSkin)).right();
         mainTable.add(joinPasswordField).pad(5).left().row();
 
-        mainTable.add(roomListTable).colspan(2).expand().fill().pad(20).row();
+        mainTable.add(listsTable).colspan(2).expand().fill().pad(20).row();
         mainTable.add(backBtn).colspan(2).pad(20).row();
 
         add(mainTable);
@@ -102,6 +108,19 @@ public class LobbyScreen extends Scene2DPanel {
                 java.lang.reflect.Type listType = new TypeToken<ArrayList<NetworkManager.LobbyRoom>>(){}.getType();
                 List<NetworkManager.LobbyRoom> rooms = gson.fromJson(json, listType);
                 Gdx.app.postRunnable(() -> updateRoomList(rooms));
+            }
+        });
+
+        nm.on("leaderboard", args -> {
+            if (args.length > 0) {
+                try {
+                    String json = args[0].toString();
+                    com.google.gson.JsonObject data = new com.google.gson.JsonParser().parse(json).getAsJsonObject();
+                    com.google.gson.JsonArray scores = data.getAsJsonArray("scores");
+                    Gdx.app.postRunnable(() -> updateLeaderboard(scores));
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
         });
 
@@ -148,6 +167,21 @@ public class LobbyScreen extends Scene2DPanel {
         }
     }
 
+    private void updateLeaderboard(com.google.gson.JsonArray scores) {
+        leaderboardTable.clear();
+        Label title = new Label("Top Scores (Marathon)", engine.uiSkin, "bigLabel");
+        title.setFontScale(0.7f);
+        leaderboardTable.add(title).pad(10).row();
+
+        for (int i = 0; i < scores.size(); i++) {
+            com.google.gson.JsonObject entry = scores.get(i).getAsJsonObject();
+            String name = entry.get("name").getAsString();
+            long score = entry.get("score").getAsLong();
+            Label scoreLabel = new Label((i + 1) + ". " + name + ": " + score + " pts", engine.uiSkin);
+            leaderboardTable.add(scoreLabel).left().pad(5).row();
+        }
+    }
+
     private void startNetworkGame(long seed) {
         BobsGame bobsGame = new BobsGame(Engine.ND());
         bobsGame.setNetworkGame(true);
@@ -182,6 +216,7 @@ public class LobbyScreen extends Scene2DPanel {
         if (refreshTimer > 5.0f) {
             refreshTimer = 0;
             ClientMain.clientMain.networkManager.listRooms();
+            ClientMain.clientMain.networkManager.getLeaderboard("marathon");
         }
     }
 }
