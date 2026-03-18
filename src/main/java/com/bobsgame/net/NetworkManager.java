@@ -24,11 +24,15 @@ public class NetworkManager implements GameLogicListener {
         public String name;
         public boolean isPrivate;
         public String password;
+        public String gameMode;
+        public int startLevel;
         
         public CreateRoomOptions(String name, boolean isPrivate, String password) {
             this.name = name;
             this.isPrivate = isPrivate;
             this.password = password;
+            this.gameMode = "marathon";
+            this.startLevel = 1;
         }
     }
 

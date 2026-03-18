@@ -83,12 +83,17 @@ public class BobsGame extends NDGameEngine implements GameManager {
                 if (args.length > 0) {
                     try {
                         String json = args[0].toString();
-                        // Depending on server implementation, it might be an object or string
-                        // For now assume it's an object with seed
-                        com.google.gson.JsonObject data = new com.google.gson.JsonParser().parse(json).getAsJsonObject();
+                        com.google.gson.JsonObject data = com.google.gson.JsonParser.parseString(json).getAsJsonObject();
                         long seed = data.get("seed").getAsLong();
-                        log.info("Network Game starting with seed: " + seed);
+                        String mode = data.get("gameMode").getAsString();
+                        int level = data.get("startLevel").getAsInt();
+                        
+                        log.info("Network Game starting with seed: " + seed + " Mode: " + mode + " Level: " + level);
+                        
                         ME.randomSeed = seed;
+                        ME.currentLevel = level;
+                        // TODO: Set game mode logic
+                        
                         ME.initGame();
                         ME.start();
                     } catch (Exception e) {

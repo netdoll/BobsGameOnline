@@ -2,6 +2,7 @@ package com.bobsgame.client.state;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.ui.SelectBox;
 import com.badlogic.gdx.scenes.scene2d.ui.CheckBox;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
@@ -26,6 +27,8 @@ public class LobbyScreen extends Scene2DPanel {
     private Label statusLabel;
     private TextField roomNameField;
     private TextField roomPasswordField;
+    private SelectBox<String> gameModeSelect;
+    private TextField startLevelField;
     private CheckBox privateCheckbox;
     private TextField joinPasswordField;
     private Gson gson = new Gson();
@@ -47,7 +50,16 @@ public class LobbyScreen extends Scene2DPanel {
 
         roomNameField = new TextField("Java Room", engine.uiSkin);
         roomPasswordField = new TextField("", engine.uiSkin);
+        roomPasswordField.setPasswordMode(true);
+        roomPasswordField.setPasswordCharacter('*');
         roomPasswordField.setMessageText("Password (Optional)");
+        
+        gameModeSelect = new SelectBox<>(engine.uiSkin);
+        gameModeSelect.setItems("marathon", "sprint", "ultra");
+        
+        startLevelField = new TextField("1", engine.uiSkin);
+        startLevelField.setTextFieldFilter(new TextField.TextFieldFilter.DigitsOnlyFilter());
+
         privateCheckbox = new CheckBox(" Private", engine.uiSkin);
         joinPasswordField = new TextField("", engine.uiSkin);
         joinPasswordField.setMessageText("Join Password");
@@ -61,6 +73,8 @@ public class LobbyScreen extends Scene2DPanel {
                     privateCheckbox.isChecked(), 
                     roomPasswordField.getText()
                 );
+                opts.gameMode = gameModeSelect.getSelected();
+                opts.startLevel = Integer.parseInt(startLevelField.getText());
                 ClientMain.clientMain.networkManager.createRoom(opts);
             }
         });
@@ -83,8 +97,18 @@ public class LobbyScreen extends Scene2DPanel {
         mainTable.add(titleLabel).colspan(2).pad(20).row();
         mainTable.add(statusLabel).colspan(2).pad(10).row();
         
-        mainTable.add(roomNameField).pad(5);
-        mainTable.add(roomPasswordField).pad(5).row();
+        Table optionsTable = new Table(engine.uiSkin);
+        optionsTable.add(new Label("Name:", engine.uiSkin)).right().pad(5);
+        optionsTable.add(roomNameField).width(150).pad(5);
+        optionsTable.add(new Label("Password:", engine.uiSkin)).right().pad(5);
+        optionsTable.add(roomPasswordField).width(100).pad(5).row();
+        
+        optionsTable.add(new Label("Mode:", engine.uiSkin)).right().pad(5);
+        optionsTable.add(gameModeSelect).width(150).pad(5);
+        optionsTable.add(new Label("Level:", engine.uiSkin)).right().pad(5);
+        optionsTable.add(startLevelField).width(50).pad(5).row();
+        
+        mainTable.add(optionsTable).colspan(2).row();
         mainTable.add(privateCheckbox).colspan(2).pad(5).row();
         mainTable.add(createRoomBtn).colspan(2).pad(10).row();
         
@@ -115,7 +139,7 @@ public class LobbyScreen extends Scene2DPanel {
             if (args.length > 0) {
                 try {
                     String json = args[0].toString();
-                    com.google.gson.JsonObject data = new com.google.gson.JsonParser().parse(json).getAsJsonObject();
+                    com.google.gson.JsonObject data = com.google.gson.JsonParser.parseString(json).getAsJsonObject();
                     com.google.gson.JsonArray scores = data.getAsJsonArray("scores");
                     Gdx.app.postRunnable(() -> updateLeaderboard(scores));
                 } catch (Exception e) {
@@ -132,9 +156,11 @@ public class LobbyScreen extends Scene2DPanel {
             if (args.length > 0) {
                 try {
                     String json = args[0].toString();
-                    com.google.gson.JsonObject data = new com.google.gson.JsonParser().parse(json).getAsJsonObject();
+                    com.google.gson.JsonObject data = com.google.gson.JsonParser.parseString(json).getAsJsonObject();
                     long seed = data.get("seed").getAsLong();
-                    Gdx.app.postRunnable(() -> startNetworkGame(seed));
+                    String mode = data.get("gameMode").getAsString();
+                    int level = data.get("startLevel").getAsInt();
+                    Gdx.app.postRunnable(() -> startNetworkGame(seed, mode, level));
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -182,14 +208,15 @@ public class LobbyScreen extends Scene2DPanel {
         }
     }
 
-    private void startNetworkGame(long seed) {
+    private void startNetworkGame(long seed, String mode, int level) {
         BobsGame bobsGame = new BobsGame(Engine.ND());
         bobsGame.setNetworkGame(true);
         
-        // Manual override of init() to use the seed
+        // Manual override of init() to use the settings
         bobsGame.ME = new com.bobsgame.puzzle.GameLogic(bobsGame, System.currentTimeMillis());
         bobsGame.games.add(bobsGame.ME);
         bobsGame.ME.randomSeed = seed;
+        bobsGame.ME.currentLevel = level;
         
         bobsGame.opponentGame = new com.bobsgame.puzzle.GameLogic(bobsGame, 0);
         bobsGame.opponentGame.isNetworkPlayer = true;
