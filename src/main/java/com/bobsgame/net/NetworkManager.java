@@ -17,6 +17,29 @@ public class NetworkManager implements GameLogicListener {
         public String name;
         public int players;
         public int maxPlayers;
+        public boolean hasPassword;
+    }
+
+    public static class CreateRoomOptions {
+        public String name;
+        public boolean isPrivate;
+        public String password;
+        
+        public CreateRoomOptions(String name, boolean isPrivate, String password) {
+            this.name = name;
+            this.isPrivate = isPrivate;
+            this.password = password;
+        }
+    }
+
+    public static class JoinRoomOptions {
+        public String id;
+        public String password;
+        
+        public JoinRoomOptions(String id, String password) {
+            this.id = id;
+            this.password = password;
+        }
     }
 
     private Socket socket;
