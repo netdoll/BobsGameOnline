@@ -8,6 +8,7 @@ import com.bobsgame.client.engine.game.nd.NDGameEngine;
 import com.bobsgame.client.engine.entity.SpriteManager;
 import com.bobsgame.client.renderer.PuzzleRenderer;
 import com.bobsgame.net.NetworkManager;
+import com.bobsgame.shared.BobColor;
 import com.bobsgame.puzzle.*;
 import com.bobsgame.puzzle.GameType.GameState;
 import java.util.ArrayList;
@@ -38,9 +39,37 @@ public class BobsGame extends NDGameEngine implements GameManager {
         this.isNetworkGame = network;
     }
 
+    private void setupGameEvents() {
+        ME.addListener(new GameLogicListener() {
+            @Override
+            public void onGarbageSent(int amount) {}
+
+            @Override
+            public void onAnnouncement(String text, BobColor color) {
+                if (text.equals("GAME OVER")) {
+                    if (isNetworkGame && networkManager != null) {
+                        com.google.gson.JsonObject data = new com.google.gson.JsonObject();
+                        data.addProperty("mode", "marathon");
+                        String playerName = "JavaPlayer_" + (System.currentTimeMillis() % 1000);
+                        data.addProperty("name", playerName);
+                        data.addProperty("score", ME.score);
+                        data.addProperty("lines", ME.linesClearedTotal);
+                        data.addProperty("time", (int)(System.currentTimeMillis() - startTime));
+                        networkManager.reportScore(data);
+                    }
+                }
+            }
+        });
+    }
+
+    private long startTime = 0;
+
     public void init() {
         ME = new GameLogic(this, System.currentTimeMillis());
         games.add(ME);
+        startTime = System.currentTimeMillis();
+        
+        setupGameEvents();
         
         if (isNetworkGame) {
             opponentGame = new GameLogic(this, 0);

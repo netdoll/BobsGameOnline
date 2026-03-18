@@ -116,6 +116,12 @@ public class NetworkManager implements GameLogicListener {
         }
     }
 
+    public void reportScore(com.google.gson.JsonObject data) {
+        if (socket != null && socket.connected()) {
+            socket.emit("reportScore", data.toString());
+        }
+    }
+
     public void on(String event, Emitter.Listener listener) {
         if (socket != null) {
             socket.on(event, listener);
