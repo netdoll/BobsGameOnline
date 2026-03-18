@@ -8,6 +8,7 @@ import com.bobsgame.client.engine.game.FriendCharacter;
 import com.bobsgame.client.engine.game.gui.gameStore.GameStore;
 import com.bobsgame.client.engine.game.gui.stuffMenu.StuffMenu;
 import com.bobsgame.client.state.KeyboardScreen;
+import com.bobsgame.client.state.LobbyScreen;
 
 public class GUIManager extends EnginePart
 {//=========================================================================================================================
@@ -20,6 +21,7 @@ public class GUIManager extends EnginePart
     public com.bobsgame.client.engine.game.gui.gameSequenceEditor.GameSequenceEditor gameSequenceEditor = null;
     public com.bobsgame.client.engine.game.gui.customGameEditor.CustomGameEditor customGameEditor = null;
     public com.bobsgame.client.engine.game.gui.GameSelector gameSelector = null;
+	public LobbyScreen lobbyScreen = null;
 	public KeyboardScreen keyboardScreen;
 
 	public ArrayList<GameChallengeNotificationPanel> gameChallenges = new ArrayList<GameChallengeNotificationPanel>();
@@ -46,6 +48,7 @@ public class GUIManager extends EnginePart
         gameSequenceEditor = new com.bobsgame.client.engine.game.gui.gameSequenceEditor.GameSequenceEditor(g);
         customGameEditor = new com.bobsgame.client.engine.game.gui.customGameEditor.CustomGameEditor(g);
         gameSelector = new com.bobsgame.client.engine.game.gui.GameSelector(g);
+		lobbyScreen = new LobbyScreen(g);
 		keyboardScreen = new KeyboardScreen(g);
 	}
 
@@ -54,6 +57,7 @@ public class GUIManager extends EnginePart
 	{//=========================================================================================================================
 		stuffMenu.init();
 		playerEditMenu.init();
+		lobbyScreen.init();
 		keyboardScreen.init();
 	}
 
@@ -68,6 +72,7 @@ public class GUIManager extends EnginePart
         gameSequenceEditor.update(delta);
         customGameEditor.update(delta);
         gameSelector.update(delta);
+		lobbyScreen.update(delta);
 
 		for(int i=0;i<gameChallenges.size();i++)
 		{
@@ -174,6 +179,11 @@ public class GUIManager extends EnginePart
         gameSelector.setActivated(true);
     }
 
+	public void openLobbyScreen() {
+		closeAllMenusAndND();
+		lobbyScreen.setActivated(true);
+	}
+
 	public void enableAllMenusAndND() {
 		keyboardScreen.setEnabled(true);
 		ND().setEnabled(true);
@@ -197,6 +207,7 @@ public class GUIManager extends EnginePart
         gameSequenceEditor.setActivated(false);
         customGameEditor.setActivated(false);
         gameSelector.setActivated(false);
+		lobbyScreen.setActivated(false);
 	}
 
     public void showMessage(String message) {

@@ -12,6 +12,13 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class NetworkManager implements GameLogicListener {
+    public static class LobbyRoom {
+        public String id;
+        public String name;
+        public int players;
+        public int maxPlayers;
+    }
+
     private Socket socket;
     private GameLogic game;
     private GameLogic opponentGame;

@@ -25,7 +25,7 @@ public class GameSelector extends Scene2DPanel {
         multiplayerBtn.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                startBobsGame(true);
+                Engine.GUIManager().openLobbyScreen();
             }
         });
         

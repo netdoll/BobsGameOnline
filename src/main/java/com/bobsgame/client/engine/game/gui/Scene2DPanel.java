@@ -38,6 +38,8 @@ public class Scene2DPanel extends Table {
         this.setVisible(false);
     }
 
+    public void init() {}
+
     public void update(long deltaTicks) {
         if (isActivated) {
             if (!isScrollingDown) {

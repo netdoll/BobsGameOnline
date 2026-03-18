@@ -544,6 +544,4 @@ public class Engine extends State
 	{
 		return getHeight()/Cameraman().getZoom();
 	}
-
-
 }

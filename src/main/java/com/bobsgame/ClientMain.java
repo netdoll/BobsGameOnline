@@ -470,6 +470,7 @@ public class ClientMain {
 
 	public ControlsManager controlsManager;
 
+	public com.bobsgame.net.NetworkManager networkManager;
 	public ClientGameEngine clientGameEngine;
 	public ArrayDeque<ClientGameEngine> gameStack = new ArrayDeque<>();
 
@@ -549,6 +550,8 @@ public class ClientMain {
 		}
 
 		cacheManager.initCache();
+
+		networkManager = new com.bobsgame.net.NetworkManager();
 
 		stateManager = new StateManager();
 
