@@ -36,7 +36,7 @@ public class EnginePart
 	public static Logger log = (Logger) LoggerFactory.getLogger(EnginePart.class);
 
 
-	private Engine e = null;
+	public Engine e = null;
 
 	private static ClientGameEngine clientGameEngine = null;
 	private static ControlsManager controlsManager = null;

@@ -783,7 +783,7 @@ public class GameServerTCP {
                 String firstIP = firstIP_DB;
                 if(firstIP.length()==0)firstIP = ""+e.getChannel().remoteAddress().toString();
 
-                writeCompressed(e.getChannel(),BobNet.Login_Response+"Success,"+c.userID+",\`"+sessionToken+"`"+BobNet.endline);
+                writeCompressed(e.getChannel(),BobNet.Login_Response+"Success,"+c.userID+",\""+sessionToken+"\""+BobNet.endline);
 
                 databaseConnection = openAccountsDBOnAmazonRDS();
                 if(databaseConnection==null){log.error("DB ERROR: Could not open DB connection!");return;}
@@ -1068,7 +1068,7 @@ public class GameServerTCP {
         } catch (Exception ex){log.error("DB ERROR: "+ex.getMessage());ex.printStackTrace();}
 
         if(c!=null) {
-            writeCompressed(e.getChannel(),BobNet.Facebook_Login_Response+"Success,"+c.userID+",\`"+sessionToken+"`"+BobNet.endline);
+            writeCompressed(e.getChannel(),BobNet.Facebook_Login_Response+"Success,"+c.userID+",\""+sessionToken+"\""+BobNet.endline);
             return 1;
         }
 
@@ -1176,7 +1176,7 @@ public class GameServerTCP {
             int timesLoggedIn = timesLoggedIn_DB;
             timesLoggedIn++;
 
-            writeCompressed(e.getChannel(),BobNet.Reconnect_Response+"Success,"+c.userID+",\`"+sessionToken+"`"+BobNet.endline);
+            writeCompressed(e.getChannel(),BobNet.Reconnect_Response+"Success,"+c.userID+",\""+sessionToken+"\""+BobNet.endline);
 
             databaseConnection = openAccountsDBOnAmazonRDS();
             if(databaseConnection==null){log.error("DB ERROR: Could not open DB connection!");return;}

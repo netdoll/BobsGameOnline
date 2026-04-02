@@ -186,14 +186,14 @@ public class BobsGame extends NDGameEngine implements GameManager {
         chatTable.add(scroll).width(300).height(200).left().row();
         chatTable.add(chatInputField).width(300).left();
 
-        com.bobsgame.client.engine.Engine.GUIManager().e.stage.addActor(chatTable);
+        com.bobsgame.client.engine.Engine.GUIManager().e.uiStage.addActor(chatTable);
     }
 
     private void toggleChat() {
         chatActive = !chatActive;
         chatInputField.setVisible(chatActive);
         if (chatActive) {
-            com.bobsgame.client.engine.Engine.GUIManager().e.stage.setKeyboardFocus(chatInputField);
+            com.bobsgame.client.engine.Engine.GUIManager().e.uiStage.setKeyboardFocus(chatInputField);
             chatInputField.setText("");
             chatInputField.setTextFieldListener((textField, c) -> {
                 if (c == '\n' || c == '\r') {
@@ -202,7 +202,7 @@ public class BobsGame extends NDGameEngine implements GameManager {
                 }
             });
         } else {
-            com.bobsgame.client.engine.Engine.GUIManager().e.stage.setKeyboardFocus(null);
+            com.bobsgame.client.engine.Engine.GUIManager().e.uiStage.setKeyboardFocus(null);
         }
     }
 

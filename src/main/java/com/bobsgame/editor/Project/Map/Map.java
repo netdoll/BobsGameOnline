@@ -4128,8 +4128,6 @@ public class Map implements ImageObserver, GameObject
 				Entity e = state.getEntity(i);
 				e.setXPixels(e.xP() + (dx * 8));
 				e.setYPixels(e.yP() + (dy * 8));
-				e.setArrivalXPixels(e.arrivalXPixels() + (dx * 8));
-				e.setArrivalYPixels(e.arrivalYPixels() + (dy * 8));
 			}
 			
 			for(int i = 0; i < state.getNumLights(); i++) {

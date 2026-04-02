@@ -52,6 +52,7 @@ public class BobsGameGameStats
 	public int piecesPlaced = 0;
 	public int combosMade = 0;
 	public int biggestCombo = 0;
+	public int score = 0;
 
 	public String allFrameStatesZipped = "";
 	public String statsUUID = "";

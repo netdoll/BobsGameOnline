@@ -72,6 +72,7 @@ public class IndexClientTCP {
 	public void send_INDEX_Tell_All_Servers_To_Tell_UserNames_That_UserID_Is_Online(long userID, String userNameFriendsCSV) {}
 	public void send_INDEX_Tell_All_Servers_Bobs_Game_Hosting_Room_Update(String s, long userID) {}
 	public void send_INDEX_Tell_All_Servers_Bobs_Game_Remove_Room(String s, long userID) {}
+	public void send_INDEX_Chat_Message(String broadcastMsg) {}
 
 	public class IndexClientHandler extends SimpleChannelInboundHandler<String> {
 		@Override
