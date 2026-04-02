@@ -31,6 +31,8 @@
     *   `EditorMain`: Level Editor entry point (Swing).
     *   `GameClientTCP`: Netty-based client networking.
     *   `Texture`, `Font`: Custom rendering wrappers (stb/GL).
+    *   `gui`: Scene2D-based UI system (Stage, Table, Skin) integrated into the GL loop.
+    *   `gui.Scene2DPanel`: Base class for modern UI components with easing animations.
 
 ## Resources (`res/`)
 *   `gfx/`: Sprites and textures.

@@ -72,6 +72,7 @@ public class SpriteEditor extends JFrame implements ActionListener, ItemListener
 	resizeSprite,
 	duplicateSprite,
 	deleteSprite,
+	saveRandomSpritesButton,
 	newPalette,
 	renamePalette,
 	duplicatePalette,
@@ -535,6 +536,12 @@ public class SpriteEditor extends JFrame implements ActionListener, ItemListener
 
 		spriteButtonsPanel.add(deleteSprite);
 
+			saveRandomSpritesButton = new JButton("Random PNGs");
+			saveRandomSpritesButton.setFont(buttonFont);
+			saveRandomSpritesButton.addActionListener(this);
+
+		spriteButtonsPanel.add(saveRandomSpritesButton);
+
 
 
 		Font listFont = new Font("Lucida Console", Font.PLAIN, 12);
@@ -887,6 +894,7 @@ public class SpriteEditor extends JFrame implements ActionListener, ItemListener
 		else if(ae.getSource() == resizeSprite)resizeSprite();
 		else if(ae.getSource() == duplicateSprite)duplicateSprite();
 		else if(ae.getSource() == deleteSprite)deleteSprite();
+		else if(ae.getSource() == saveRandomSpritesButton)saveRandomSpritesToPNG();
 
 		else if(ae.getSource() == newPalette)newPalette();
 		else if(ae.getSource() == renamePalette)renamePalette();

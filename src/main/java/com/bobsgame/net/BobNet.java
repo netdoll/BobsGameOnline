@@ -265,6 +265,10 @@ public class BobNet {
     public static final String Bobs_Game_ActivityStream_Response = "Bobs_Game_ActivityStream_Response:";
     public static final String Bobs_Game_ActivityStream_Update = "Bobs_Game_ActivityStream_Update:";
 
+    public static final String Bobs_Game_GetTournamentBracketRequest = "Bobs_Game_GetTournamentBracketRequest:";
+    public static final String Bobs_Game_GetTournamentBracketResponse = "Bobs_Game_GetTournamentBracketResponse:";
+    public static final String Bobs_Game_UpdateTournamentMatchWinnerRequest = "Bobs_Game_UpdateTournamentMatchWinnerRequest:";
+
 
     public static final String Bobs_Game_GetHighScoresAndLeaderboardsRequest = "Bobs_Game_GetHighScoresAndLeaderboardsRequest:";
     public static final String Bobs_Game_UserStatsLeaderBoardsAndHighScoresBatched = "Bobs_Game_UserStatsLeaderBoardsAndHighScoresBatched:";

@@ -214,6 +214,26 @@ public class GUIManager extends EnginePart
         System.out.println("GUI Message: " + message);
     }
 
+    public void showStringDialog(String title, String initialValue, Scene2DStringDialog.StringDialogListener listener) {
+        Scene2DStringDialog dialog = new Scene2DStringDialog(engine, title, initialValue, listener);
+        dialog.setActivated(true);
+    }
+
+    public void showYesNoDialog(String message, Scene2DYesNoDialog.YesNoDialogListener listener) {
+        Scene2DYesNoDialog dialog = new Scene2DYesNoDialog(engine, message, listener);
+        dialog.setActivated(true);
+    }
+
+    public void showNumberDialog(String title, int initialValue, Scene2DNumberDialog.NumberDialogListener listener) {
+        Scene2DNumberDialog dialog = new Scene2DNumberDialog(engine, title, initialValue, listener);
+        dialog.setActivated(true);
+    }
+
+    public void showRenameDialog(String initialValue, Scene2DRenameDialog.RenameDialogListener listener) {
+        Scene2DRenameDialog dialog = new Scene2DRenameDialog(engine, initialValue, listener);
+        dialog.setActivated(true);
+    }
+
     public void addChatMessage(String msg) {
         if(stuffMenu != null && stuffMenu.messagesPanel != null) {
             stuffMenu.messagesPanel.addMessage(msg);

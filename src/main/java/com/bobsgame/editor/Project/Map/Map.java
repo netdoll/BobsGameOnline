@@ -4096,8 +4096,6 @@ public class Map implements ImageObserver, GameObject
 		int h = hT();
 		
 		for(int l = 0; l < MapData.layers; l++) {
-			//if(!MapData.isTileLayer(l)) continue; // Shift all layers including collision/etc
-			
 			int[][] newLayer = new int[w][h];
 			
 			for(int y = 0; y < h; y++) {
@@ -4119,6 +4117,8 @@ public class Map implements ImageObserver, GameObject
 			Door d = getDoor(i);
 			d.setXPixels(d.xP() + (dx * 8));
 			d.setYPixels(d.yP() + (dy * 8));
+			d.setArrivalXPixels(d.arrivalXPixels() + (dx * 8));
+			d.setArrivalYPixels(d.arrivalYPixels() + (dy * 8));
 		}
 		
 		for(int s = 0; s < getNumStates(); s++) {
@@ -4128,18 +4128,24 @@ public class Map implements ImageObserver, GameObject
 				Entity e = state.getEntity(i);
 				e.setXPixels(e.xP() + (dx * 8));
 				e.setYPixels(e.yP() + (dy * 8));
+				e.setArrivalXPixels(e.arrivalXPixels() + (dx * 8));
+				e.setArrivalYPixels(e.arrivalYPixels() + (dy * 8));
 			}
 			
 			for(int i = 0; i < state.getNumLights(); i++) {
 				Light l = state.getLight(i);
 				l.setXPixels(l.xP() + (dx * 8));
 				l.setYPixels(l.yP() + (dy * 8));
+				l.setToggleXPixels(l.toggleXPixels1X() + (dx * 8));
+				l.setToggleYPixels(l.toggleYPixels1X() + (dy * 8));
 			}
 			
 			for(int i = 0; i < state.getNumAreas(); i++) {
 				Area a = state.getArea(i);
 				a.setXPixels(a.xP() + (dx * 8));
 				a.setYPixels(a.yP() + (dy * 8));
+				a.setArrivalXPixels(a.arrivalXPixels() + (dx * 8));
+				a.setArrivalYPixels(a.arrivalYPixels() + (dy * 8));
 			}
 		}
 	}

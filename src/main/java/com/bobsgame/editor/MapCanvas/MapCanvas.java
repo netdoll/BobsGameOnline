@@ -4795,6 +4795,22 @@ String colladastring = "<?xml version=\"1.0f\" encoding=\"UTF-8\" standalone=\"n
 		}
 	}
 
+	//===============================================================================================
+	public void shiftMap(int dx, int dy)
+	{//===============================================================================================
+		getMap().shiftMap(dx, dy);
+		undoManager.addEdit(new MapShiftEdit(getMap(), dx, dy));
+
+		if (useLayerImageBuffer) {
+			getMap().updateAllLayerBufferImages();
+		}
+		updateAndRepaintAllLayerImagesIntoMapCanvasImageAndRepaintMapCanvas();
+		repaint();
+		
+		EditorMain.infoLabel.setTextSuccess("MapCanvas: Shifted map by (" + dx + ", " + dy + ")");
+	}
+
+
 	public void scrollTo(Entity s)
 	{
 		if(s!=null)

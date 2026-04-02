@@ -97,6 +97,10 @@ public class EditorMain extends JFrame implements ActionListener, ItemListener, 
 		deleteMap,
 		moveMapUp,
 		moveMapDown,
+		shiftMapUp,
+		shiftMapDown,
+		shiftMapLeft,
+		shiftMapRight,
 		viewZoomIn,
 		viewZoomOut,
 
@@ -688,6 +692,26 @@ public class EditorMain extends JFrame implements ActionListener, ItemListener, 
 				moveMapDown.setEnabled(true);
 				moveMapDown.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_PERIOD,InputEvent.CTRL_DOWN_MASK));
 
+				shiftMapUp = new JMenuItem("Shift Map Up");
+				shiftMapUp.addActionListener(this);
+				shiftMapUp.setEnabled(true);
+				shiftMapUp.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_UP, InputEvent.SHIFT_DOWN_MASK));
+
+				shiftMapDown = new JMenuItem("Shift Map Down");
+				shiftMapDown.addActionListener(this);
+				shiftMapDown.setEnabled(true);
+				shiftMapDown.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_DOWN, InputEvent.SHIFT_DOWN_MASK));
+
+				shiftMapLeft = new JMenuItem("Shift Map Left");
+				shiftMapLeft.addActionListener(this);
+				shiftMapLeft.setEnabled(true);
+				shiftMapLeft.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_LEFT, InputEvent.SHIFT_DOWN_MASK));
+
+				shiftMapRight = new JMenuItem("Shift Map Right");
+				shiftMapRight.addActionListener(this);
+				shiftMapRight.setEnabled(true);
+				shiftMapRight.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_RIGHT, InputEvent.SHIFT_DOWN_MASK));
+
 				//--------------------------------------------------------------
 
 				viewMapGrid = new JCheckBoxMenuItem("View Map Grid", false);
@@ -793,6 +817,13 @@ public class EditorMain extends JFrame implements ActionListener, ItemListener, 
 				//--------------------------------------------------------------
 				mapMenu.add(moveMapUp);
 				mapMenu.add(moveMapDown);
+				//--------------------------------------------------------------
+				mapMenu.add(new JMenuSpacer("---"));
+				//--------------------------------------------------------------
+				mapMenu.add(shiftMapUp);
+				mapMenu.add(shiftMapDown);
+				mapMenu.add(shiftMapLeft);
+				mapMenu.add(shiftMapRight);
 				//--------------------------------------------------------------
 				mapMenu.add(new JMenuSpacer("---"));
 				//--------------------------------------------------------------
@@ -2424,6 +2455,11 @@ public class EditorMain extends JFrame implements ActionListener, ItemListener, 
 		else if(ae.getSource() == moveMapUp)moveMapUp();
 		else if(ae.getSource() == moveMapDown)moveMapDown();
 
+		else if(ae.getSource() == shiftMapUp)mapCanvas.shiftMap(0, -1);
+		else if(ae.getSource() == shiftMapDown)mapCanvas.shiftMap(0, 1);
+		else if(ae.getSource() == shiftMapLeft)mapCanvas.shiftMap(-1, 0);
+		else if(ae.getSource() == shiftMapRight)mapCanvas.shiftMap(1, 0);
+
 		else if(ae.getSource() == newState)newState();
 		else if(ae.getSource() == duplicateState)duplicateState();
 		else if(ae.getSource() == renameState)renameState();
@@ -2871,7 +2907,11 @@ public class EditorMain extends JFrame implements ActionListener, ItemListener, 
 
 		if(ke.getKeyCode() == KeyEvent.VK_UP)
 		{
-
+			if (ke.isShiftDown())
+			{
+				mapCanvas.shiftMap(0, -1);
+			}
+			else
 			if(mapCanvas.previewMode == 1)
 			{
 				mapCanvas.previewY -= 8;
@@ -2947,7 +2987,11 @@ public class EditorMain extends JFrame implements ActionListener, ItemListener, 
 
 		if(ke.getKeyCode() == KeyEvent.VK_DOWN)
 		{
-
+			if (ke.isShiftDown())
+			{
+				mapCanvas.shiftMap(0, 1);
+			}
+			else
 			if(mapCanvas.previewMode == 1)
 			{
 				mapCanvas.previewY += 8;
@@ -3022,7 +3066,11 @@ public class EditorMain extends JFrame implements ActionListener, ItemListener, 
 
 		if(ke.getKeyCode() == KeyEvent.VK_RIGHT)
 		{
-
+			if (ke.isShiftDown())
+			{
+				mapCanvas.shiftMap(1, 0);
+			}
+			else
 			if(mapCanvas.previewMode == 1)
 			{
 				mapCanvas.previewX += 8;
@@ -3096,7 +3144,11 @@ public class EditorMain extends JFrame implements ActionListener, ItemListener, 
 
 		if(ke.getKeyCode() == KeyEvent.VK_LEFT)
 		{
-
+			if (ke.isShiftDown())
+			{
+				mapCanvas.shiftMap(-1, 0);
+			}
+			else
 			if(mapCanvas.previewMode == 1)
 			{
 				mapCanvas.previewX -= 8;

@@ -93,10 +93,13 @@ public class GameServerTCP {
     public ConcurrentHashMap<Long, BobsGameRoom> roomsByUserID = new ConcurrentHashMap<Long, BobsGameRoom>();
     public ConcurrentHashMap<String, BobsGameRoom> roomsByRoomUUID = new ConcurrentHashMap<String, BobsGameRoom>();
 
+    public LinkedList<String> activityStream = new LinkedList<String>();
+    private final int MAX_ACTIVITY_STREAM_SIZE = 50;
+
     ServerBootstrap tcpServerBootstrap;
     Channel tcpChannel;
 
-    public static Logger log = (Logger) LoggerFactory.getLogger(GameServerTCP.class);
+    public static Logger log = (Logger)LoggerFactory.getLogger(GameServerTCP.class);
 
     static HikariDataSource amazonRDSConnectionPool = null;
     static HikariDataSource dreamhostSQLConnectionPool = null;
@@ -188,7 +191,7 @@ public class GameServerTCP {
     }
 
     public class BobsGameServerHandler extends ChannelInboundHandlerAdapter {
-        Logger log = (Logger) LoggerFactory.getLogger(this.getClass());
+        Logger log = (Logger)LoggerFactory.getLogger(this.getClass());
 
         @Override
         public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
@@ -362,6 +365,8 @@ public class GameServerTCP {
             if (message.startsWith(BobNet.Bobs_Game_GameStats)) { incomingBobsGameGameStats(e); return; }
             if (message.startsWith(BobNet.Bobs_Game_GetHighScoresAndLeaderboardsRequest)) { incomingBobsGameGetHighScoresAndLeaderboardsRequest(e); return; }
             if (message.startsWith(BobNet.Bobs_Game_ActivityStream_Request)) { incomingBobsGameActivityStreamRequest(e); return; }
+            if (message.startsWith(BobNet.Bobs_Game_GetTournamentBracketRequest)) { incomingBobsGameGetTournamentBracketRequest(e); return; }
+            if (message.startsWith(BobNet.Bobs_Game_UpdateTournamentMatchWinnerRequest)) { incomingBobsGameUpdateTournamentMatchWinnerRequest(e); return; }
             if (message.startsWith(BobNet.Chat_Message)) { incomingChatMessage(e, true); return; }
         }
 
@@ -778,7 +783,7 @@ public class GameServerTCP {
                 String firstIP = firstIP_DB;
                 if(firstIP.length()==0)firstIP = ""+e.getChannel().remoteAddress().toString();
 
-                writeCompressed(e.getChannel(),BobNet.Login_Response+"Success,"+c.userID+",`"+sessionToken+"`"+BobNet.endline);
+                writeCompressed(e.getChannel(),BobNet.Login_Response+"Success,"+c.userID+",\`"+sessionToken+"`"+BobNet.endline);
 
                 databaseConnection = openAccountsDBOnAmazonRDS();
                 if(databaseConnection==null){log.error("DB ERROR: Could not open DB connection!");return;}
@@ -1063,7 +1068,7 @@ public class GameServerTCP {
         } catch (Exception ex){log.error("DB ERROR: "+ex.getMessage());ex.printStackTrace();}
 
         if(c!=null) {
-            writeCompressed(e.getChannel(),BobNet.Facebook_Login_Response+"Success,"+c.userID+",`"+sessionToken+"`"+BobNet.endline);
+            writeCompressed(e.getChannel(),BobNet.Facebook_Login_Response+"Success,"+c.userID+",\`"+sessionToken+"`"+BobNet.endline);
             return 1;
         }
 
@@ -1171,7 +1176,7 @@ public class GameServerTCP {
             int timesLoggedIn = timesLoggedIn_DB;
             timesLoggedIn++;
 
-            writeCompressed(e.getChannel(),BobNet.Reconnect_Response+"Success,"+c.userID+",`"+sessionToken+"`"+BobNet.endline);
+            writeCompressed(e.getChannel(),BobNet.Reconnect_Response+"Success,"+c.userID+",\`"+sessionToken+"`"+BobNet.endline);
 
             databaseConnection = openAccountsDBOnAmazonRDS();
             if(databaseConnection==null){log.error("DB ERROR: Could not open DB connection!");return;}
@@ -1466,11 +1471,72 @@ public class GameServerTCP {
         writeCompressed(e.getChannel(),BobNet.Online_Friends_List_Response+onlineFriendUserIDsCSV+BobNet.endline);
     }
 
-    private void incomingAddFriendByUserNameRequest(MessageEvent e) {}
+    private void incomingAddFriendByUserNameRequest(MessageEvent e) {
+        BobsGameClient c = getClientConnectionByMessageEvent(e);
+        if (c == null) return;
+
+        String s = (String) e.getMessage();
+        String friendUserName = s.substring(s.indexOf(":") + 1).trim().toLowerCase();
+
+        if (friendUserName.isEmpty()) return;
+
+        Connection databaseConnection = openAccountsDBOnAmazonRDS();
+        if (databaseConnection == null) return;
+
+        try {
+            // Check if friend exists
+            PreparedStatement ps = databaseConnection.prepareStatement("SELECT userName FROM accounts WHERE userName = ?");
+            ps.setString(1, friendUserName);
+            ResultSet rs = ps.executeQuery();
+            if (!rs.next()) {
+                writeCompressed(e.getChannel(), BobNet.Add_Friend_By_UserName_Response + "NotFound" + BobNet.endline);
+                rs.close();
+                ps.close();
+                closeDBConnection(databaseConnection);
+                return;
+            }
+            rs.close();
+            ps.close();
+
+            // Get current friends
+            ps = databaseConnection.prepareStatement("SELECT userNameFriends FROM accounts WHERE userID = ?");
+            ps.setLong(1, c.userID);
+            rs = ps.executeQuery();
+            String currentFriends = "";
+            if (rs.next()) {
+                currentFriends = rs.getString("userNameFriends");
+                if (currentFriends == null) currentFriends = "";
+            }
+            rs.close();
+            ps.close();
+
+            if (!currentFriends.contains(friendUserName + ",")) {
+                currentFriends += friendUserName + ",";
+                ps = databaseConnection.prepareStatement("UPDATE accounts SET userNameFriends = ? WHERE userID = ?");
+                ps.setString(1, currentFriends);
+                ps.setLong(2, c.userID);
+                ps.executeUpdate();
+                ps.close();
+                writeCompressed(e.getChannel(), BobNet.Add_Friend_By_UserName_Response + "Success," + friendUserName + BobNet.endline);
+            } else {
+                writeCompressed(e.getChannel(), BobNet.Add_Friend_By_UserName_Response + "AlreadyFriend" + BobNet.endline);
+            }
+
+        } catch (Exception ex) {
+            log.error("DB Error in addFriend: " + ex.getMessage());
+        }
+        closeDBConnection(databaseConnection);
+    }
     private void incomingBobsGameGameTypesDownloadRequest(MessageEvent e) {}
     private void incomingBobsGameGameTypesUploadRequest(MessageEvent e) {}
     private void incomingBobsGameGameTypesVoteRequest(MessageEvent e) {}
-    private void incomingBobsGameRoomListRequest(MessageEvent e) {}
+    private void incomingBobsGameRoomListRequest(MessageEvent e) {
+        String roomList = "";
+        for (BobsGameRoom room : rooms) {
+            roomList += room.encodeRoomData() + ",";
+        }
+        writeCompressed(e.getChannel(), BobNet.Bobs_Game_RoomList_Response + roomList + BobNet.endline);
+    }
     private void incomingBobsGameTellRoomHostToAddMyUserID(MessageEvent e) {}
     private void incomingBobsGameHostingPublicRoomUpdate(MessageEvent e) {
         BobsGameClient c = getClientConnectionByMessageEvent(e);
@@ -1484,7 +1550,30 @@ public class GameServerTCP {
         }
         ServerMain.indexClientTCP.send_INDEX_Tell_All_Servers_Bobs_Game_Hosting_Room_Update(s, userID);
     }
-    private void incomingBobsGameHostingPublicRoomStarted(MessageEvent e) {}
+    private void incomingBobsGameHostingPublicRoomStarted(MessageEvent e) {
+        BobsGameClient c = getClientConnectionByMessageEvent(e);
+        if (c == null) return;
+        String s = (String) e.getMessage();
+        String roomUUID = s.substring(s.indexOf(":") + 1);
+        BobsGameRoom r = roomsByRoomUUID.get(roomUUID);
+        if (r != null && r.multiplayer_HostUserID == c.userID) {
+            if (r.multiplayer_TournamentRoom == 1) {
+                // Get all players in room
+                List<Long> playerIDs = new ArrayList<>();
+                Map<Long, String> names = new HashMap<>();
+                // TODO: Get actual participants from room/channels mapping
+                // For now, placeholder with host
+                playerIDs.add(c.userID);
+                names.put(c.userID, c.userName);
+
+                TournamentManager.createBracket(roomUUID, playerIDs, names);
+            }
+            for (Channel ch : channels) {
+                writeCompressed(ch, BobNet.Bobs_Game_HostingPublicRoomStarted + roomUUID + BobNet.endline);
+            }
+        }
+    }
+
     private void incomingBobsHostingPublicRoomCanceled(MessageEvent e) {
         BobsGameClient c = getClientConnectionByMessageEvent(e);
         if(c==null) return;
@@ -1493,11 +1582,147 @@ public class GameServerTCP {
         removeRoom(s, c.userID);
         ServerMain.indexClientTCP.send_INDEX_Tell_All_Servers_Bobs_Game_Remove_Room(s, c.userID);
     }
+
     private void incomingBobsGameHostingPublicRoomEnded(MessageEvent e) {}
-    private void incomingBobsGameGameStats(MessageEvent e) {}
-    private void incomingBobsGameGetHighScoresAndLeaderboardsRequest(MessageEvent e) {}
-    private void incomingBobsGameActivityStreamRequest(MessageEvent e) {}
-    private void incomingChatMessage(MessageEvent e, boolean sendToIndex) {}
+
+    private void incomingBobsGameGameStats(MessageEvent e) {
+        BobsGameClient c = getClientConnectionByMessageEvent(e);
+        if (c == null) return;
+
+        String s = (String) e.getMessage();
+        s = s.substring(s.indexOf(":") + 1);
+        BobsGameGameStats stats = new BobsGameGameStats(s);
+        stats.userID = c.userID;
+        stats.userName = c.userName;
+
+        Connection databaseConnection = openAccountsDBOnAmazonRDS();
+        if (databaseConnection == null) return;
+
+        try {
+            PreparedStatement ps = stats.getInsertStatement(databaseConnection, c);
+            if (ps != null) {
+                ps.executeUpdate();
+                ps.close();
+            }
+        } catch (Exception ex) {
+            log.error("DB Error in gameStats: " + ex.getMessage());
+        }
+        closeDBConnection(databaseConnection);
+
+        String activity = stats.userName + " finished a game of " + stats.gameTypeName + " (Score: " + stats.score + ")";
+        sendActivityUpdateToAllClients(activity);
+    }
+
+    private void incomingBobsGameGetHighScoresAndLeaderboardsRequest(MessageEvent e) {
+        String s = (String) e.getMessage();
+        s = s.substring(s.indexOf(":") + 1);
+        
+        String gameTypeOrSequenceUUID = s.substring(0, s.indexOf(","));
+        s = s.substring(s.indexOf(",") + 1);
+        String difficultyName = s.substring(0, s.indexOf(","));
+        s = s.substring(s.indexOf(",") + 1);
+        String objectiveString = s.substring(0, s.indexOf(","));
+        s = s.substring(s.indexOf(",") + 1);
+        String boardType = s.substring(0, s.indexOf(","));
+
+        String dbName = "";
+        if (boardType.equals("EloScore")) dbName = BobNet.Bobs_Game_LeaderBoardsByEloScore_DB_Name;
+        else if (boardType.equals("PlaneswalkerPoints")) dbName = BobNet.Bobs_Game_LeaderBoardsByPlaneswalkerPoints_DB_Name;
+        else if (boardType.equals("TotalTimePlayed")) dbName = BobNet.Bobs_Game_LeaderBoardsByTotalTimePlayed_DB_Name;
+        else if (boardType.equals("TotalBlocksCleared")) dbName = BobNet.Bobs_Game_LeaderBoardsByTotalBlocksCleared_DB_Name;
+        else if (boardType.equals("TimeLasted")) dbName = BobNet.Bobs_Game_HighScoreBoardsByTimeLasted_DB_Name;
+        else if (boardType.equals("BlocksCleared")) dbName = BobNet.Bobs_Game_HighScoreBoardsByBlocksCleared_DB_Name;
+
+        if (dbName.isEmpty()) return;
+
+        Connection databaseConnection = openAccountsDBOnAmazonRDS();
+        if (databaseConnection == null) return;
+
+        BobsGameLeaderBoardAndHighScoreBoard board = null;
+        try {
+            String query = "SELECT * FROM " + dbName + " WHERE (gameTypeUUID = ? OR gameSequenceUUID = ? OR isGameTypeOrSequence = ?) AND difficultyName = ? AND objectiveString = ?";
+            PreparedStatement ps = databaseConnection.prepareStatement(query);
+            ps.setString(1, gameTypeOrSequenceUUID);
+            ps.setString(2, gameTypeOrSequenceUUID);
+            ps.setString(3, gameTypeOrSequenceUUID);
+            ps.setString(4, difficultyName);
+            ps.setString(5, objectiveString);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                board = new BobsGameLeaderBoardAndHighScoreBoard(rs);
+            }
+            rs.close();
+            ps.close();
+        } catch (Exception ex) {
+            log.error("DB Error in leaderboards: " + ex.getMessage());
+        }
+        closeDBConnection(databaseConnection);
+
+        if (board != null) {
+            writeCompressed(e.getChannel(), BobNet.Bobs_Game_GetHighScoresAndLeaderboardsResponse + board.encode() + BobNet.endline);
+        } else {
+            writeCompressed(e.getChannel(), BobNet.Bobs_Game_GetHighScoresAndLeaderboardsResponse + "NotFound" + BobNet.endline);
+        }
+    }
+
+    private void incomingBobsGameActivityStreamRequest(MessageEvent e) {
+        String response = "";
+        synchronized (activityStream) {
+            for (String activity : activityStream) {
+                response += activity + ",";
+            }
+        }
+        writeCompressed(e.getChannel(), BobNet.Bobs_Game_ActivityStream_Response + response + BobNet.endline);
+    }
+
+    private void incomingBobsGameGetTournamentBracketRequest(MessageEvent e) {
+        String s = (String) e.getMessage();
+        String roomUUID = s.substring(s.indexOf(":") + 1);
+        String tournamentID = TournamentManager.roomToTournamentMap.get(roomUUID);
+        if (tournamentID != null) {
+            TournamentManager.Tournament t = TournamentManager.activeTournaments.get(tournamentID);
+            if (t != null) {
+                writeCompressed(e.getChannel(), BobNet.Bobs_Game_GetTournamentBracketResponse + t.encode() + BobNet.endline);
+                return;
+            }
+        }
+        writeCompressed(e.getChannel(), BobNet.Bobs_Game_GetTournamentBracketResponse + "NotFound" + BobNet.endline);
+    }
+
+    private void incomingBobsGameUpdateTournamentMatchWinnerRequest(MessageEvent e) {
+        String s = (String) e.getMessage();
+        s = s.substring(s.indexOf(":") + 1);
+        String[] parts = s.split(",");
+        if (parts.length == 3) {
+            String tournamentID = parts[0];
+            String matchID = parts[1];
+            long winnerID = Long.parseLong(parts[2]);
+            TournamentManager.updateMatchWinner(tournamentID, matchID, winnerID);
+
+            // Broadcast update to all in room
+            TournamentManager.Tournament t = TournamentManager.activeTournaments.get(tournamentID);
+            if (t != null) {
+                for (Channel ch : channels) {
+                    writeCompressed(ch, BobNet.Bobs_Game_GetTournamentBracketResponse + t.encode() + BobNet.endline);
+                }
+            }
+        }
+    }
+
+    private void incomingChatMessage(MessageEvent e, boolean sendToIndex) {
+        BobsGameClient c = getClientConnectionByMessageEvent(e);
+        if (c == null) return;
+
+        String s = (String) e.getMessage();
+        String msg = s.substring(s.indexOf(":") + 1);
+        
+        String broadcastMsg = c.userName + ": " + msg;
+        sendChatMessageToAllClients(broadcastMsg);
+        
+        if (sendToIndex) {
+            ServerMain.indexClientTCP.send_INDEX_Chat_Message(broadcastMsg);
+        }
+    }
 
     public BobsGameRoom createRoom(String s, long userID) {
         BobsGameRoom newRoom = new BobsGameRoom(s);
@@ -1540,6 +1765,12 @@ public class GameServerTCP {
     }
 
     public void sendActivityUpdateToAllClients(String activityString) {
+        synchronized (activityStream) {
+            activityStream.addFirst(activityString);
+            while (activityStream.size() > MAX_ACTIVITY_STREAM_SIZE) {
+                activityStream.removeLast();
+            }
+        }
         for(Channel c : channels) {
             writeCompressed(c, BobNet.Bobs_Game_ActivityStream_Update + activityString + BobNet.endline);
         }
