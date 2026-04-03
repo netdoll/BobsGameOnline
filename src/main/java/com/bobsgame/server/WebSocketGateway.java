@@ -44,18 +44,126 @@ public class WebSocketGateway extends SimpleChannelInboundHandler<TextWebSocketF
 
         switch (eventName) {
             case "createRoom":
-                // Map to GameServerTCP logic
+                String roomName = data.has("name") ? data.get("name").getAsString() : "New Room";
+                RoomManager.Room newRoom = RoomManager.createRoom(roomName);
+                newRoom.channels.add(ctx.channel());
+                
+                JsonObject response = new JsonObject();
+                response.addProperty("id", newRoom.id);
+                response.addProperty("name", newRoom.name);
+                ctx.writeAndFlush(new TextWebSocketFrame("42[\"roomCreated\"," + gson.toJson(response) + "]"));
                 break;
+
             case "joinRoom":
-                // Map to GameServerTCP logic
+                String roomId = data.get("id").getAsString();
+                RoomManager.Room room = RoomManager.getRoom(roomId);
+                if (room != null) {
+                    room.channels.add(ctx.channel());
+                    JsonObject joinInfo = new JsonObject();
+                    joinInfo.addProperty("id", room.id);
+                    joinInfo.addProperty("name", room.name);
+                    ctx.writeAndFlush(new TextWebSocketFrame("42[\"joinedRoom\"," + gson.toJson(joinInfo) + "]"));
+                }
                 break;
+
             case "frame":
-                // High-frequency state sync
+                // Broadcast frame to all other players in the room
+                // Note: Logic to find the current room for this channel needed
                 break;
-            case "chatMessage":
+
+            case "saveCharacter":
+                saveCharacter(data);
+                ctx.writeAndFlush(new TextWebSocketFrame("42[\"characterSaved\",{\"success\":true}]"));
                 break;
+            case "loadCharacter":
+                String charName = data.getAsString();
+                String charJson = loadCharacter(charName);
+                ctx.writeAndFlush(new TextWebSocketFrame("42[\"characterLoaded\",{\"success\":true,\"charData\":" + charJson + "}]"));
+                break;
+            case "saveMap":
+                saveMap(data);
+                ctx.writeAndFlush(new TextWebSocketFrame("42[\"mapSaved\",{\"success\":true}]"));
+                break;
+            case "loadMap":
+                String mapId = data.getAsString();
+                String mapJson = loadMap(mapId);
+                ctx.writeAndFlush(new TextWebSocketFrame("42[\"mapLoaded\",{\"success\":true,\"mapData\":" + mapJson + "}]"));
+                break;
+            case "playerMove":
+            case "playerAction":
+                // Broadcast to world
+                break;
+
+            case "saveRPGDatabase":
+                saveDatabase(data);
+                ctx.writeAndFlush(new TextWebSocketFrame("42[\"rpgDatabaseSaved\",{\"success\":true}]"));
+                break;
+
+            case "loadRPGDatabase":
+                String dbJson = loadDatabase();
+                ctx.writeAndFlush(new TextWebSocketFrame("42[\"rpgDatabaseLoaded\",{\"success\":true,\"db\":" + dbJson + "}]"));
+                break;
+
             default:
                 log.warn("Unhandled WebSocket event: " + eventName);
+        }
+    }
+
+    private void saveDatabase(JsonObject data) {
+        try (java.io.FileWriter writer = new java.io.FileWriter("rpg_database.json")) {
+            gson.toJson(data, writer);
+        } catch (Exception e) {
+            log.error("Failed to save RPG Database", e);
+        }
+    }
+
+    private String loadDatabase() {
+        try {
+            return new String(java.nio.file.Files.readAllBytes(java.nio.file.Paths.get("rpg_database.json")));
+        } catch (Exception e) {
+            return "{}";
+        }
+    }
+
+    private void saveCharacter(JsonObject data) {
+        try {
+            String name = data.get("name").getAsString();
+            JsonObject charData = data.get("charData").getAsJsonObject();
+            java.nio.file.Files.createDirectories(java.nio.file.Paths.get("characters"));
+            try (java.io.FileWriter writer = new java.io.FileWriter("characters/" + name.toLowerCase() + ".json")) {
+                gson.toJson(charData, writer);
+            }
+        } catch (Exception e) {
+            log.error("Failed to save character", e);
+        }
+    }
+
+    private String loadCharacter(String name) {
+        try {
+            return new String(java.nio.file.Files.readAllBytes(java.nio.file.Paths.get("characters/" + name.toLowerCase() + ".json")));
+        } catch (Exception e) {
+            return "{}";
+        }
+    }
+
+    private void saveMap(JsonObject data) {
+        try {
+            String mapId = data.get("mapId").getAsString();
+            JsonObject mapData = data.get("mapData").getAsJsonObject();
+            java.nio.file.Files.createDirectories(java.nio.file.Paths.get("maps"));
+            try (java.io.FileWriter writer = new java.io.FileWriter("maps/map_" + mapId + ".json")) {
+                gson.toJson(mapData, writer);
+            }
+        } catch (Exception e) {
+            log.error("Failed to save map", e);
+        }
+    }
+
+    private String loadMap(String mapId) {
+        try {
+            return new String(java.nio.file.Files.readAllBytes(java.nio.file.Paths.get("maps/map_" + mapId + ".json")));
+        } catch (Exception e) {
+            return "{}";
         }
     }
 }
