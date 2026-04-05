@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.0.21] - 2026-04-05
+
+### Added
+- **Scene2D Deeper Block Rule Editing:** `CustomGameEditor.java` now exposes a focused second-pass block authoring set with special color, special chance/frequency, flashing special, match-any-color, and counter-type controls.
+
+### Changed
+- Expanded block detail readouts so authored special behavior is visible alongside color and usage data.
+- Bumped `VERSION.md` to `2.0.21`.
+
+### Validation
+- `./gradlew compileJava` ✅
+
 ## [2.0.20] - 2026-04-05
 
 ### Added

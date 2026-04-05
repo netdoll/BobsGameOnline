@@ -42,6 +42,9 @@ public class CustomGameEditor extends Scene2DPanel {
     private final TextButton nextBlockBtn;
     private final TextButton renameBlockBtn;
     private final TextButton recolorBlockBtn;
+    private final TextButton recolorSpecialBlockBtn;
+    private final TextButton blockSpecialChanceBtn;
+    private final TextButton blockSpecialFrequencyBtn;
     private final TextButton assignBlockToPieceBtn;
     private final TextButton clearPieceBlockBtn;
     private final TextButton addPieceBtn;
@@ -77,6 +80,9 @@ public class CustomGameEditor extends Scene2DPanel {
     private final CheckBox blockUseNormalCheckbox;
     private final CheckBox blockUseGarbageCheckbox;
     private final CheckBox blockUseFillerCheckbox;
+    private final CheckBox blockFlashingCheckbox;
+    private final CheckBox blockMatchAnyColorCheckbox;
+    private final CheckBox blockCounterCheckbox;
     private final CheckBox cascadeGravityCheckbox;
     private final CheckBox disconnectedGravityCheckbox;
     private final CheckBox chainRowCheckbox;
@@ -141,6 +147,9 @@ public class CustomGameEditor extends Scene2DPanel {
         blockUseNormalCheckbox = new CheckBox(" Use in normal pieces", skin);
         blockUseGarbageCheckbox = new CheckBox(" Use as garbage", skin);
         blockUseFillerCheckbox = new CheckBox(" Use as filler", skin);
+        blockFlashingCheckbox = new CheckBox(" Flashing special", skin);
+        blockMatchAnyColorCheckbox = new CheckBox(" Match any color", skin);
+        blockCounterCheckbox = new CheckBox(" Counter type", skin);
         cascadeGravityCheckbox = new CheckBox(" Cascade gravity", skin);
         disconnectedGravityCheckbox = new CheckBox(" Disconnected-only gravity", skin);
         chainRowCheckbox = new CheckBox(" Chain rows", skin);
@@ -177,6 +186,9 @@ public class CustomGameEditor extends Scene2DPanel {
         nextBlockBtn = new TextButton("Block >", skin);
         renameBlockBtn = new TextButton("Rename Block", skin);
         recolorBlockBtn = new TextButton("Set Block Color", skin);
+        recolorSpecialBlockBtn = new TextButton("Set Special Color", skin);
+        blockSpecialChanceBtn = new TextButton("Special Chance", skin);
+        blockSpecialFrequencyBtn = new TextButton("Special Frequency", skin);
         assignBlockToPieceBtn = new TextButton("Assign Block To Piece", skin);
         clearPieceBlockBtn = new TextButton("Clear Piece Block", skin);
         addPieceBtn = new TextButton("Add Piece Type", skin);
@@ -222,6 +234,9 @@ public class CustomGameEditor extends Scene2DPanel {
         blockControlsRow1.add(nextBlockBtn);
         blockControlsRow1.add(renameBlockBtn);
         blockControlsRow1.add(recolorBlockBtn);
+        blockControlsRow1.add(recolorSpecialBlockBtn);
+        blockControlsRow1.add(blockSpecialChanceBtn);
+        blockControlsRow1.add(blockSpecialFrequencyBtn);
 
         Table blockControlsRow2 = new Table();
         blockControlsRow2.defaults().pad(4);
@@ -230,6 +245,9 @@ public class CustomGameEditor extends Scene2DPanel {
         blockControlsRow2.add(blockUseNormalCheckbox);
         blockControlsRow2.add(blockUseGarbageCheckbox);
         blockControlsRow2.add(blockUseFillerCheckbox);
+        blockControlsRow2.add(blockFlashingCheckbox);
+        blockControlsRow2.add(blockMatchAnyColorCheckbox);
+        blockControlsRow2.add(blockCounterCheckbox);
 
         Table controlsRow1 = new Table();
         controlsRow1.defaults().pad(4);
@@ -393,6 +411,24 @@ public class CustomGameEditor extends Scene2DPanel {
                 recolorCurrentBlock();
             }
         });
+        recolorSpecialBlockBtn.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                recolorCurrentSpecialBlock();
+            }
+        });
+        blockSpecialChanceBtn.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                editCurrentBlockSpecialChance();
+            }
+        });
+        blockSpecialFrequencyBtn.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                editCurrentBlockSpecialFrequency();
+            }
+        });
         assignBlockToPieceBtn.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
@@ -418,6 +454,24 @@ public class CustomGameEditor extends Scene2DPanel {
             }
         });
         blockUseFillerCheckbox.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                applySelectedBlockUsage();
+            }
+        });
+        blockFlashingCheckbox.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                applySelectedBlockUsage();
+            }
+        });
+        blockMatchAnyColorCheckbox.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                applySelectedBlockUsage();
+            }
+        });
+        blockCounterCheckbox.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 applySelectedBlockUsage();
@@ -690,6 +744,70 @@ public class CustomGameEditor extends Scene2DPanel {
         );
     }
 
+    private void recolorCurrentSpecialBlock() {
+        final BlockType blockType = getSelectedBlock();
+        if (blockType == null) return;
+        final BobColor currentColor = blockType.specialColor == null ? (blockType.colors.isEmpty() ? new BobColor(255, 0, 255) : blockType.colors.get(0)) : blockType.specialColor;
+        Engine.GUIManager().showStringDialog(
+            "Set special color as hex (#RRGGBB)",
+            bobColorToHex(currentColor),
+            new Scene2DStringDialog.StringDialogListener() {
+                @Override
+                public void onResult(String text) {
+                    blockType.specialColor = parseHexColor(text, currentColor);
+                    refreshEditorState();
+                    pushRecentAction("Updated special block color for " + (blockType.name == null || blockType.name.isEmpty() ? "selected block" : blockType.name) + ".");
+                }
+
+                @Override
+                public void onCancel() {
+                }
+            }
+        );
+    }
+
+    private void editCurrentBlockSpecialChance() {
+        final BlockType blockType = getSelectedBlock();
+        if (blockType == null) return;
+        Engine.GUIManager().showNumberDialog(
+            "Set special chance (1 in N, 0 disables)",
+            blockType.randomSpecialBlockChanceOneOutOf,
+            new com.bobsgame.client.engine.game.gui.Scene2DNumberDialog.NumberDialogListener() {
+                @Override
+                public void onResult(int value) {
+                    blockType.randomSpecialBlockChanceOneOutOf = Math.max(0, value);
+                    refreshEditorState();
+                    pushRecentAction("Updated special block chance for " + (blockType.name == null || blockType.name.isEmpty() ? "selected block" : blockType.name) + ".");
+                }
+
+                @Override
+                public void onCancel() {
+                }
+            }
+        );
+    }
+
+    private void editCurrentBlockSpecialFrequency() {
+        final BlockType blockType = getSelectedBlock();
+        if (blockType == null) return;
+        Engine.GUIManager().showNumberDialog(
+            "Set special frequency (every N pieces, 0 disables)",
+            blockType.frequencySpecialBlockTypeOnceEveryNPieces,
+            new com.bobsgame.client.engine.game.gui.Scene2DNumberDialog.NumberDialogListener() {
+                @Override
+                public void onResult(int value) {
+                    blockType.frequencySpecialBlockTypeOnceEveryNPieces = Math.max(0, value);
+                    refreshEditorState();
+                    pushRecentAction("Updated special block frequency for " + (blockType.name == null || blockType.name.isEmpty() ? "selected block" : blockType.name) + ".");
+                }
+
+                @Override
+                public void onCancel() {
+                }
+            }
+        );
+    }
+
     private String bobColorToHex(BobColor color) {
         return String.format("#%02x%02x%02x", color.ri(), color.gi(), color.bi());
     }
@@ -713,8 +831,11 @@ public class CustomGameEditor extends Scene2DPanel {
         blockType.isGarbageBlockType = blockUseGarbageCheckbox.isChecked();
         blockType.useAsPlayingFieldFiller = blockUseFillerCheckbox.isChecked();
         blockType.useAsPlayingFieldFillerBlock = blockUseFillerCheckbox.isChecked();
+        blockType.flashingSpecialType = blockFlashingCheckbox.isChecked();
+        blockType.matchAnyColor = blockMatchAnyColorCheckbox.isChecked();
+        blockType.counterType = blockCounterCheckbox.isChecked();
         refreshEditorState();
-        pushRecentAction("Updated usage flags for " + (blockType.name == null || blockType.name.isEmpty() ? "selected block" : blockType.name) + ".");
+        pushRecentAction("Updated block behavior flags for " + (blockType.name == null || blockType.name.isEmpty() ? "selected block" : blockType.name) + ".");
     }
 
     private void assignSelectedBlockToPiece() {
@@ -1550,6 +1671,9 @@ public class CustomGameEditor extends Scene2DPanel {
         blockUseNormalCheckbox.setChecked(blockType != null && blockType.useInNormalPieces);
         blockUseGarbageCheckbox.setChecked(blockType != null && (blockType.useAsGarbage || blockType.useAsGarbageBlock || blockType.isGarbageBlockType));
         blockUseFillerCheckbox.setChecked(blockType != null && (blockType.useAsPlayingFieldFiller || blockType.useAsPlayingFieldFillerBlock));
+        blockFlashingCheckbox.setChecked(blockType != null && blockType.flashingSpecialType);
+        blockMatchAnyColorCheckbox.setChecked(blockType != null && blockType.matchAnyColor);
+        blockCounterCheckbox.setChecked(blockType != null && blockType.counterType);
 
         cascadeGravityCheckbox.setChecked(currentGameType.moveDownAllLinesOverBlankSpacesAtOnce);
         disconnectedGravityCheckbox.setChecked(currentGameType.gravityRule_onlyMoveDownDisconnectedBlocks);
@@ -1579,7 +1703,10 @@ public class CustomGameEditor extends Scene2DPanel {
         blockDetailsLabel.setText(blockType == null
             ? "Add a block to start configuring block types."
             : "Color: " + bobColorToHex(blockType.colors.isEmpty() ? new BobColor(128, 128, 128) : blockType.colors.get(0))
-                + " | Usage: " + (blockType.useInNormalPieces ? "normal " : "") + (blockType.useAsGarbage || blockType.useAsGarbageBlock ? "garbage " : "") + (blockType.useAsPlayingFieldFiller || blockType.useAsPlayingFieldFillerBlock ? "filler" : "")
+                + " | Special: " + bobColorToHex(blockType.specialColor == null ? (blockType.colors.isEmpty() ? new BobColor(255, 0, 255) : blockType.colors.get(0)) : blockType.specialColor)
+                + " | Usage: " + (blockType.useInNormalPieces ? "normal " : "") + (blockType.useAsGarbage || blockType.useAsGarbageBlock ? "garbage " : "") + (blockType.useAsPlayingFieldFiller || blockType.useAsPlayingFieldFillerBlock ? "filler " : "")
+                + "| Flags: " + (blockType.flashingSpecialType ? "flashing " : "") + (blockType.matchAnyColor ? "match-any " : "") + (blockType.counterType ? "counter " : "")
+                + "| Chance/Frequency: " + blockType.randomSpecialBlockChanceOneOutOf + "/" + blockType.frequencySpecialBlockTypeOnceEveryNPieces
         );
         pieceLabel.setText(pieceType == null ? "Piece: none" : "Piece: " + pieceType.name + " (" + (selectedPieceIndex + 1) + "/" + currentGameType.pieceTypes.size() + ")" + " | Block override: " + selectedPieceBlockOverride);
         rotationLabel.setText(rotation == null ? "Rotation: none" : "Rotation: " + selectedRotationIndex + " (" + getFilledCellCount(rotation) + " blocks)");
