@@ -105,6 +105,12 @@ This session focused on the newer Scene2D `CustomGameEditor` so the Java port ha
 - Reused the same centering logic for both single-rotation and full-set centering to keep geometry behavior consistent.
 - Bumped the Java repo version again to `2.0.18`.
 
+### Additional Follow-Up - 2026-04-05 (Recent Action Breadcrumbs)
+- Added a bounded recent-action panel that tracks meaningful authoring operations like presets, imports, shares, geometry helpers, and cleanup actions.
+- Intentionally left noisy navigation clicks out of the breadcrumb feed so it behaves like useful workflow memory instead of spam.
+- Positioned this as lightweight undo-adjacent guidance rather than a fake full undo system.
+- Bumped the Java repo version again to `2.0.19`.
+
 ### Recommended Next Steps
 1. Add color/block-type controls to the Scene2D editor.
 2. Bridge Scene2D custom editor state into the older TWL editor stack where useful.

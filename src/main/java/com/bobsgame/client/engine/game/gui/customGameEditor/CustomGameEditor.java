@@ -58,8 +58,10 @@ public class CustomGameEditor extends Scene2DPanel {
     private final Label hintLabel;
     private final Label rotationOverviewLabel;
     private final Label recentHistoryLabel;
+    private final Label recentActionsLabel;
     private final Table rotationOverviewTable;
     private final Table recentHistoryTable;
+    private final Table recentActionsTable;
     private final CheckBox cascadeGravityCheckbox;
     private final CheckBox disconnectedGravityCheckbox;
     private final CheckBox chainRowCheckbox;
@@ -79,6 +81,7 @@ public class CustomGameEditor extends Scene2DPanel {
     private GameType currentGameType = new GameType();
     private final GameType[] presetSlots = new GameType[3];
     private final java.util.ArrayList<RecentGameHistoryEntry> recentHistory = new java.util.ArrayList<RecentGameHistoryEntry>();
+    private final java.util.ArrayList<RecentEditorActionEntry> recentActions = new java.util.ArrayList<RecentEditorActionEntry>();
     private int selectedPieceIndex = -1;
     private int selectedRotationIndex = 0;
 
@@ -88,6 +91,11 @@ public class CustomGameEditor extends Scene2DPanel {
         public String gameName;
         public int pieceCount;
         public int rotationCount;
+        public long timestamp;
+    }
+
+    private static class RecentEditorActionEntry {
+        public String label;
         public long timestamp;
     }
 
@@ -108,8 +116,10 @@ public class CustomGameEditor extends Scene2DPanel {
         hintLabel = new Label("Build piece shapes with the 4x4 grid. Add pieces and rotations to sketch rules live.", skin);
         rotationOverviewLabel = new Label("Rotation Overview", skin);
         recentHistoryLabel = new Label("Recent Share / Import History", skin);
+        recentActionsLabel = new Label("Recent Actions", skin);
         rotationOverviewTable = new Table();
         recentHistoryTable = new Table();
+        recentActionsTable = new Table();
         cascadeGravityCheckbox = new CheckBox(" Cascade gravity", skin);
         disconnectedGravityCheckbox = new CheckBox(" Disconnected-only gravity", skin);
         chainRowCheckbox = new CheckBox(" Chain rows", skin);
@@ -458,6 +468,8 @@ public class CustomGameEditor extends Scene2DPanel {
         mainTable.add(rotationOverviewTable).left().row();
         mainTable.add(recentHistoryLabel).left().padTop(8).row();
         mainTable.add(recentHistoryTable).left().row();
+        mainTable.add(recentActionsLabel).left().padTop(8).row();
+        mainTable.add(recentActionsTable).left().row();
         mainTable.add(summaryLabel).width(520).left().padTop(10).row();
 
         addPiece();
@@ -471,6 +483,7 @@ public class CustomGameEditor extends Scene2DPanel {
         selectedPieceIndex = currentGameType.pieceTypes.size() - 1;
         selectedRotationIndex = 0;
         refreshEditorState();
+        pushRecentAction("Added piece: " + pieceType.name);
     }
 
     private void addRotation() {
@@ -484,6 +497,7 @@ public class CustomGameEditor extends Scene2DPanel {
         pieceType.rotationSet.add(new Piece.Rotation());
         selectedRotationIndex = pieceType.rotationSet.size() - 1;
         refreshEditorState();
+        pushRecentAction("Added rotation " + selectedRotationIndex + " to " + (pieceType.name == null ? "selected piece" : pieceType.name) + ".");
     }
 
     private GameType deepCloneGameType(GameType source) {
@@ -503,6 +517,7 @@ public class CustomGameEditor extends Scene2DPanel {
         applyRuleCheckboxes();
         presetSlots[slotIndex] = deepCloneGameType(currentGameType);
         summaryLabel.setText("Saved current ruleset to preset slot " + (slotIndex + 1));
+        pushRecentAction("Saved the current ruleset to preset slot " + (slotIndex + 1) + ".");
     }
 
     private void applyPreset(String preset) {
@@ -574,6 +589,7 @@ public class CustomGameEditor extends Scene2DPanel {
         selectedPieceIndex = currentGameType.pieceTypes.isEmpty() ? -1 : 0;
         selectedRotationIndex = 0;
         refreshEditorState();
+        pushRecentAction("Applied preset: " + currentGameType.name);
     }
 
     private void loadPresetSlot(int slotIndex) {
@@ -585,6 +601,7 @@ public class CustomGameEditor extends Scene2DPanel {
         selectedPieceIndex = currentGameType.pieceTypes.isEmpty() ? -1 : 0;
         selectedRotationIndex = 0;
         refreshEditorState();
+        pushRecentAction("Loaded preset slot " + (slotIndex + 1) + ".");
     }
 
     private void showImportDialog() {
@@ -619,6 +636,7 @@ public class CustomGameEditor extends Scene2DPanel {
             pushRecentHistoryEntry("import", payload, currentGameType);
             refreshEditorState();
             summaryLabel.setText("Imported shared game configuration.");
+            pushRecentAction("Imported shared ruleset: " + (currentGameType.name == null || currentGameType.name.isEmpty() ? "Imported Ruleset" : currentGameType.name) + ".");
         } catch (Exception e) {
             e.printStackTrace();
             summaryLabel.setText("Failed to import shared game configuration.");
@@ -630,6 +648,7 @@ public class CustomGameEditor extends Scene2DPanel {
         String payload = currentGameType.toBase64GZippedGSON();
         String url = "https://bobsgame.com/#play=" + payload;
         pushRecentHistoryEntry("share", payload, currentGameType);
+        pushRecentAction("Generated a share link for " + (currentGameType.name == null || currentGameType.name.isEmpty() ? "current ruleset" : currentGameType.name) + ".");
         if (copyTextToClipboard(url)) {
             summaryLabel.setText("Share link copied to clipboard.");
             return;
@@ -679,6 +698,29 @@ public class CustomGameEditor extends Scene2DPanel {
         recentHistory.add(0, entry);
         while (recentHistory.size() > 5) recentHistory.remove(recentHistory.size() - 1);
         rebuildRecentHistoryTable();
+    }
+
+    private void pushRecentAction(String label) {
+        RecentEditorActionEntry entry = new RecentEditorActionEntry();
+        entry.label = label;
+        entry.timestamp = System.currentTimeMillis();
+        recentActions.add(0, entry);
+        while (recentActions.size() > 8) recentActions.remove(recentActions.size() - 1);
+        rebuildRecentActionsTable();
+    }
+
+    private void rebuildRecentActionsTable() {
+        recentActionsTable.clearChildren();
+        recentActionsTable.defaults().left().pad(4);
+        if (recentActions.isEmpty()) {
+            recentActionsTable.add(new Label("No recent editor actions yet.", engine.uiSkin)).left().row();
+            return;
+        }
+        for (int i = 0; i < recentActions.size(); i++) {
+            RecentEditorActionEntry entry = recentActions.get(i);
+            String when = new java.text.SimpleDateFormat("HH:mm").format(new java.util.Date(entry.timestamp));
+            recentActionsTable.add(new Label(entry.label + " • " + when, engine.uiSkin)).left().row();
+        }
     }
 
     private int getTotalRotationCount(GameType gameType) {
@@ -798,6 +840,7 @@ public class CustomGameEditor extends Scene2DPanel {
         selectedPieceIndex = selectedPieceIndex + 1;
         selectedRotationIndex = 0;
         refreshEditorState();
+        pushRecentAction("Duplicated piece: " + duplicate.name);
     }
 
     private void removePiece() {
@@ -818,6 +861,7 @@ public class CustomGameEditor extends Scene2DPanel {
                         selectedRotationIndex = 0;
                     }
                     refreshEditorState();
+                    pushRecentAction("Removed piece: " + pieceName);
                 }
 
                 @Override
@@ -834,6 +878,7 @@ public class CustomGameEditor extends Scene2DPanel {
         pieceType.rotationSet.rotations.add(selectedRotationIndex + 1, duplicate);
         selectedRotationIndex = selectedRotationIndex + 1;
         refreshEditorState();
+        pushRecentAction("Duplicated rotation for " + (pieceType.name == null ? "selected piece" : pieceType.name) + ".");
     }
 
     private void normalizeCurrentRotation() {
@@ -850,6 +895,7 @@ public class CustomGameEditor extends Scene2DPanel {
             offset.y -= minY;
         }
         refreshEditorState();
+        pushRecentAction("Normalized the current rotation.");
     }
 
     private void centerCurrentRotation() {
@@ -857,6 +903,7 @@ public class CustomGameEditor extends Scene2DPanel {
         if (rotation == null || rotation.blockOffsets.isEmpty()) return;
         centerRotationInPlace(rotation);
         refreshEditorState();
+        pushRecentAction("Centered the current rotation.");
     }
 
     private void centerAllRotations() {
@@ -868,6 +915,7 @@ public class CustomGameEditor extends Scene2DPanel {
             centerRotationInPlace(rotation);
         }
         refreshEditorState();
+        pushRecentAction("Centered all rotations for " + (pieceType.name == null ? "selected piece" : pieceType.name) + ".");
     }
 
     private void normalizeAllRotations() {
@@ -888,6 +936,7 @@ public class CustomGameEditor extends Scene2DPanel {
             }
         }
         refreshEditorState();
+        pushRecentAction("Normalized all rotations for " + (pieceType.name == null ? "selected piece" : pieceType.name) + ".");
     }
 
     private void centerRotationInPlace(Piece.Rotation rotation) {
@@ -937,6 +986,7 @@ public class CustomGameEditor extends Scene2DPanel {
                         selectedRotationIndex = Math.min(selectedRotationIndex, pieceType.rotationSet.size() - 1);
                     }
                     refreshEditorState();
+                    pushRecentAction("Cleared " + duplicateIndices.size() + " duplicate rotation(s).");
                 }
 
                 @Override
@@ -976,6 +1026,7 @@ public class CustomGameEditor extends Scene2DPanel {
                         selectedRotationIndex = Math.min(selectedRotationIndex, pieceType.rotationSet.size() - 1);
                     }
                     refreshEditorState();
+                    pushRecentAction("Cleared " + emptyIndices.size() + " empty rotation(s).");
                 }
 
                 @Override
@@ -1001,6 +1052,7 @@ public class CustomGameEditor extends Scene2DPanel {
                         selectedRotationIndex = Math.min(removeIndex, pieceType.rotationSet.size() - 1);
                     }
                     refreshEditorState();
+                    pushRecentAction("Removed a rotation from " + (pieceType.name == null ? "selected piece" : pieceType.name) + ".");
                 }
 
                 @Override
@@ -1015,6 +1067,7 @@ public class CustomGameEditor extends Scene2DPanel {
         if (rotation == null) return;
         rotation.blockOffsets.clear();
         refreshEditorState();
+        pushRecentAction("Cleared the current rotation.");
     }
 
     private void cyclePiece(int delta) {
@@ -1248,6 +1301,7 @@ public class CustomGameEditor extends Scene2DPanel {
         rotationLabel.setText(rotation == null ? "Rotation: none" : "Rotation: " + selectedRotationIndex + " (" + getFilledCellCount(rotation) + " blocks)");
         rebuildRotationOverview(pieceType);
         rebuildRecentHistoryTable();
+        rebuildRecentActionsTable();
 
         for (int y = 0; y < 4; y++) {
             for (int x = 0; x < 4; x++) {

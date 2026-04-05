@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.0.19] - 2026-04-05
+
+### Added
+- **Scene2D Recent Action Breadcrumbs:** `CustomGameEditor.java` now shows a bounded recent-action panel that tracks meaningful authoring operations like presets, imports, shares, piece/rotation edits, and cleanup helpers.
+
+### Changed
+- Kept the breadcrumb feed intentionally focused on meaningful edits rather than noisy navigation clicks, making it useful as lightweight workflow memory without pretending to be full undo.
+- Bumped `VERSION.md` to `2.0.19`.
+
+### Validation
+- `./gradlew compileJava` ✅
+
 ## [2.0.18] - 2026-04-05
 
 ### Added
