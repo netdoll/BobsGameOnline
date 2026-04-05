@@ -120,11 +120,16 @@ This session focused on the newer Scene2D `CustomGameEditor` so the Java port ha
 - Expanded block detail readouts so authored special behavior is visible alongside color and usage data.
 - Bumped the Java repo version again to `2.0.21`.
 
+### Additional Follow-Up - 2026-04-05 (Richer Block Color Set Editing)
+- Added palette color growth/shrink controls and surfaced the full authored palette in the block detail readout.
+- Reused the current primary color as the palette-source color for new palette entries so the richer color-set workflow stays coherent with the existing dialog-driven UI.
+- Bumped the Java repo version again to `2.0.22`.
+
 ### Recommended Next Steps
 1. Bridge Scene2D custom editor state into the older TWL editor stack where useful.
 2. Replace the temporary reflection bridge with a direct adapter once the exact TWL/LWJGL API contract is fully normalized.
 3. Add a targeted Java regression test or smoke harness for nD puzzle bootstrap + editor launch.
-4. Consider further block-rule depth like extra colors, special piece conversion hooks, and chain-behavior flags.
+4. Consider further block-rule depth like special piece conversion hooks and chain-behavior flags.
 
 ## Summary
 This session focused on modernizing the internal Swing-based Editor tools (`SpriteEditor`, `MapCanvas`, `DialogueEditor`) to include features found in industry-standard tools like Aseprite and Pyxel Edit.

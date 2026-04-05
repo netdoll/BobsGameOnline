@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.0.22] - 2026-04-05
+
+### Added
+- **Scene2D Richer Block Color Set Editing:** `CustomGameEditor.java` now adds palette color growth/shrink controls and surfaces the full authored palette in the block detail readout.
+
+### Changed
+- Reused the current primary color as the palette-source color for new palette entries, keeping Scene2D color-set editing simple and coherent with the existing dialog-driven UI.
+- Bumped `VERSION.md` to `2.0.22`.
+
+### Validation
+- `./gradlew compileJava` ✅
+
 ## [2.0.21] - 2026-04-05
 
 ### Added

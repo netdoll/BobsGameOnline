@@ -42,6 +42,8 @@ public class CustomGameEditor extends Scene2DPanel {
     private final TextButton nextBlockBtn;
     private final TextButton renameBlockBtn;
     private final TextButton recolorBlockBtn;
+    private final TextButton addBlockColorBtn;
+    private final TextButton removeBlockColorBtn;
     private final TextButton recolorSpecialBlockBtn;
     private final TextButton blockSpecialChanceBtn;
     private final TextButton blockSpecialFrequencyBtn;
@@ -186,6 +188,8 @@ public class CustomGameEditor extends Scene2DPanel {
         nextBlockBtn = new TextButton("Block >", skin);
         renameBlockBtn = new TextButton("Rename Block", skin);
         recolorBlockBtn = new TextButton("Set Block Color", skin);
+        addBlockColorBtn = new TextButton("Add Palette Color", skin);
+        removeBlockColorBtn = new TextButton("Remove Palette Color", skin);
         recolorSpecialBlockBtn = new TextButton("Set Special Color", skin);
         blockSpecialChanceBtn = new TextButton("Special Chance", skin);
         blockSpecialFrequencyBtn = new TextButton("Special Frequency", skin);
@@ -234,6 +238,8 @@ public class CustomGameEditor extends Scene2DPanel {
         blockControlsRow1.add(nextBlockBtn);
         blockControlsRow1.add(renameBlockBtn);
         blockControlsRow1.add(recolorBlockBtn);
+        blockControlsRow1.add(addBlockColorBtn);
+        blockControlsRow1.add(removeBlockColorBtn);
         blockControlsRow1.add(recolorSpecialBlockBtn);
         blockControlsRow1.add(blockSpecialChanceBtn);
         blockControlsRow1.add(blockSpecialFrequencyBtn);
@@ -409,6 +415,18 @@ public class CustomGameEditor extends Scene2DPanel {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 recolorCurrentBlock();
+            }
+        });
+        addBlockColorBtn.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                addPaletteColorToCurrentBlock();
+            }
+        });
+        removeBlockColorBtn.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                removePaletteColorFromCurrentBlock();
             }
         });
         recolorSpecialBlockBtn.addListener(new ClickListener() {
@@ -764,6 +782,24 @@ public class CustomGameEditor extends Scene2DPanel {
                 }
             }
         );
+    }
+
+    private void addPaletteColorToCurrentBlock() {
+        BlockType blockType = getSelectedBlock();
+        if (blockType == null) return;
+        BobColor sourceColor = blockType.colors.isEmpty() ? new BobColor(128, 128, 128) : blockType.colors.get(0);
+        blockType.colors.add(sourceColor.clone());
+        refreshEditorState();
+        pushRecentAction("Added palette color to " + (blockType.name == null || blockType.name.isEmpty() ? "selected block" : blockType.name) + ".");
+    }
+
+    private void removePaletteColorFromCurrentBlock() {
+        BlockType blockType = getSelectedBlock();
+        if (blockType == null) return;
+        if (blockType.colors.size() <= 1) return;
+        blockType.colors.remove(blockType.colors.size() - 1);
+        refreshEditorState();
+        pushRecentAction("Removed palette color from " + (blockType.name == null || blockType.name.isEmpty() ? "selected block" : blockType.name) + ".");
     }
 
     private void editCurrentBlockSpecialChance() {
@@ -1700,9 +1736,20 @@ public class CustomGameEditor extends Scene2DPanel {
         }
 
         blockLabel.setText(blockType == null ? "Block: none" : "Block: " + (blockType.name == null || blockType.name.isEmpty() ? "Unnamed Block" : blockType.name) + " (" + (selectedBlockIndex + 1) + "/" + currentGameType.blockTypes.size() + ")");
+        String palette = "";
+        if (blockType != null && blockType.colors != null) {
+            StringBuilder paletteBuilder = new StringBuilder();
+            for (int i = 0; i < blockType.colors.size(); i++) {
+                if (i > 0) paletteBuilder.append(", ");
+                paletteBuilder.append(bobColorToHex(blockType.colors.get(i)));
+            }
+            palette = paletteBuilder.toString();
+        }
+
         blockDetailsLabel.setText(blockType == null
             ? "Add a block to start configuring block types."
             : "Color: " + bobColorToHex(blockType.colors.isEmpty() ? new BobColor(128, 128, 128) : blockType.colors.get(0))
+                + " | Palette: [" + palette + "]"
                 + " | Special: " + bobColorToHex(blockType.specialColor == null ? (blockType.colors.isEmpty() ? new BobColor(255, 0, 255) : blockType.colors.get(0)) : blockType.specialColor)
                 + " | Usage: " + (blockType.useInNormalPieces ? "normal " : "") + (blockType.useAsGarbage || blockType.useAsGarbageBlock ? "garbage " : "") + (blockType.useAsPlayingFieldFiller || blockType.useAsPlayingFieldFillerBlock ? "filler " : "")
                 + "| Flags: " + (blockType.flashingSpecialType ? "flashing " : "") + (blockType.matchAnyColor ? "match-any " : "") + (blockType.counterType ? "counter " : "")
