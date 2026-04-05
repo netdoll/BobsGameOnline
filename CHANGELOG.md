@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.0.10] - 2026-04-05
+
+### Added
+- **Scene2D Preset Shortcut Buttons:** `CustomGameEditor.java` now includes one-click Classic Drop, Cascade Puzzle, and Stack Arcade preset buttons layered on top of the in-session preset-slot workflow.
+
+### Changed
+- Bumped `VERSION.md` to `2.0.10`.
+
+### Validation
+- `./gradlew compileJava` ✅
+
 ## [2.0.9] - 2026-04-05
 
 ### Added

@@ -65,6 +65,10 @@ This session focused on the newer Scene2D `CustomGameEditor` so the Java port ha
 - Added in-session preset save/load slots to the Scene2D custom editor using deep-cloned `GameType` snapshots.
 - Bumped the Java repo version again to `2.0.9`.
 
+### Additional Follow-Up - 2026-04-05 (Preset Shortcut Buttons)
+- Added one-click Classic Drop, Cascade Puzzle, and Stack Arcade preset buttons on top of the Scene2D preset-slot workflow.
+- Bumped the Java repo version again to `2.0.10`.
+
 ### Recommended Next Steps
 1. Add color/block-type controls to the Scene2D editor.
 2. Bridge Scene2D custom editor state into the older TWL editor stack where useful.
