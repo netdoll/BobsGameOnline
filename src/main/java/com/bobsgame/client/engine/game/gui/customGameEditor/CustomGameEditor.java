@@ -85,6 +85,12 @@ public class CustomGameEditor extends Scene2DPanel {
     private final CheckBox blockFlashingCheckbox;
     private final CheckBox blockMatchAnyColorCheckbox;
     private final CheckBox blockCounterCheckbox;
+    private final CheckBox blockClearEveryOtherLineCheckbox;
+    private final CheckBox blockIgnoreChainConnectionsCheckbox;
+    private final CheckBox blockRequireChainPresenceCheckbox;
+    private final CheckBox blockAddToExplodingChainCheckbox;
+    private final TextButton assignBlockRewardBtn;
+    private final TextButton clearBlockRewardBtn;
     private final CheckBox cascadeGravityCheckbox;
     private final CheckBox disconnectedGravityCheckbox;
     private final CheckBox chainRowCheckbox;
@@ -152,6 +158,10 @@ public class CustomGameEditor extends Scene2DPanel {
         blockFlashingCheckbox = new CheckBox(" Flashing special", skin);
         blockMatchAnyColorCheckbox = new CheckBox(" Match any color", skin);
         blockCounterCheckbox = new CheckBox(" Counter type", skin);
+        blockClearEveryOtherLineCheckbox = new CheckBox(" Clear every other line", skin);
+        blockIgnoreChainConnectionsCheckbox = new CheckBox(" Ignore chain connections", skin);
+        blockRequireChainPresenceCheckbox = new CheckBox(" Required in chain", skin);
+        blockAddToExplodingChainCheckbox = new CheckBox(" Add to exploding chain", skin);
         cascadeGravityCheckbox = new CheckBox(" Cascade gravity", skin);
         disconnectedGravityCheckbox = new CheckBox(" Disconnected-only gravity", skin);
         chainRowCheckbox = new CheckBox(" Chain rows", skin);
@@ -195,6 +205,8 @@ public class CustomGameEditor extends Scene2DPanel {
         blockSpecialFrequencyBtn = new TextButton("Special Frequency", skin);
         assignBlockToPieceBtn = new TextButton("Assign Block To Piece", skin);
         clearPieceBlockBtn = new TextButton("Clear Piece Block", skin);
+        assignBlockRewardBtn = new TextButton("Use Selected Piece as Reward", skin);
+        clearBlockRewardBtn = new TextButton("Clear Reward", skin);
         addPieceBtn = new TextButton("Add Piece Type", skin);
         duplicatePieceBtn = new TextButton("Duplicate Piece", skin);
         removePieceBtn = new TextButton("Remove Piece", skin);
@@ -254,6 +266,15 @@ public class CustomGameEditor extends Scene2DPanel {
         blockControlsRow2.add(blockFlashingCheckbox);
         blockControlsRow2.add(blockMatchAnyColorCheckbox);
         blockControlsRow2.add(blockCounterCheckbox);
+        blockControlsRow2.add(blockClearEveryOtherLineCheckbox);
+        blockControlsRow2.add(blockIgnoreChainConnectionsCheckbox);
+        blockControlsRow2.add(blockRequireChainPresenceCheckbox);
+        blockControlsRow2.add(blockAddToExplodingChainCheckbox);
+
+        Table blockRewardRow = new Table();
+        blockRewardRow.defaults().pad(4);
+        blockRewardRow.add(assignBlockRewardBtn);
+        blockRewardRow.add(clearBlockRewardBtn);
 
         Table controlsRow1 = new Table();
         controlsRow1.defaults().pad(4);
@@ -495,6 +516,42 @@ public class CustomGameEditor extends Scene2DPanel {
                 applySelectedBlockUsage();
             }
         });
+        blockClearEveryOtherLineCheckbox.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                applySelectedBlockUsage();
+            }
+        });
+        blockIgnoreChainConnectionsCheckbox.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                applySelectedBlockUsage();
+            }
+        });
+        blockRequireChainPresenceCheckbox.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                applySelectedBlockUsage();
+            }
+        });
+        blockAddToExplodingChainCheckbox.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                applySelectedBlockUsage();
+            }
+        });
+        assignBlockRewardBtn.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                assignSelectedPieceAsBlockReward();
+            }
+        });
+        clearBlockRewardBtn.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                clearSelectedBlockReward();
+            }
+        });
 
         addPieceBtn.addListener(new ClickListener() {
             @Override
@@ -645,6 +702,7 @@ public class CustomGameEditor extends Scene2DPanel {
         mainTable.add(presetQuickRow).left().row();
         mainTable.add(blockControlsRow1).left().row();
         mainTable.add(blockControlsRow2).left().row();
+        mainTable.add(blockRewardRow).left().row();
         mainTable.add(blockLabel).left().row();
         mainTable.add(blockDetailsLabel).width(520).left().row();
         mainTable.add(controlsRow1).left().row();
@@ -870,6 +928,10 @@ public class CustomGameEditor extends Scene2DPanel {
         blockType.flashingSpecialType = blockFlashingCheckbox.isChecked();
         blockType.matchAnyColor = blockMatchAnyColorCheckbox.isChecked();
         blockType.counterType = blockCounterCheckbox.isChecked();
+        blockType.clearEveryOtherLineOnGridWhenCleared = blockClearEveryOtherLineCheckbox.isChecked();
+        blockType.ignoreWhenCheckingChainConnections = blockIgnoreChainConnectionsCheckbox.isChecked();
+        blockType.chainConnectionsMustContainAtLeastOneBlockWithThisTrue = blockRequireChainPresenceCheckbox.isChecked();
+        blockType.addToChainIfConnectedUpDownLeftRightToExplodingChainBlocks = blockAddToExplodingChainCheckbox.isChecked();
         refreshEditorState();
         pushRecentAction("Updated block behavior flags for " + (blockType.name == null || blockType.name.isEmpty() ? "selected block" : blockType.name) + ".");
     }
@@ -890,6 +952,24 @@ public class CustomGameEditor extends Scene2DPanel {
         pieceType.overrideBlockTypes_UUID.clear();
         refreshEditorState();
         pushRecentAction("Cleared block override for " + (pieceType.name == null || pieceType.name.isEmpty() ? "selected piece" : pieceType.name) + ".");
+    }
+
+    private void assignSelectedPieceAsBlockReward() {
+        BlockType blockType = getSelectedBlock();
+        PieceType pieceType = getSelectedPiece();
+        if (blockType == null || pieceType == null) return;
+        blockType.makePieceTypeWhenCleared_UUID.clear();
+        blockType.makePieceTypeWhenCleared_UUID.add(pieceType.uuid);
+        refreshEditorState();
+        pushRecentAction("Assigned clear reward piece " + (pieceType.name == null || pieceType.name.isEmpty() ? "selected piece" : pieceType.name) + " to " + (blockType.name == null || blockType.name.isEmpty() ? "selected block" : blockType.name) + ".");
+    }
+
+    private void clearSelectedBlockReward() {
+        BlockType blockType = getSelectedBlock();
+        if (blockType == null) return;
+        blockType.makePieceTypeWhenCleared_UUID.clear();
+        refreshEditorState();
+        pushRecentAction("Cleared reward piece for " + (blockType.name == null || blockType.name.isEmpty() ? "selected block" : blockType.name) + ".");
     }
 
     private void addPiece() {
@@ -1710,6 +1790,10 @@ public class CustomGameEditor extends Scene2DPanel {
         blockFlashingCheckbox.setChecked(blockType != null && blockType.flashingSpecialType);
         blockMatchAnyColorCheckbox.setChecked(blockType != null && blockType.matchAnyColor);
         blockCounterCheckbox.setChecked(blockType != null && blockType.counterType);
+        blockClearEveryOtherLineCheckbox.setChecked(blockType != null && blockType.clearEveryOtherLineOnGridWhenCleared);
+        blockIgnoreChainConnectionsCheckbox.setChecked(blockType != null && blockType.ignoreWhenCheckingChainConnections);
+        blockRequireChainPresenceCheckbox.setChecked(blockType != null && blockType.chainConnectionsMustContainAtLeastOneBlockWithThisTrue);
+        blockAddToExplodingChainCheckbox.setChecked(blockType != null && blockType.addToChainIfConnectedUpDownLeftRightToExplodingChainBlocks);
 
         cascadeGravityCheckbox.setChecked(currentGameType.moveDownAllLinesOverBlankSpacesAtOnce);
         disconnectedGravityCheckbox.setChecked(currentGameType.gravityRule_onlyMoveDownDisconnectedBlocks);
@@ -1735,7 +1819,17 @@ public class CustomGameEditor extends Scene2DPanel {
             }
         }
 
-        blockLabel.setText(blockType == null ? "Block: none" : "Block: " + (blockType.name == null || blockType.name.isEmpty() ? "Unnamed Block" : blockType.name) + " (" + (selectedBlockIndex + 1) + "/" + currentGameType.blockTypes.size() + ")");
+        String clearReward = "none";
+        if (blockType != null && blockType.makePieceTypeWhenCleared_UUID != null && !blockType.makePieceTypeWhenCleared_UUID.isEmpty()) {
+            PieceType rewardPiece = currentGameType.getPieceTypeByUUID(blockType.makePieceTypeWhenCleared_UUID.get(0));
+            if (rewardPiece != null && rewardPiece.name != null && !rewardPiece.name.isEmpty()) {
+                clearReward = rewardPiece.name;
+            } else {
+                clearReward = "custom reward piece";
+            }
+        }
+
+        blockLabel.setText(blockType == null ? "Block: none" : "Block: " + (blockType.name == null || blockType.name.isEmpty() ? "Unnamed Block" : blockType.name) + " (" + (selectedBlockIndex + 1) + "/" + currentGameType.blockTypes.size() + ")" + " | Reward: " + clearReward);
         String palette = "";
         if (blockType != null && blockType.colors != null) {
             StringBuilder paletteBuilder = new StringBuilder();
@@ -1753,6 +1847,10 @@ public class CustomGameEditor extends Scene2DPanel {
                 + " | Special: " + bobColorToHex(blockType.specialColor == null ? (blockType.colors.isEmpty() ? new BobColor(255, 0, 255) : blockType.colors.get(0)) : blockType.specialColor)
                 + " | Usage: " + (blockType.useInNormalPieces ? "normal " : "") + (blockType.useAsGarbage || blockType.useAsGarbageBlock ? "garbage " : "") + (blockType.useAsPlayingFieldFiller || blockType.useAsPlayingFieldFillerBlock ? "filler " : "")
                 + "| Flags: " + (blockType.flashingSpecialType ? "flashing " : "") + (blockType.matchAnyColor ? "match-any " : "") + (blockType.counterType ? "counter " : "")
+                + (blockType.clearEveryOtherLineOnGridWhenCleared ? "clear-alt-lines " : "")
+                + (blockType.ignoreWhenCheckingChainConnections ? "ignore-chain " : "")
+                + (blockType.chainConnectionsMustContainAtLeastOneBlockWithThisTrue ? "required-in-chain " : "")
+                + (blockType.addToChainIfConnectedUpDownLeftRightToExplodingChainBlocks ? "exploding-chain-link " : "")
                 + "| Chance/Frequency: " + blockType.randomSpecialBlockChanceOneOutOf + "/" + blockType.frequencySpecialBlockTypeOnceEveryNPieces
         );
         pieceLabel.setText(pieceType == null ? "Piece: none" : "Piece: " + pieceType.name + " (" + (selectedPieceIndex + 1) + "/" + currentGameType.pieceTypes.size() + ")" + " | Block override: " + selectedPieceBlockOverride);
@@ -1791,6 +1889,7 @@ public class CustomGameEditor extends Scene2DPanel {
             + " | Current bbox: " + getRotationBoundingBox(rotation)
             + " | Symmetry: " + symmetry
             + " | Unique/duplicate rotations: " + uniqueRotationCount + "/" + duplicateRotationCount
+            + " | Block reward: " + clearReward
             + " | Rules: " + getEnabledRuleSummary()
         );
     }

@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.0.23] - 2026-04-05
+
+### Added
+- **Scene2D Block Gameplay Hooks:** `CustomGameEditor.java` now exposes reward-piece assignment plus focused chain-behavior toggles for selected blocks, including clear-every-other-line, ignore-chain, required-in-chain, and exploding-chain-link hooks.
+
+### Changed
+- Expanded block detail and summary readouts so reward-piece and chain-behavior authoring is visible alongside the existing block palette and special-color data.
+- Bumped `VERSION.md` to `2.0.23`.
+
+### Validation
+- `./gradlew compileJava` ✅
+
 ## [2.0.22] - 2026-04-05
 
 ### Added
