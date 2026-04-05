@@ -8,6 +8,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.bobsgame.client.engine.Engine;
 import com.bobsgame.client.engine.game.gui.Scene2DPanel;
+import com.bobsgame.client.engine.game.gui.Scene2DYesNoDialog;
 import com.bobsgame.puzzle.GameType;
 import com.bobsgame.puzzle.Piece;
 import com.bobsgame.puzzle.PieceType;
@@ -196,27 +197,54 @@ public class CustomGameEditor extends Scene2DPanel {
 
     private void removePiece() {
         if (selectedPieceIndex < 0 || selectedPieceIndex >= currentGameType.pieceTypes.size()) return;
-        currentGameType.pieceTypes.remove(selectedPieceIndex);
-        if (currentGameType.pieceTypes.isEmpty()) {
-            selectedPieceIndex = -1;
-            selectedRotationIndex = 0;
-        } else {
-            selectedPieceIndex = Math.min(selectedPieceIndex, currentGameType.pieceTypes.size() - 1);
-            selectedRotationIndex = 0;
-        }
-        refreshEditorState();
+        final int removeIndex = selectedPieceIndex;
+        final String pieceName = currentGameType.pieceTypes.get(removeIndex).name;
+        Engine.GUIManager().showYesNoDialog(
+            "Remove piece '" + pieceName + "' and all of its rotations?",
+            new Scene2DYesNoDialog.YesNoDialogListener() {
+                @Override
+                public void onYes() {
+                    currentGameType.pieceTypes.remove(removeIndex);
+                    if (currentGameType.pieceTypes.isEmpty()) {
+                        selectedPieceIndex = -1;
+                        selectedRotationIndex = 0;
+                    } else {
+                        selectedPieceIndex = Math.min(removeIndex, currentGameType.pieceTypes.size() - 1);
+                        selectedRotationIndex = 0;
+                    }
+                    refreshEditorState();
+                }
+
+                @Override
+                public void onNo() {
+                }
+            }
+        );
     }
 
     private void removeRotation() {
-        PieceType pieceType = getSelectedPiece();
+        final PieceType pieceType = getSelectedPiece();
         if (pieceType == null || pieceType.rotationSet == null || pieceType.rotationSet.size() == 0) return;
-        pieceType.rotationSet.remove(selectedRotationIndex);
-        if (pieceType.rotationSet.size() == 0) {
-            selectedRotationIndex = 0;
-        } else {
-            selectedRotationIndex = Math.min(selectedRotationIndex, pieceType.rotationSet.size() - 1);
-        }
-        refreshEditorState();
+        final int removeIndex = selectedRotationIndex;
+        Engine.GUIManager().showYesNoDialog(
+            "Remove rotation " + removeIndex + " from '" + pieceType.name + "'?",
+            new Scene2DYesNoDialog.YesNoDialogListener() {
+                @Override
+                public void onYes() {
+                    pieceType.rotationSet.remove(removeIndex);
+                    if (pieceType.rotationSet.size() == 0) {
+                        selectedRotationIndex = 0;
+                    } else {
+                        selectedRotationIndex = Math.min(removeIndex, pieceType.rotationSet.size() - 1);
+                    }
+                    refreshEditorState();
+                }
+
+                @Override
+                public void onNo() {
+                }
+            }
+        );
     }
 
     private void clearRotation() {

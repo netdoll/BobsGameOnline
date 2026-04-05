@@ -39,6 +39,10 @@ This session focused on the newer Scene2D `CustomGameEditor` so the Java port ha
 - Disabled grid buttons automatically when no piece is selected so empty-state editing is clearer.
 - Bumped the Java repo version again to `2.0.3`.
 
+### Additional Follow-Up - 2026-04-05 (Delete Confirmations)
+- Routed Scene2D piece/rotation deletes through `Scene2DYesNoDialog` confirmations.
+- Bumped the Java repo version again to `2.0.4`.
+
 ### Recommended Next Steps
 1. Add color/block-type controls to the Scene2D editor.
 2. Bridge Scene2D custom editor state into the older TWL editor stack where useful.

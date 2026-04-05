@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.0.4] - 2026-04-05
+
+### Changed
+- **Safer Scene2D Deletes:** Piece and rotation removals in `CustomGameEditor.java` now go through `Scene2DYesNoDialog` confirmations instead of deleting immediately.
+- Bumped `VERSION.md` to `2.0.4`.
+
+### Validation
+- `./gradlew compileJava` ✅
+
 ## [2.0.3] - 2026-04-05
 
 ### Added
