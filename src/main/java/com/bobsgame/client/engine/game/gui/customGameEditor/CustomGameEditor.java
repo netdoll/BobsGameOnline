@@ -41,6 +41,7 @@ public class CustomGameEditor extends Scene2DPanel {
     private final TextButton duplicateRotationBtn;
     private final TextButton normalizeRotationBtn;
     private final TextButton centerRotationBtn;
+    private final TextButton centerAllRotationsBtn;
     private final TextButton normalizeAllRotationsBtn;
     private final TextButton removeDuplicateRotationsBtn;
     private final TextButton removeEmptyRotationsBtn;
@@ -145,6 +146,7 @@ public class CustomGameEditor extends Scene2DPanel {
         duplicateRotationBtn = new TextButton("Duplicate Rotation", skin);
         normalizeRotationBtn = new TextButton("Normalize Rotation", skin);
         centerRotationBtn = new TextButton("Center Rotation", skin);
+        centerAllRotationsBtn = new TextButton("Center All", skin);
         normalizeAllRotationsBtn = new TextButton("Normalize All", skin);
         removeDuplicateRotationsBtn = new TextButton("Clear Duplicates", skin);
         removeEmptyRotationsBtn = new TextButton("Clear Empty", skin);
@@ -181,6 +183,7 @@ public class CustomGameEditor extends Scene2DPanel {
         controlsRow1.add(duplicateRotationBtn);
         controlsRow1.add(normalizeRotationBtn);
         controlsRow1.add(centerRotationBtn);
+        controlsRow1.add(centerAllRotationsBtn);
         controlsRow1.add(normalizeAllRotationsBtn);
         controlsRow1.add(removeDuplicateRotationsBtn);
         controlsRow1.add(removeEmptyRotationsBtn);
@@ -344,6 +347,13 @@ public class CustomGameEditor extends Scene2DPanel {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 centerCurrentRotation();
+            }
+        });
+
+        centerAllRotationsBtn.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                centerAllRotations();
             }
         });
 
@@ -845,23 +855,17 @@ public class CustomGameEditor extends Scene2DPanel {
     private void centerCurrentRotation() {
         Piece.Rotation rotation = getSelectedRotation();
         if (rotation == null || rotation.blockOffsets.isEmpty()) return;
-        int minX = Integer.MAX_VALUE;
-        int maxX = Integer.MIN_VALUE;
-        int minY = Integer.MAX_VALUE;
-        int maxY = Integer.MIN_VALUE;
-        for (Piece.BlockOffset offset : rotation.blockOffsets) {
-            minX = Math.min(minX, offset.x);
-            maxX = Math.max(maxX, offset.x);
-            minY = Math.min(minY, offset.y);
-            maxY = Math.max(maxY, offset.y);
-        }
-        int width = maxX - minX + 1;
-        int height = maxY - minY + 1;
-        int targetMinX = Math.max(0, (4 - width) / 2);
-        int targetMinY = Math.max(0, (4 - height) / 2);
-        for (Piece.BlockOffset offset : rotation.blockOffsets) {
-            offset.x = offset.x - minX + targetMinX;
-            offset.y = offset.y - minY + targetMinY;
+        centerRotationInPlace(rotation);
+        refreshEditorState();
+    }
+
+    private void centerAllRotations() {
+        PieceType pieceType = getSelectedPiece();
+        if (pieceType == null || pieceType.rotationSet == null || pieceType.rotationSet.size() == 0) return;
+        for (int i = 0; i < pieceType.rotationSet.size(); i++) {
+            Piece.Rotation rotation = pieceType.rotationSet.get(i);
+            if (rotation == null || rotation.blockOffsets.isEmpty()) continue;
+            centerRotationInPlace(rotation);
         }
         refreshEditorState();
     }
@@ -884,6 +888,27 @@ public class CustomGameEditor extends Scene2DPanel {
             }
         }
         refreshEditorState();
+    }
+
+    private void centerRotationInPlace(Piece.Rotation rotation) {
+        int minX = Integer.MAX_VALUE;
+        int maxX = Integer.MIN_VALUE;
+        int minY = Integer.MAX_VALUE;
+        int maxY = Integer.MIN_VALUE;
+        for (Piece.BlockOffset offset : rotation.blockOffsets) {
+            minX = Math.min(minX, offset.x);
+            maxX = Math.max(maxX, offset.x);
+            minY = Math.min(minY, offset.y);
+            maxY = Math.max(maxY, offset.y);
+        }
+        int width = maxX - minX + 1;
+        int height = maxY - minY + 1;
+        int targetMinX = Math.max(0, (4 - width) / 2);
+        int targetMinY = Math.max(0, (4 - height) / 2);
+        for (Piece.BlockOffset offset : rotation.blockOffsets) {
+            offset.x = offset.x - minX + targetMinX;
+            offset.y = offset.y - minY + targetMinY;
+        }
     }
 
     private void removeDuplicateRotations() {

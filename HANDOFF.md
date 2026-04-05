@@ -100,6 +100,11 @@ This session focused on the newer Scene2D `CustomGameEditor` so the Java port ha
 - Added clipboard-first share behavior with a manual-copy dialog fallback.
 - Bumped the Java repo version again to `2.0.17`.
 
+### Additional Follow-Up - 2026-04-05 (Center-All Helper)
+- Added a one-click helper to center every rotation in the selected piece.
+- Reused the same centering logic for both single-rotation and full-set centering to keep geometry behavior consistent.
+- Bumped the Java repo version again to `2.0.18`.
+
 ### Recommended Next Steps
 1. Add color/block-type controls to the Scene2D editor.
 2. Bridge Scene2D custom editor state into the older TWL editor stack where useful.

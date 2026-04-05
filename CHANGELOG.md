@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.0.18] - 2026-04-05
+
+### Added
+- **Scene2D Center-All Helper:** `CustomGameEditor.java` now provides a one-click helper to center every rotation in the selected piece, making full-set layout cleanup faster after import, duplication, and normalize-all passes.
+
+### Changed
+- Reused a shared centering helper so single-rotation and full-set centering follow the same geometry logic.
+- Bumped `VERSION.md` to `2.0.18`.
+
+### Validation
+- `./gradlew compileJava` ✅
+
 ## [2.0.17] - 2026-04-05
 
 ### Added
