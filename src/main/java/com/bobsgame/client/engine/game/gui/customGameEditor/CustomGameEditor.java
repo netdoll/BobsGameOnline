@@ -37,6 +37,7 @@ public class CustomGameEditor extends Scene2DPanel {
     private final TextButton duplicateRotationBtn;
     private final TextButton normalizeRotationBtn;
     private final TextButton centerRotationBtn;
+    private final TextButton removeDuplicateRotationsBtn;
     private final TextButton removeRotationBtn;
     private final TextButton prevPieceBtn;
     private final TextButton nextPieceBtn;
@@ -122,6 +123,7 @@ public class CustomGameEditor extends Scene2DPanel {
         duplicateRotationBtn = new TextButton("Duplicate Rotation", skin);
         normalizeRotationBtn = new TextButton("Normalize Rotation", skin);
         centerRotationBtn = new TextButton("Center Rotation", skin);
+        removeDuplicateRotationsBtn = new TextButton("Clear Duplicates", skin);
         removeRotationBtn = new TextButton("Remove Rotation", skin);
         prevPieceBtn = new TextButton("< Piece", skin);
         nextPieceBtn = new TextButton("Piece >", skin);
@@ -153,6 +155,7 @@ public class CustomGameEditor extends Scene2DPanel {
         controlsRow1.add(duplicateRotationBtn);
         controlsRow1.add(normalizeRotationBtn);
         controlsRow1.add(centerRotationBtn);
+        controlsRow1.add(removeDuplicateRotationsBtn);
         controlsRow1.add(removeRotationBtn);
         controlsRow1.add(clearRotationBtn);
 
@@ -301,6 +304,13 @@ public class CustomGameEditor extends Scene2DPanel {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 centerCurrentRotation();
+            }
+        });
+
+        removeDuplicateRotationsBtn.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                removeDuplicateRotations();
             }
         });
 
@@ -633,6 +643,41 @@ public class CustomGameEditor extends Scene2DPanel {
             offset.y = offset.y - minY + targetMinY;
         }
         refreshEditorState();
+    }
+
+    private void removeDuplicateRotations() {
+        final PieceType pieceType = getSelectedPiece();
+        if (pieceType == null || pieceType.rotationSet == null || pieceType.rotationSet.size() == 0) return;
+        final java.util.ArrayList<Integer> duplicateIndices = new java.util.ArrayList<Integer>(getDuplicateRotationIndices(pieceType));
+        if (duplicateIndices.isEmpty()) {
+            summaryLabel.setText("No duplicate rotations to remove.");
+            return;
+        }
+        duplicateIndices.sort(java.util.Collections.reverseOrder());
+        Engine.GUIManager().showYesNoDialog(
+            "Remove " + duplicateIndices.size() + " duplicate rotation(s) from '" + pieceType.name + "'?",
+            new Scene2DYesNoDialog.YesNoDialogListener() {
+                @Override
+                public void onYes() {
+                    for (Integer index : duplicateIndices) {
+                        pieceType.rotationSet.remove(index);
+                        if (selectedRotationIndex >= index && selectedRotationIndex > 0) {
+                            selectedRotationIndex--;
+                        }
+                    }
+                    if (pieceType.rotationSet.size() == 0) {
+                        selectedRotationIndex = 0;
+                    } else {
+                        selectedRotationIndex = Math.min(selectedRotationIndex, pieceType.rotationSet.size() - 1);
+                    }
+                    refreshEditorState();
+                }
+
+                @Override
+                public void onNo() {
+                }
+            }
+        );
     }
 
     private void removeRotation() {

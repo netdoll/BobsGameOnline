@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.0.14] - 2026-04-05
+
+### Added
+- **Scene2D Duplicate Cleanup Helper:** `CustomGameEditor.java` now provides a one-click duplicate-rotation cleanup action that removes redundant rotations after confirmation.
+
+### Changed
+- Bumped `VERSION.md` to `2.0.14`.
+
+### Validation
+- `./gradlew compileJava` ✅
+
 ## [2.0.13] - 2026-04-05
 
 ### Added
