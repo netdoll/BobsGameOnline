@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.0.24] - 2026-04-05
+
+### Added
+- **Scene2D Advanced Field-Effect Toggles:** `CustomGameEditor.java` now exposes engine-backed field-effect toggles for ignoring move-down gravity, removing same-color field blocks on set, and diamond-color field swaps.
+
+### Changed
+- Expanded block behavior reporting so field-wide consequences appear alongside the existing chain and reward hooks.
+- Bumped `VERSION.md` to `2.0.24`.
+
+### Validation
+- `./gradlew compileJava` ✅
+
 ## [2.0.23] - 2026-04-05
 
 ### Added

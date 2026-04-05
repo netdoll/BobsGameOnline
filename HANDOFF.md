@@ -130,11 +130,16 @@ This session focused on the newer Scene2D `CustomGameEditor` so the Java port ha
 - Expanded block detail and summary readouts so reward-piece and chain-behavior authoring is visible alongside the existing block palette and special-color data.
 - Bumped the Java repo version again to `2.0.23`.
 
+### Additional Follow-Up - 2026-04-05 (Advanced Field-Effect Toggles)
+- Added engine-backed field-effect toggles for ignoring move-down gravity, removing same-color field blocks on set, and diamond-color field swaps.
+- Expanded block behavior reporting so field-wide consequences appear alongside the existing chain and reward hooks.
+- Bumped the Java repo version again to `2.0.24`.
+
 ### Recommended Next Steps
 1. Bridge Scene2D custom editor state into the older TWL editor stack where useful.
 2. Replace the temporary reflection bridge with a direct adapter once the exact TWL/LWJGL API contract is fully normalized.
 3. Add a targeted Java regression test or smoke harness for nD puzzle bootstrap + editor launch.
-4. Consider further block-rule depth like special piece conversion chains and more advanced field-effect toggles.
+4. Consider further block-rule depth like true conversion-chain editing and multi-step transformation graphs.
 
 ## Summary
 This session focused on modernizing the internal Swing-based Editor tools (`SpriteEditor`, `MapCanvas`, `DialogueEditor`) to include features found in industry-standard tools like Aseprite and Pyxel Edit.
