@@ -90,6 +90,10 @@ This session focused on the newer Scene2D `CustomGameEditor` so the Java port ha
 - Added a one-click helper to normalize every rotation in the selected piece.
 - Bumped the Java repo version again to `2.0.15`.
 
+### Additional Follow-Up - 2026-04-05 (Empty Rotation Cleanup)
+- Added a one-click helper to remove empty rotations after confirmation.
+- Bumped the Java repo version again to `2.0.16`.
+
 ### Recommended Next Steps
 1. Add color/block-type controls to the Scene2D editor.
 2. Bridge Scene2D custom editor state into the older TWL editor stack where useful.

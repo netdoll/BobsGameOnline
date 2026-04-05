@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.0.16] - 2026-04-05
+
+### Added
+- **Scene2D Empty Rotation Cleanup:** `CustomGameEditor.java` now provides a one-click helper to remove empty rotations after confirmation, improving cleanup after experimentation and duplication.
+
+### Changed
+- Bumped `VERSION.md` to `2.0.16`.
+
+### Validation
+- `./gradlew compileJava` ✅
+
 ## [2.0.15] - 2026-04-05
 
 ### Added

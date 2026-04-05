@@ -39,6 +39,7 @@ public class CustomGameEditor extends Scene2DPanel {
     private final TextButton centerRotationBtn;
     private final TextButton normalizeAllRotationsBtn;
     private final TextButton removeDuplicateRotationsBtn;
+    private final TextButton removeEmptyRotationsBtn;
     private final TextButton removeRotationBtn;
     private final TextButton prevPieceBtn;
     private final TextButton nextPieceBtn;
@@ -126,6 +127,7 @@ public class CustomGameEditor extends Scene2DPanel {
         centerRotationBtn = new TextButton("Center Rotation", skin);
         normalizeAllRotationsBtn = new TextButton("Normalize All", skin);
         removeDuplicateRotationsBtn = new TextButton("Clear Duplicates", skin);
+        removeEmptyRotationsBtn = new TextButton("Clear Empty", skin);
         removeRotationBtn = new TextButton("Remove Rotation", skin);
         prevPieceBtn = new TextButton("< Piece", skin);
         nextPieceBtn = new TextButton("Piece >", skin);
@@ -159,6 +161,7 @@ public class CustomGameEditor extends Scene2DPanel {
         controlsRow1.add(centerRotationBtn);
         controlsRow1.add(normalizeAllRotationsBtn);
         controlsRow1.add(removeDuplicateRotationsBtn);
+        controlsRow1.add(removeEmptyRotationsBtn);
         controlsRow1.add(removeRotationBtn);
         controlsRow1.add(clearRotationBtn);
 
@@ -321,6 +324,13 @@ public class CustomGameEditor extends Scene2DPanel {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 removeDuplicateRotations();
+            }
+        });
+
+        removeEmptyRotationsBtn.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                removeEmptyRotations();
             }
         });
 
@@ -690,6 +700,45 @@ public class CustomGameEditor extends Scene2DPanel {
                 @Override
                 public void onYes() {
                     for (Integer index : duplicateIndices) {
+                        pieceType.rotationSet.remove(index);
+                        if (selectedRotationIndex >= index && selectedRotationIndex > 0) {
+                            selectedRotationIndex--;
+                        }
+                    }
+                    if (pieceType.rotationSet.size() == 0) {
+                        selectedRotationIndex = 0;
+                    } else {
+                        selectedRotationIndex = Math.min(selectedRotationIndex, pieceType.rotationSet.size() - 1);
+                    }
+                    refreshEditorState();
+                }
+
+                @Override
+                public void onNo() {
+                }
+            }
+        );
+    }
+
+    private void removeEmptyRotations() {
+        final PieceType pieceType = getSelectedPiece();
+        if (pieceType == null || pieceType.rotationSet == null || pieceType.rotationSet.size() == 0) return;
+        final java.util.ArrayList<Integer> emptyIndices = new java.util.ArrayList<Integer>();
+        for (int i = 0; i < pieceType.rotationSet.size(); i++) {
+            Piece.Rotation rotation = pieceType.rotationSet.get(i);
+            if (rotation == null || rotation.blockOffsets.isEmpty()) emptyIndices.add(i);
+        }
+        if (emptyIndices.isEmpty()) {
+            summaryLabel.setText("No empty rotations to remove.");
+            return;
+        }
+        emptyIndices.sort(java.util.Collections.reverseOrder());
+        Engine.GUIManager().showYesNoDialog(
+            "Remove " + emptyIndices.size() + " empty rotation(s) from '" + pieceType.name + "'?",
+            new Scene2DYesNoDialog.YesNoDialogListener() {
+                @Override
+                public void onYes() {
+                    for (Integer index : emptyIndices) {
                         pieceType.rotationSet.remove(index);
                         if (selectedRotationIndex >= index && selectedRotationIndex > 0) {
                             selectedRotationIndex--;
