@@ -61,6 +61,10 @@ This session focused on the newer Scene2D `CustomGameEditor` so the Java port ha
 - Expanded the Java editor summary so those movement/randomizer rules are visible immediately.
 - Bumped the Java repo version again to `2.0.8`.
 
+### Additional Follow-Up - 2026-04-05 (Preset Slots)
+- Added in-session preset save/load slots to the Scene2D custom editor using deep-cloned `GameType` snapshots.
+- Bumped the Java repo version again to `2.0.9`.
+
 ### Recommended Next Steps
 1. Add color/block-type controls to the Scene2D editor.
 2. Bridge Scene2D custom editor state into the older TWL editor stack where useful.

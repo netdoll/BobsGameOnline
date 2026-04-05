@@ -14,8 +14,19 @@ import com.bobsgame.puzzle.GameType;
 import com.bobsgame.puzzle.Piece;
 import com.bobsgame.puzzle.PieceType;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+
 public class CustomGameEditor extends Scene2DPanel {
     private final Table mainTable;
+    private final TextButton saveSlot1Btn;
+    private final TextButton loadSlot1Btn;
+    private final TextButton saveSlot2Btn;
+    private final TextButton loadSlot2Btn;
+    private final TextButton saveSlot3Btn;
+    private final TextButton loadSlot3Btn;
     private final TextButton addPieceBtn;
     private final TextButton duplicatePieceBtn;
     private final TextButton removePieceBtn;
@@ -50,7 +61,8 @@ public class CustomGameEditor extends Scene2DPanel {
     private final CheckBox flip180Checkbox;
     private final CheckBox floorKickCheckbox;
 
-    private final GameType currentGameType = new GameType();
+    private GameType currentGameType = new GameType();
+    private final GameType[] presetSlots = new GameType[3];
     private int selectedPieceIndex = -1;
     private int selectedRotationIndex = 0;
 
@@ -89,6 +101,12 @@ public class CustomGameEditor extends Scene2DPanel {
         hintLabel.setWrap(true);
         summaryLabel.setWrap(true);
 
+        saveSlot1Btn = new TextButton("Save Slot 1", skin);
+        loadSlot1Btn = new TextButton("Load Slot 1", skin);
+        saveSlot2Btn = new TextButton("Save Slot 2", skin);
+        loadSlot2Btn = new TextButton("Load Slot 2", skin);
+        saveSlot3Btn = new TextButton("Save Slot 3", skin);
+        loadSlot3Btn = new TextButton("Load Slot 3", skin);
         addPieceBtn = new TextButton("Add Piece Type", skin);
         duplicatePieceBtn = new TextButton("Duplicate Piece", skin);
         removePieceBtn = new TextButton("Remove Piece", skin);
@@ -100,6 +118,15 @@ public class CustomGameEditor extends Scene2DPanel {
         prevRotationBtn = new TextButton("< Rot", skin);
         nextRotationBtn = new TextButton("Rot >", skin);
         clearRotationBtn = new TextButton("Clear Rotation", skin);
+
+        Table presetRow = new Table();
+        presetRow.defaults().pad(4);
+        presetRow.add(saveSlot1Btn);
+        presetRow.add(loadSlot1Btn);
+        presetRow.add(saveSlot2Btn);
+        presetRow.add(loadSlot2Btn);
+        presetRow.add(saveSlot3Btn);
+        presetRow.add(loadSlot3Btn);
 
         Table controlsRow1 = new Table();
         controlsRow1.defaults().pad(4);
@@ -154,6 +181,43 @@ public class CustomGameEditor extends Scene2DPanel {
             }
             gridTable.row();
         }
+
+        saveSlot1Btn.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                savePresetSlot(0);
+            }
+        });
+        loadSlot1Btn.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                loadPresetSlot(0);
+            }
+        });
+        saveSlot2Btn.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                savePresetSlot(1);
+            }
+        });
+        loadSlot2Btn.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                loadPresetSlot(1);
+            }
+        });
+        saveSlot3Btn.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                savePresetSlot(2);
+            }
+        });
+        loadSlot3Btn.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                loadPresetSlot(2);
+            }
+        });
 
         addPieceBtn.addListener(new ClickListener() {
             @Override
@@ -258,6 +322,7 @@ public class CustomGameEditor extends Scene2DPanel {
         mainTable.defaults().left().padBottom(8);
         mainTable.add(titleLabel).left().row();
         mainTable.add(hintLabel).width(520).left().row();
+        mainTable.add(presetRow).left().row();
         mainTable.add(controlsRow1).left().row();
         mainTable.add(controlsRow2).left().row();
         mainTable.add(advancedRulesTable).left().row();
@@ -291,6 +356,36 @@ public class CustomGameEditor extends Scene2DPanel {
         if (pieceType.rotationSet == null) pieceType.rotationSet = new Piece.RotationSet("");
         pieceType.rotationSet.add(new Piece.Rotation());
         selectedRotationIndex = pieceType.rotationSet.size() - 1;
+        refreshEditorState();
+    }
+
+    private GameType deepCloneGameType(GameType source) {
+        try {
+            ByteArrayOutputStream bos = new ByteArrayOutputStream();
+            ObjectOutputStream out = new ObjectOutputStream(bos);
+            out.writeObject(source);
+            out.flush();
+            ObjectInputStream in = new ObjectInputStream(new ByteArrayInputStream(bos.toByteArray()));
+            return (GameType) in.readObject();
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to clone GameType preset", e);
+        }
+    }
+
+    private void savePresetSlot(int slotIndex) {
+        applyRuleCheckboxes();
+        presetSlots[slotIndex] = deepCloneGameType(currentGameType);
+        summaryLabel.setText("Saved current ruleset to preset slot " + (slotIndex + 1));
+    }
+
+    private void loadPresetSlot(int slotIndex) {
+        if (presetSlots[slotIndex] == null) {
+            summaryLabel.setText("Preset slot " + (slotIndex + 1) + " is empty.");
+            return;
+        }
+        currentGameType = deepCloneGameType(presetSlots[slotIndex]);
+        selectedPieceIndex = currentGameType.pieceTypes.isEmpty() ? -1 : 0;
+        selectedRotationIndex = 0;
         refreshEditorState();
     }
 

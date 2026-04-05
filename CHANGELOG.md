@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.0.9] - 2026-04-05
+
+### Added
+- **Scene2D Preset Slots:** `CustomGameEditor.java` now supports quick in-session preset save/load slots using deep-cloned `GameType` snapshots, enabling fast iteration without replacing the active draft permanently.
+
+### Changed
+- Bumped `VERSION.md` to `2.0.9`.
+
+### Validation
+- `./gradlew compileJava` ✅
+
 ## [2.0.8] - 2026-04-05
 
 ### Added
