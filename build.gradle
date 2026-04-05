@@ -95,6 +95,9 @@ sourceSets {
     main {
         java {
             srcDirs = ['src/main/java', 'libs/twl-lwjgl3/src', 'libs/aseprite-file/src/main/java']
+            exclude { details ->
+                details.file.absolutePath.replace('\\', '/').endsWith('/libs/twl-lwjgl3/src/de/matthiasmann/twl/input/lwjgl/LWJGLInput.java')
+            }
         }
         resources {
             srcDirs = ['src/main/resources', 'res']

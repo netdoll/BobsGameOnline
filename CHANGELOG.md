@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.0.2] - 2026-04-05
+
+### Fixed
+- **nD Puzzle Bootstrap:** `NDPuzzleGame.java` now constructs `GameLogic` with a local `GameManager`/`Room` context, assigns the active `PuzzlePlayer`, and calls `update(0, 1)` with the modern signature.
+- **TWL/LWJGL Input Bridge:** Added a tracked parent-repo override at `src/main/java/de/matthiasmann/twl/input/lwjgl/LWJGLInput.java` plus a Gradle exclude for the conflicting nested-submodule source file, avoiding the compile-time API drift that previously broke `compileJava`.
+
+### Changed
+- Bumped `VERSION.md` to `2.0.2`.
+
+### Validation
+- `./gradlew compileJava` ✅
+
 ## [2.0.1] - 2026-04-05
 
 ### Added

@@ -23,17 +23,22 @@ This session focused on the newer Scene2D `CustomGameEditor` so the Java port ha
   - current mode / grid dimensions
 
 ### Validation
-- `./gradlew compileJava` was run.
-- My editor change no longer introduces compile errors.
-- Remaining compile failures are pre-existing elsewhere in the repo:
+- `./gradlew compileJava` was first run to validate the editor work and revealed pre-existing failures in:
   - `src/main/java/com/bobsgame/client/engine/nd/NDPuzzleGame.java`
   - `libs/twl-lwjgl3/src/de/matthiasmann/twl/input/lwjgl/LWJGLInput.java`
+- Those follow-up blockers were then fixed in the same session.
+- Final result: `./gradlew compileJava` ✅
+
+### Additional Build-Recovery Work Completed
+- Updated `NDPuzzleGame.java` to use a local `GameManager`/`Room` wrapper and the current `GameLogic(GameManager, long)` constructor.
+- Switched nD puzzle updates to `puzzleGame.update(0, 1)`.
+- Added a tracked parent-repo compatibility override at `src/main/java/de/matthiasmann/twl/input/lwjgl/LWJGLInput.java` and excluded the conflicting nested-submodule source path in Gradle so TWL input forwarding no longer breaks on compile-time API drift against `TWL.jar`.
 
 ### Recommended Next Steps
-1. Fix the pre-existing `NDPuzzleGame` constructor/update drift so Java builds can go green again.
-2. Repair the TWL/LWJGL input adapter API drift (`handleKey`, `handleMouse`, `handleMouseWheel`).
-3. Extend the Scene2D editor with piece removal, rotation removal, and color/block-type controls.
-4. Bridge Scene2D custom editor state into the older TWL editor stack where useful.
+1. Extend the Scene2D editor with piece removal, rotation removal, and color/block-type controls.
+2. Bridge Scene2D custom editor state into the older TWL editor stack where useful.
+3. Replace the temporary reflection bridge with a direct adapter once the exact TWL/LWJGL API contract is fully normalized.
+4. Add a targeted Java regression test or smoke harness for nD puzzle bootstrap + editor launch.
 
 ## Summary
 This session focused on modernizing the internal Swing-based Editor tools (`SpriteEditor`, `MapCanvas`, `DialogueEditor`) to include features found in industry-standard tools like Aseprite and Pyxel Edit.

@@ -2,12 +2,40 @@ package com.bobsgame.client.engine.nd;
 
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.bobsgame.client.engine.entity.SpriteManager;
 import com.bobsgame.puzzle.GameLogic;
+import com.bobsgame.puzzle.GameManager;
 import com.bobsgame.puzzle.PuzzlePlayer;
+import com.bobsgame.puzzle.Room;
+
+import java.util.ArrayList;
 
 public class NDPuzzleGame extends NDGameEngine {
     private GameLogic puzzleGame;
     private PuzzlePlayer puzzlePlayer;
+    private final ArrayList<GameLogic> localGames = new ArrayList<>();
+    private final Room localRoom = new Room();
+    private final GameManager localManager = new GameManager() {
+        @Override
+        public Room getCurrentRoom() {
+            return localRoom;
+        }
+
+        @Override
+        public ArrayList<GameLogic> getGames() {
+            return localGames;
+        }
+
+        @Override
+        public boolean isNetworkGame() {
+            return false;
+        }
+
+        @Override
+        public SpriteManager getSpriteManager() {
+            return null;
+        }
+    };
 
     public NDPuzzleGame(ND nd) {
         super(nd);
@@ -15,14 +43,18 @@ public class NDPuzzleGame extends NDGameEngine {
 
     @Override
     public void init() {
-        puzzleGame = new GameLogic();
+        localGames.clear();
+        puzzleGame = new GameLogic(localManager, System.currentTimeMillis());
+        localGames.add(puzzleGame);
         puzzlePlayer = new PuzzlePlayer(puzzleGame);
+        puzzleGame.player = puzzlePlayer;
         puzzleGame.initGame();
         puzzleGame.start();
     }
 
     @Override
     public void cleanup() {
+        localGames.clear();
         puzzleGame = null;
         puzzlePlayer = null;
     }
@@ -39,7 +71,7 @@ public class NDPuzzleGame extends NDGameEngine {
             puzzlePlayer.SLAM_HELD = nd.isButtonPressed(ND.Button.X);
             puzzlePlayer.HOLDRAISE_HELD = nd.isButtonPressed(ND.Button.Y);
 
-            puzzleGame.update();
+            puzzleGame.update(0, 1);
         }
     }
 
