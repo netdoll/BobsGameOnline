@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.0.12] - 2026-04-05
+
+### Added
+- **Scene2D Symmetry & Duplicate Hints:** `CustomGameEditor.java` now reports current-rotation symmetry and highlights duplicate rotations in the rotation overview, giving authors direct feedback about redundant states.
+
+### Changed
+- Bumped `VERSION.md` to `2.0.12`.
+
+### Validation
+- `./gradlew compileJava` ✅
+
 ## [2.0.11] - 2026-04-05
 
 ### Added

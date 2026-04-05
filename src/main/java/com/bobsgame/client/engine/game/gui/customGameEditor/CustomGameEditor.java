@@ -663,12 +663,14 @@ public class CustomGameEditor extends Scene2DPanel {
             return;
         }
 
+        java.util.HashSet<Integer> duplicateIndices = getDuplicateRotationIndices(pieceType);
         rotationOverviewTable.defaults().pad(4);
         for (int i = 0; i < pieceType.rotationSet.size(); i++) {
             final int rotationIndex = i;
             final Piece.Rotation rotation = pieceType.rotationSet.get(i);
             String prefix = (rotationIndex == selectedRotationIndex) ? "> " : "";
-            TextButton button = new TextButton(prefix + "R" + rotationIndex + " (" + getFilledCellCount(rotation) + ", " + getRotationBoundingBox(rotation) + ")", engine.uiSkin);
+            String duplicateLabel = duplicateIndices.contains(rotationIndex) ? ", dup" : "";
+            TextButton button = new TextButton(prefix + "R" + rotationIndex + " (" + getFilledCellCount(rotation) + ", " + getRotationBoundingBox(rotation) + duplicateLabel + ")", engine.uiSkin);
             button.addListener(new ClickListener() {
                 @Override
                 public void clicked(InputEvent event, float x, float y) {
@@ -710,6 +712,51 @@ public class CustomGameEditor extends Scene2DPanel {
             maxY = Math.max(maxY, offset.y);
         }
         return (maxX - minX + 1) + "x" + (maxY - minY + 1);
+    }
+
+    private String getRotationSymmetry(Piece.Rotation rotation) {
+        if (rotation == null || rotation.blockOffsets.isEmpty()) return "none";
+        int minX = Integer.MAX_VALUE;
+        int maxX = Integer.MIN_VALUE;
+        int minY = Integer.MAX_VALUE;
+        int maxY = Integer.MIN_VALUE;
+        java.util.HashSet<String> occupied = new java.util.HashSet<String>();
+        for (Piece.BlockOffset offset : rotation.blockOffsets) {
+            minX = Math.min(minX, offset.x);
+            maxX = Math.max(maxX, offset.x);
+            minY = Math.min(minY, offset.y);
+            maxY = Math.max(maxY, offset.y);
+            occupied.add(offset.x + "," + offset.y);
+        }
+
+        boolean horizontal = true;
+        boolean vertical = true;
+        for (Piece.BlockOffset offset : rotation.blockOffsets) {
+            int mirrorX = maxX - (offset.x - minX);
+            int mirrorY = maxY - (offset.y - minY);
+            if (!occupied.contains(mirrorX + "," + offset.y)) horizontal = false;
+            if (!occupied.contains(offset.x + "," + mirrorY)) vertical = false;
+        }
+
+        if (horizontal && vertical) return "horizontal + vertical";
+        if (horizontal) return "horizontal";
+        if (vertical) return "vertical";
+        return "none";
+    }
+
+    private java.util.HashSet<Integer> getDuplicateRotationIndices(PieceType pieceType) {
+        java.util.HashSet<Integer> duplicates = new java.util.HashSet<Integer>();
+        if (pieceType == null || pieceType.rotationSet == null) return duplicates;
+        java.util.HashMap<String, Integer> firstSeen = new java.util.HashMap<String, Integer>();
+        for (int i = 0; i < pieceType.rotationSet.size(); i++) {
+            String signature = getRotationSignature(pieceType.rotationSet.get(i));
+            if (firstSeen.containsKey(signature)) {
+                duplicates.add(i);
+            } else {
+                firstSeen.put(signature, i);
+            }
+        }
+        return duplicates;
     }
 
     private int getUniqueRotationCount(PieceType pieceType) {
@@ -810,6 +857,7 @@ public class CustomGameEditor extends Scene2DPanel {
         int currentRotationCount = pieceType != null && pieceType.rotationSet != null ? pieceType.rotationSet.size() : 0;
         int uniqueRotationCount = getUniqueRotationCount(pieceType);
         int duplicateRotationCount = Math.max(0, currentRotationCount - uniqueRotationCount);
+        String symmetry = getRotationSymmetry(rotation);
         summaryLabel.setText(
             "Mode: " + currentGameType.gameMode
             + " | Grid: " + currentGameType.gridWidth + "x" + currentGameType.gridHeight
@@ -818,6 +866,7 @@ public class CustomGameEditor extends Scene2DPanel {
             + " | Current piece rotations: " + currentRotationCount
             + " | Filled cells in current rotation: " + getFilledCellCount(rotation)
             + " | Current bbox: " + getRotationBoundingBox(rotation)
+            + " | Symmetry: " + symmetry
             + " | Unique/duplicate rotations: " + uniqueRotationCount + "/" + duplicateRotationCount
             + " | Rules: " + getEnabledRuleSummary()
         );

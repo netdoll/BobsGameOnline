@@ -74,6 +74,10 @@ This session focused on the newer Scene2D `CustomGameEditor` so the Java port ha
 - Expanded rotation overview buttons to include bounding-box information.
 - Bumped the Java repo version again to `2.0.11`.
 
+### Additional Follow-Up - 2026-04-05 (Symmetry & Duplicate Hints)
+- Added current-rotation symmetry reporting and duplicate-rotation warnings to the Scene2D custom editor analytics.
+- Bumped the Java repo version again to `2.0.12`.
+
 ### Recommended Next Steps
 1. Add color/block-type controls to the Scene2D editor.
 2. Bridge Scene2D custom editor state into the older TWL editor stack where useful.
