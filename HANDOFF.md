@@ -111,11 +111,15 @@ This session focused on the newer Scene2D `CustomGameEditor` so the Java port ha
 - Positioned this as lightweight undo-adjacent guidance rather than a fake full undo system.
 - Bumped the Java repo version again to `2.0.19`.
 
+### Additional Follow-Up - 2026-04-05 (Block Type / Color Controls)
+- Added a focused first-pass block authoring workflow with block navigation, rename/color editing, normal/garbage/filler usage toggles, and block override assignment for the selected piece.
+- Bumped the Java repo version again to `2.0.20`.
+
 ### Recommended Next Steps
-1. Add color/block-type controls to the Scene2D editor.
-2. Bridge Scene2D custom editor state into the older TWL editor stack where useful.
-3. Replace the temporary reflection bridge with a direct adapter once the exact TWL/LWJGL API contract is fully normalized.
-4. Add a targeted Java regression test or smoke harness for nD puzzle bootstrap + editor launch.
+1. Bridge Scene2D custom editor state into the older TWL editor stack where useful.
+2. Replace the temporary reflection bridge with a direct adapter once the exact TWL/LWJGL API contract is fully normalized.
+3. Add a targeted Java regression test or smoke harness for nD puzzle bootstrap + editor launch.
+4. Consider deeper block-rule editing (special blocks, extra colors, special colors) as the next content-authoring expansion.
 
 ## Summary
 This session focused on modernizing the internal Swing-based Editor tools (`SpriteEditor`, `MapCanvas`, `DialogueEditor`) to include features found in industry-standard tools like Aseprite and Pyxel Edit.

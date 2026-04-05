@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.0.20] - 2026-04-05
+
+### Added
+- **Scene2D Block Type / Color Controls:** `CustomGameEditor.java` now exposes a focused first-pass block authoring workflow with block navigation, rename/color editing, normal/garbage/filler usage toggles, and block override assignment for the selected piece.
+
+### Changed
+- Bumped `VERSION.md` to `2.0.20`.
+
+### Validation
+- `./gradlew compileJava` ✅
+
 ## [2.0.19] - 2026-04-05
 
 ### Added
