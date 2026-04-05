@@ -78,6 +78,10 @@ This session focused on the newer Scene2D `CustomGameEditor` so the Java port ha
 - Added current-rotation symmetry reporting and duplicate-rotation warnings to the Scene2D custom editor analytics.
 - Bumped the Java repo version again to `2.0.12`.
 
+### Additional Follow-Up - 2026-04-05 (Normalize / Center Helpers)
+- Added one-click normalize and center helpers for the current rotation in the Scene2D custom editor.
+- Bumped the Java repo version again to `2.0.13`.
+
 ### Recommended Next Steps
 1. Add color/block-type controls to the Scene2D editor.
 2. Bridge Scene2D custom editor state into the older TWL editor stack where useful.
