@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.0.15] - 2026-04-05
+
+### Added
+- **Scene2D Normalize-All Helper:** `CustomGameEditor.java` now provides a one-click helper to normalize every rotation in the selected piece, making full-set cleanup much faster.
+
+### Changed
+- Bumped `VERSION.md` to `2.0.15`.
+
+### Validation
+- `./gradlew compileJava` ✅
+
 ## [2.0.14] - 2026-04-05
 
 ### Added

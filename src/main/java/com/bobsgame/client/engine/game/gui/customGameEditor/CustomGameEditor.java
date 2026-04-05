@@ -37,6 +37,7 @@ public class CustomGameEditor extends Scene2DPanel {
     private final TextButton duplicateRotationBtn;
     private final TextButton normalizeRotationBtn;
     private final TextButton centerRotationBtn;
+    private final TextButton normalizeAllRotationsBtn;
     private final TextButton removeDuplicateRotationsBtn;
     private final TextButton removeRotationBtn;
     private final TextButton prevPieceBtn;
@@ -123,6 +124,7 @@ public class CustomGameEditor extends Scene2DPanel {
         duplicateRotationBtn = new TextButton("Duplicate Rotation", skin);
         normalizeRotationBtn = new TextButton("Normalize Rotation", skin);
         centerRotationBtn = new TextButton("Center Rotation", skin);
+        normalizeAllRotationsBtn = new TextButton("Normalize All", skin);
         removeDuplicateRotationsBtn = new TextButton("Clear Duplicates", skin);
         removeRotationBtn = new TextButton("Remove Rotation", skin);
         prevPieceBtn = new TextButton("< Piece", skin);
@@ -155,6 +157,7 @@ public class CustomGameEditor extends Scene2DPanel {
         controlsRow1.add(duplicateRotationBtn);
         controlsRow1.add(normalizeRotationBtn);
         controlsRow1.add(centerRotationBtn);
+        controlsRow1.add(normalizeAllRotationsBtn);
         controlsRow1.add(removeDuplicateRotationsBtn);
         controlsRow1.add(removeRotationBtn);
         controlsRow1.add(clearRotationBtn);
@@ -304,6 +307,13 @@ public class CustomGameEditor extends Scene2DPanel {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 centerCurrentRotation();
+            }
+        });
+
+        normalizeAllRotationsBtn.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                normalizeAllRotations();
             }
         });
 
@@ -641,6 +651,26 @@ public class CustomGameEditor extends Scene2DPanel {
         for (Piece.BlockOffset offset : rotation.blockOffsets) {
             offset.x = offset.x - minX + targetMinX;
             offset.y = offset.y - minY + targetMinY;
+        }
+        refreshEditorState();
+    }
+
+    private void normalizeAllRotations() {
+        PieceType pieceType = getSelectedPiece();
+        if (pieceType == null || pieceType.rotationSet == null || pieceType.rotationSet.size() == 0) return;
+        for (int i = 0; i < pieceType.rotationSet.size(); i++) {
+            Piece.Rotation rotation = pieceType.rotationSet.get(i);
+            if (rotation == null || rotation.blockOffsets.isEmpty()) continue;
+            int minX = Integer.MAX_VALUE;
+            int minY = Integer.MAX_VALUE;
+            for (Piece.BlockOffset offset : rotation.blockOffsets) {
+                minX = Math.min(minX, offset.x);
+                minY = Math.min(minY, offset.y);
+            }
+            for (Piece.BlockOffset offset : rotation.blockOffsets) {
+                offset.x -= minX;
+                offset.y -= minY;
+            }
         }
         refreshEditorState();
     }
