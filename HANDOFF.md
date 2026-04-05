@@ -94,6 +94,12 @@ This session focused on the newer Scene2D `CustomGameEditor` so the Java port ha
 - Added a one-click helper to remove empty rotations after confirmation.
 - Bumped the Java repo version again to `2.0.16`.
 
+### Additional Follow-Up - 2026-04-05 (Recent Share / Import History)
+- Added Scene2D import/share entry points backed by the existing string-dialog UI.
+- Added a bounded recent-history list with quick load/copy actions for recently imported or shared rulesets.
+- Added clipboard-first share behavior with a manual-copy dialog fallback.
+- Bumped the Java repo version again to `2.0.17`.
+
 ### Recommended Next Steps
 1. Add color/block-type controls to the Scene2D editor.
 2. Bridge Scene2D custom editor state into the older TWL editor stack where useful.

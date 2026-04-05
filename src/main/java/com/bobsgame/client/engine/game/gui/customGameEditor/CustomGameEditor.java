@@ -9,7 +9,9 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.bobsgame.client.engine.Engine;
 import com.bobsgame.client.engine.game.gui.Scene2DPanel;
+import com.bobsgame.client.engine.game.gui.Scene2DStringDialog;
 import com.bobsgame.client.engine.game.gui.Scene2DYesNoDialog;
+import com.bobsgame.net.BobNet;
 import com.bobsgame.puzzle.GameType;
 import com.bobsgame.puzzle.Piece;
 import com.bobsgame.puzzle.PieceType;
@@ -23,6 +25,8 @@ public class CustomGameEditor extends Scene2DPanel {
     private final Table mainTable;
     private final TextButton saveSlot1Btn;
     private final TextButton loadSlot1Btn;
+    private final TextButton importBtn;
+    private final TextButton shareBtn;
     private final TextButton saveSlot2Btn;
     private final TextButton loadSlot2Btn;
     private final TextButton saveSlot3Btn;
@@ -52,7 +56,9 @@ public class CustomGameEditor extends Scene2DPanel {
     private final Label summaryLabel;
     private final Label hintLabel;
     private final Label rotationOverviewLabel;
+    private final Label recentHistoryLabel;
     private final Table rotationOverviewTable;
+    private final Table recentHistoryTable;
     private final CheckBox cascadeGravityCheckbox;
     private final CheckBox disconnectedGravityCheckbox;
     private final CheckBox chainRowCheckbox;
@@ -71,8 +77,18 @@ public class CustomGameEditor extends Scene2DPanel {
 
     private GameType currentGameType = new GameType();
     private final GameType[] presetSlots = new GameType[3];
+    private final java.util.ArrayList<RecentGameHistoryEntry> recentHistory = new java.util.ArrayList<RecentGameHistoryEntry>();
     private int selectedPieceIndex = -1;
     private int selectedRotationIndex = 0;
+
+    private static class RecentGameHistoryEntry {
+        public String source;
+        public String payload;
+        public String gameName;
+        public int pieceCount;
+        public int rotationCount;
+        public long timestamp;
+    }
 
     public CustomGameEditor(Engine engine) {
         super(engine);
@@ -90,7 +106,9 @@ public class CustomGameEditor extends Scene2DPanel {
         summaryLabel = new Label("No custom piece data yet.", skin);
         hintLabel = new Label("Build piece shapes with the 4x4 grid. Add pieces and rotations to sketch rules live.", skin);
         rotationOverviewLabel = new Label("Rotation Overview", skin);
+        recentHistoryLabel = new Label("Recent Share / Import History", skin);
         rotationOverviewTable = new Table();
+        recentHistoryTable = new Table();
         cascadeGravityCheckbox = new CheckBox(" Cascade gravity", skin);
         disconnectedGravityCheckbox = new CheckBox(" Disconnected-only gravity", skin);
         chainRowCheckbox = new CheckBox(" Chain rows", skin);
@@ -111,6 +129,8 @@ public class CustomGameEditor extends Scene2DPanel {
 
         saveSlot1Btn = new TextButton("Save Slot 1", skin);
         loadSlot1Btn = new TextButton("Load Slot 1", skin);
+        importBtn = new TextButton("Import", skin);
+        shareBtn = new TextButton("Share", skin);
         saveSlot2Btn = new TextButton("Save Slot 2", skin);
         loadSlot2Btn = new TextButton("Load Slot 2", skin);
         saveSlot3Btn = new TextButton("Save Slot 3", skin);
@@ -143,6 +163,8 @@ public class CustomGameEditor extends Scene2DPanel {
         presetRow.add(loadSlot2Btn);
         presetRow.add(saveSlot3Btn);
         presetRow.add(loadSlot3Btn);
+        presetRow.add(importBtn);
+        presetRow.add(shareBtn);
 
         Table presetQuickRow = new Table();
         presetQuickRow.defaults().pad(4);
@@ -219,6 +241,18 @@ public class CustomGameEditor extends Scene2DPanel {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 loadPresetSlot(0);
+            }
+        });
+        importBtn.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                showImportDialog();
+            }
+        });
+        shareBtn.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                shareGame();
             }
         });
         saveSlot2Btn.addListener(new ClickListener() {
@@ -412,6 +446,8 @@ public class CustomGameEditor extends Scene2DPanel {
         mainTable.add(gridTable).left().padTop(8).row();
         mainTable.add(rotationOverviewLabel).left().padTop(8).row();
         mainTable.add(rotationOverviewTable).left().row();
+        mainTable.add(recentHistoryLabel).left().padTop(8).row();
+        mainTable.add(recentHistoryTable).left().row();
         mainTable.add(summaryLabel).width(520).left().padTop(10).row();
 
         addPiece();
@@ -539,6 +575,171 @@ public class CustomGameEditor extends Scene2DPanel {
         selectedPieceIndex = currentGameType.pieceTypes.isEmpty() ? -1 : 0;
         selectedRotationIndex = 0;
         refreshEditorState();
+    }
+
+    private void showImportDialog() {
+        Engine.GUIManager().showStringDialog(
+            "Paste full share URL or raw #play payload",
+            "",
+            new Scene2DStringDialog.StringDialogListener() {
+                @Override
+                public void onResult(String text) {
+                    importSharedGame(text);
+                }
+
+                @Override
+                public void onCancel() {
+                }
+            }
+        );
+    }
+
+    private void importSharedGame(String input) {
+        if (input == null) return;
+        String trimmed = input.trim();
+        if (trimmed.isEmpty()) return;
+        int playIndex = trimmed.indexOf("#play=");
+        String payload = playIndex >= 0 ? trimmed.substring(playIndex + 6) : trimmed;
+        try {
+            Object decoded = BobNet.fromBase64GZippedGSON(payload, GameType.class);
+            if (!(decoded instanceof GameType)) throw new RuntimeException("Decoded payload was empty.");
+            currentGameType = (GameType) decoded;
+            selectedPieceIndex = currentGameType.pieceTypes.isEmpty() ? -1 : 0;
+            selectedRotationIndex = 0;
+            pushRecentHistoryEntry("import", payload, currentGameType);
+            refreshEditorState();
+            summaryLabel.setText("Imported shared game configuration.");
+        } catch (Exception e) {
+            e.printStackTrace();
+            summaryLabel.setText("Failed to import shared game configuration.");
+        }
+    }
+
+    private void shareGame() {
+        applyRuleCheckboxes();
+        String payload = currentGameType.toBase64GZippedGSON();
+        String url = "https://bobsgame.com/#play=" + payload;
+        pushRecentHistoryEntry("share", payload, currentGameType);
+        if (copyTextToClipboard(url)) {
+            summaryLabel.setText("Share link copied to clipboard.");
+            return;
+        }
+        Engine.GUIManager().showStringDialog(
+            "Copy this share link",
+            url,
+            new Scene2DStringDialog.StringDialogListener() {
+                @Override
+                public void onResult(String text) {
+                }
+
+                @Override
+                public void onCancel() {
+                }
+            }
+        );
+        summaryLabel.setText("Clipboard unavailable. Share link opened for manual copy.");
+    }
+
+    private boolean copyTextToClipboard(String text) {
+        try {
+            java.awt.datatransfer.StringSelection selection = new java.awt.datatransfer.StringSelection(text);
+            java.awt.Toolkit.getDefaultToolkit().getSystemClipboard().setContents(selection, selection);
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    private void pushRecentHistoryEntry(String source, String payload, GameType gameType) {
+        RecentGameHistoryEntry entry = new RecentGameHistoryEntry();
+        entry.source = source;
+        entry.payload = payload;
+        entry.gameName = gameType.name == null || gameType.name.isEmpty() ? ("share".equals(source) ? "Shared Ruleset" : "Imported Ruleset") : gameType.name;
+        entry.pieceCount = gameType.pieceTypes.size();
+        entry.rotationCount = getTotalRotationCount(gameType);
+        entry.timestamp = System.currentTimeMillis();
+
+        for (int i = 0; i < recentHistory.size(); i++) {
+            if (payload.equals(recentHistory.get(i).payload)) {
+                recentHistory.remove(i);
+                break;
+            }
+        }
+        recentHistory.add(0, entry);
+        while (recentHistory.size() > 5) recentHistory.remove(recentHistory.size() - 1);
+        rebuildRecentHistoryTable();
+    }
+
+    private int getTotalRotationCount(GameType gameType) {
+        int total = 0;
+        for (PieceType pieceType : gameType.pieceTypes) {
+            if (pieceType.rotationSet != null) total += pieceType.rotationSet.size();
+        }
+        return total;
+    }
+
+    private void loadRecentHistoryEntry(int historyIndex) {
+        if (historyIndex < 0 || historyIndex >= recentHistory.size()) return;
+        RecentGameHistoryEntry entry = recentHistory.get(historyIndex);
+        importSharedGame(entry.payload);
+    }
+
+    private void copyRecentHistoryEntry(int historyIndex) {
+        if (historyIndex < 0 || historyIndex >= recentHistory.size()) return;
+        RecentGameHistoryEntry entry = recentHistory.get(historyIndex);
+        String url = "https://bobsgame.com/#play=" + entry.payload;
+        if (copyTextToClipboard(url)) {
+            summaryLabel.setText("Copied recent " + entry.source + " link to clipboard.");
+            return;
+        }
+        Engine.GUIManager().showStringDialog(
+            "Copy this recent link",
+            url,
+            new Scene2DStringDialog.StringDialogListener() {
+                @Override
+                public void onResult(String text) {
+                }
+
+                @Override
+                public void onCancel() {
+                }
+            }
+        );
+        summaryLabel.setText("Clipboard unavailable. Recent link opened for manual copy.");
+    }
+
+    private void rebuildRecentHistoryTable() {
+        recentHistoryTable.clearChildren();
+        recentHistoryTable.defaults().left().pad(4);
+        if (recentHistory.isEmpty()) {
+            recentHistoryTable.add(new Label("No recent shared or imported rulesets yet.", engine.uiSkin)).left().row();
+            return;
+        }
+        for (int i = 0; i < recentHistory.size(); i++) {
+            final int historyIndex = i;
+            RecentGameHistoryEntry entry = recentHistory.get(i);
+            String when = new java.text.SimpleDateFormat("HH:mm").format(new java.util.Date(entry.timestamp));
+            String title = entry.gameName + " • " + entry.source + " • " + entry.pieceCount + " pieces • " + entry.rotationCount + " rotations • " + when;
+            Label label = new Label(title, engine.uiSkin);
+            TextButton loadBtn = new TextButton("Load", engine.uiSkin);
+            TextButton copyBtn = new TextButton("Copy Link", engine.uiSkin);
+            loadBtn.addListener(new ClickListener() {
+                @Override
+                public void clicked(InputEvent event, float x, float y) {
+                    loadRecentHistoryEntry(historyIndex);
+                }
+            });
+            copyBtn.addListener(new ClickListener() {
+                @Override
+                public void clicked(InputEvent event, float x, float y) {
+                    copyRecentHistoryEntry(historyIndex);
+                }
+            });
+            recentHistoryTable.add(label).left();
+            recentHistoryTable.add(loadBtn).left();
+            recentHistoryTable.add(copyBtn).left().row();
+        }
     }
 
     private Piece.Rotation cloneRotation(Piece.Rotation source) {
@@ -1021,6 +1222,7 @@ public class CustomGameEditor extends Scene2DPanel {
         pieceLabel.setText(pieceType == null ? "Piece: none" : "Piece: " + pieceType.name + " (" + (selectedPieceIndex + 1) + "/" + currentGameType.pieceTypes.size() + ")");
         rotationLabel.setText(rotation == null ? "Rotation: none" : "Rotation: " + selectedRotationIndex + " (" + getFilledCellCount(rotation) + " blocks)");
         rebuildRotationOverview(pieceType);
+        rebuildRecentHistoryTable();
 
         for (int y = 0; y < 4; y++) {
             for (int x = 0; x < 4; x++) {

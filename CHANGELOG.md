@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.0.17] - 2026-04-05
+
+### Added
+- **Scene2D Recent Share / Import History:** `CustomGameEditor.java` now adds Scene2D import/share entry points plus a bounded recent-history list with quick load/copy actions.
+
+### Changed
+- Share flow now copies to the system clipboard when available and falls back to a manual-copy string dialog when clipboard access is unavailable.
+- Bumped `VERSION.md` to `2.0.17`.
+
+### Validation
+- `./gradlew compileJava` ✅
+
 ## [2.0.16] - 2026-04-05
 
 ### Added
