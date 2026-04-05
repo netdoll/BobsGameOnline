@@ -1,6 +1,7 @@
 package com.bobsgame.client.engine.game.gui.customGameEditor;
 
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.ui.CheckBox;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
@@ -33,6 +34,12 @@ public class CustomGameEditor extends Scene2DPanel {
     private final Label hintLabel;
     private final Label rotationOverviewLabel;
     private final Table rotationOverviewTable;
+    private final CheckBox cascadeGravityCheckbox;
+    private final CheckBox disconnectedGravityCheckbox;
+    private final CheckBox chainRowCheckbox;
+    private final CheckBox chainColumnCheckbox;
+    private final CheckBox chainDiagonalCheckbox;
+    private final CheckBox recursiveChainCheckbox;
 
     private final GameType currentGameType = new GameType();
     private int selectedPieceIndex = -1;
@@ -55,6 +62,12 @@ public class CustomGameEditor extends Scene2DPanel {
         hintLabel = new Label("Build piece shapes with the 4x4 grid. Add pieces and rotations to sketch rules live.", skin);
         rotationOverviewLabel = new Label("Rotation Overview", skin);
         rotationOverviewTable = new Table();
+        cascadeGravityCheckbox = new CheckBox(" Cascade gravity", skin);
+        disconnectedGravityCheckbox = new CheckBox(" Disconnected-only gravity", skin);
+        chainRowCheckbox = new CheckBox(" Chain rows", skin);
+        chainColumnCheckbox = new CheckBox(" Chain columns", skin);
+        chainDiagonalCheckbox = new CheckBox(" Chain diagonals", skin);
+        recursiveChainCheckbox = new CheckBox(" Recursive chain search", skin);
         hintLabel.setWrap(true);
         summaryLabel.setWrap(true);
 
@@ -86,6 +99,15 @@ public class CustomGameEditor extends Scene2DPanel {
         controlsRow2.add(nextPieceBtn);
         controlsRow2.add(prevRotationBtn);
         controlsRow2.add(nextRotationBtn);
+
+        Table advancedRulesTable = new Table();
+        advancedRulesTable.defaults().left().pad(4);
+        advancedRulesTable.add(cascadeGravityCheckbox).left();
+        advancedRulesTable.add(disconnectedGravityCheckbox).left().row();
+        advancedRulesTable.add(chainRowCheckbox).left();
+        advancedRulesTable.add(chainColumnCheckbox).left().row();
+        advancedRulesTable.add(chainDiagonalCheckbox).left();
+        advancedRulesTable.add(recursiveChainCheckbox).left().row();
 
         Table gridTable = new Table();
         gridTable.defaults().width(44).height(44).pad(2);
@@ -183,11 +205,26 @@ public class CustomGameEditor extends Scene2DPanel {
             }
         });
 
+        ClickListener toggleRefreshListener = new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                applyRuleCheckboxes();
+                refreshEditorState();
+            }
+        };
+        cascadeGravityCheckbox.addListener(toggleRefreshListener);
+        disconnectedGravityCheckbox.addListener(toggleRefreshListener);
+        chainRowCheckbox.addListener(toggleRefreshListener);
+        chainColumnCheckbox.addListener(toggleRefreshListener);
+        chainDiagonalCheckbox.addListener(toggleRefreshListener);
+        recursiveChainCheckbox.addListener(toggleRefreshListener);
+
         mainTable.defaults().left().padBottom(8);
         mainTable.add(titleLabel).left().row();
         mainTable.add(hintLabel).width(520).left().row();
         mainTable.add(controlsRow1).left().row();
         mainTable.add(controlsRow2).left().row();
+        mainTable.add(advancedRulesTable).left().row();
         mainTable.add(pieceLabel).left().row();
         mainTable.add(rotationLabel).left().row();
         mainTable.add(gridTable).left().padTop(8).row();
@@ -417,6 +454,26 @@ public class CustomGameEditor extends Scene2DPanel {
         return rotation == null ? 0 : rotation.blockOffsets.size();
     }
 
+    private void applyRuleCheckboxes() {
+        currentGameType.moveDownAllLinesOverBlankSpacesAtOnce = cascadeGravityCheckbox.isChecked();
+        currentGameType.gravityRule_onlyMoveDownDisconnectedBlocks = disconnectedGravityCheckbox.isChecked();
+        currentGameType.chainRule_CheckRow = chainRowCheckbox.isChecked();
+        currentGameType.chainRule_CheckColumn = chainColumnCheckbox.isChecked();
+        currentGameType.chainRule_CheckDiagonal = chainDiagonalCheckbox.isChecked();
+        currentGameType.chainRule_CheckRecursiveConnections = recursiveChainCheckbox.isChecked();
+    }
+
+    private String getEnabledRuleSummary() {
+        java.util.ArrayList<String> enabled = new java.util.ArrayList<String>();
+        if (currentGameType.moveDownAllLinesOverBlankSpacesAtOnce) enabled.add("cascade gravity");
+        if (currentGameType.gravityRule_onlyMoveDownDisconnectedBlocks) enabled.add("disconnected gravity");
+        if (currentGameType.chainRule_CheckRow) enabled.add("row chains");
+        if (currentGameType.chainRule_CheckColumn) enabled.add("column chains");
+        if (currentGameType.chainRule_CheckDiagonal) enabled.add("diagonal chains");
+        if (currentGameType.chainRule_CheckRecursiveConnections) enabled.add("recursive search");
+        return enabled.isEmpty() ? "none" : String.join(", ", enabled);
+    }
+
     private int getTotalRotationCount() {
         int total = 0;
         for (PieceType pieceType : currentGameType.pieceTypes) {
@@ -426,8 +483,16 @@ public class CustomGameEditor extends Scene2DPanel {
     }
 
     private void refreshEditorState() {
+        applyRuleCheckboxes();
         PieceType pieceType = getSelectedPiece();
         Piece.Rotation rotation = getSelectedRotation();
+
+        cascadeGravityCheckbox.setChecked(currentGameType.moveDownAllLinesOverBlankSpacesAtOnce);
+        disconnectedGravityCheckbox.setChecked(currentGameType.gravityRule_onlyMoveDownDisconnectedBlocks);
+        chainRowCheckbox.setChecked(currentGameType.chainRule_CheckRow);
+        chainColumnCheckbox.setChecked(currentGameType.chainRule_CheckColumn);
+        chainDiagonalCheckbox.setChecked(currentGameType.chainRule_CheckDiagonal);
+        recursiveChainCheckbox.setChecked(currentGameType.chainRule_CheckRecursiveConnections);
 
         pieceLabel.setText(pieceType == null ? "Piece: none" : "Piece: " + pieceType.name + " (" + (selectedPieceIndex + 1) + "/" + currentGameType.pieceTypes.size() + ")");
         rotationLabel.setText(rotation == null ? "Rotation: none" : "Rotation: " + selectedRotationIndex + " (" + getFilledCellCount(rotation) + " blocks)");
@@ -457,6 +522,7 @@ public class CustomGameEditor extends Scene2DPanel {
             + " | Rotations: " + getTotalRotationCount()
             + " | Current piece rotations: " + currentRotationCount
             + " | Filled cells in current rotation: " + getFilledCellCount(rotation)
+            + " | Rules: " + getEnabledRuleSummary()
         );
     }
 }

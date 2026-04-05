@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.0.7] - 2026-04-05
+
+### Added
+- **Scene2D Advanced Rule Toggles:** `CustomGameEditor.java` now exposes Scene2D checkboxes for cascade gravity, disconnected-only gravity, row/column/diagonal chain checks, and recursive chain search.
+
+### Changed
+- The Java editor summary now reports enabled advanced rules explicitly.
+- Bumped `VERSION.md` to `2.0.7`.
+
+### Validation
+- `./gradlew compileJava` ✅
+
 ## [2.0.6] - 2026-04-05
 
 ### Added

@@ -51,6 +51,11 @@ This session focused on the newer Scene2D `CustomGameEditor` so the Java port ha
 - Added clickable rotation overview buttons with occupied-cell counts to the Scene2D custom editor.
 - Bumped the Java repo version again to `2.0.6`.
 
+### Additional Follow-Up - 2026-04-05 (Advanced Rule Toggles)
+- Added Scene2D checkboxes for cascade gravity, disconnected-only gravity, row/column/diagonal chain checks, and recursive search.
+- Expanded the Java editor summary to report enabled advanced rules.
+- Bumped the Java repo version again to `2.0.7`.
+
 ### Recommended Next Steps
 1. Add color/block-type controls to the Scene2D editor.
 2. Bridge Scene2D custom editor state into the older TWL editor stack where useful.
