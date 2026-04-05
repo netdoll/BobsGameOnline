@@ -15,7 +15,9 @@ import com.bobsgame.puzzle.PieceType;
 public class CustomGameEditor extends Scene2DPanel {
     private final Table mainTable;
     private final TextButton addPieceBtn;
+    private final TextButton removePieceBtn;
     private final TextButton addRotationBtn;
+    private final TextButton removeRotationBtn;
     private final TextButton prevPieceBtn;
     private final TextButton nextPieceBtn;
     private final TextButton prevRotationBtn;
@@ -50,7 +52,9 @@ public class CustomGameEditor extends Scene2DPanel {
         summaryLabel.setWrap(true);
 
         addPieceBtn = new TextButton("Add Piece Type", skin);
+        removePieceBtn = new TextButton("Remove Piece", skin);
         addRotationBtn = new TextButton("Add Rotation", skin);
+        removeRotationBtn = new TextButton("Remove Rotation", skin);
         prevPieceBtn = new TextButton("< Piece", skin);
         nextPieceBtn = new TextButton("Piece >", skin);
         prevRotationBtn = new TextButton("< Rot", skin);
@@ -60,7 +64,9 @@ public class CustomGameEditor extends Scene2DPanel {
         Table controlsRow1 = new Table();
         controlsRow1.defaults().pad(4);
         controlsRow1.add(addPieceBtn);
+        controlsRow1.add(removePieceBtn);
         controlsRow1.add(addRotationBtn);
+        controlsRow1.add(removeRotationBtn);
         controlsRow1.add(clearRotationBtn);
 
         Table controlsRow2 = new Table();
@@ -96,10 +102,24 @@ public class CustomGameEditor extends Scene2DPanel {
             }
         });
 
+        removePieceBtn.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                removePiece();
+            }
+        });
+
         addRotationBtn.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 addRotation();
+            }
+        });
+
+        removeRotationBtn.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                removeRotation();
             }
         });
 
@@ -171,6 +191,31 @@ public class CustomGameEditor extends Scene2DPanel {
         if (pieceType.rotationSet == null) pieceType.rotationSet = new Piece.RotationSet("");
         pieceType.rotationSet.add(new Piece.Rotation());
         selectedRotationIndex = pieceType.rotationSet.size() - 1;
+        refreshEditorState();
+    }
+
+    private void removePiece() {
+        if (selectedPieceIndex < 0 || selectedPieceIndex >= currentGameType.pieceTypes.size()) return;
+        currentGameType.pieceTypes.remove(selectedPieceIndex);
+        if (currentGameType.pieceTypes.isEmpty()) {
+            selectedPieceIndex = -1;
+            selectedRotationIndex = 0;
+        } else {
+            selectedPieceIndex = Math.min(selectedPieceIndex, currentGameType.pieceTypes.size() - 1);
+            selectedRotationIndex = 0;
+        }
+        refreshEditorState();
+    }
+
+    private void removeRotation() {
+        PieceType pieceType = getSelectedPiece();
+        if (pieceType == null || pieceType.rotationSet == null || pieceType.rotationSet.size() == 0) return;
+        pieceType.rotationSet.remove(selectedRotationIndex);
+        if (pieceType.rotationSet.size() == 0) {
+            selectedRotationIndex = 0;
+        } else {
+            selectedRotationIndex = Math.min(selectedRotationIndex, pieceType.rotationSet.size() - 1);
+        }
         refreshEditorState();
     }
 
@@ -261,6 +306,7 @@ public class CustomGameEditor extends Scene2DPanel {
                     }
                 }
                 gridButtons[y][x].setText(filled ? "■" : "·");
+                gridButtons[y][x].setDisabled(pieceType == null);
             }
         }
 

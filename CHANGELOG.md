@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.0.3] - 2026-04-05
+
+### Added
+- **Scene2D Delete Controls:** `CustomGameEditor.java` now supports removing the selected piece and removing the selected rotation, extending the Scene2D editor beyond pure additive editing.
+
+### Changed
+- **Editor Guardrails:** Grid buttons are disabled when no piece is selected, and the editor now recovers selection cleanly after deleting a piece or rotation.
+- Bumped `VERSION.md` to `2.0.3`.
+
+### Validation
+- `./gradlew compileJava` ✅
+
 ## [2.0.2] - 2026-04-05
 
 ### Fixed

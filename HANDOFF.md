@@ -34,8 +34,13 @@ This session focused on the newer Scene2D `CustomGameEditor` so the Java port ha
 - Switched nD puzzle updates to `puzzleGame.update(0, 1)`.
 - Added a tracked parent-repo compatibility override at `src/main/java/de/matthiasmann/twl/input/lwjgl/LWJGLInput.java` and excluded the conflicting nested-submodule source path in Gradle so TWL input forwarding no longer breaks on compile-time API drift against `TWL.jar`.
 
+### Additional Follow-Up - 2026-04-05
+- Extended the Scene2D editor with piece removal and rotation removal.
+- Disabled grid buttons automatically when no piece is selected so empty-state editing is clearer.
+- Bumped the Java repo version again to `2.0.3`.
+
 ### Recommended Next Steps
-1. Extend the Scene2D editor with piece removal, rotation removal, and color/block-type controls.
+1. Add color/block-type controls to the Scene2D editor.
 2. Bridge Scene2D custom editor state into the older TWL editor stack where useful.
 3. Replace the temporary reflection bridge with a direct adapter once the exact TWL/LWJGL API contract is fully normalized.
 4. Add a targeted Java regression test or smoke harness for nD puzzle bootstrap + editor launch.
