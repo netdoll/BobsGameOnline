@@ -31,6 +31,8 @@ public class CustomGameEditor extends Scene2DPanel {
     private final Label rotationLabel;
     private final Label summaryLabel;
     private final Label hintLabel;
+    private final Label rotationOverviewLabel;
+    private final Table rotationOverviewTable;
 
     private final GameType currentGameType = new GameType();
     private int selectedPieceIndex = -1;
@@ -51,6 +53,8 @@ public class CustomGameEditor extends Scene2DPanel {
         rotationLabel = new Label("Rotation: none", skin);
         summaryLabel = new Label("No custom piece data yet.", skin);
         hintLabel = new Label("Build piece shapes with the 4x4 grid. Add pieces and rotations to sketch rules live.", skin);
+        rotationOverviewLabel = new Label("Rotation Overview", skin);
+        rotationOverviewTable = new Table();
         hintLabel.setWrap(true);
         summaryLabel.setWrap(true);
 
@@ -187,6 +191,8 @@ public class CustomGameEditor extends Scene2DPanel {
         mainTable.add(pieceLabel).left().row();
         mainTable.add(rotationLabel).left().row();
         mainTable.add(gridTable).left().padTop(8).row();
+        mainTable.add(rotationOverviewLabel).left().padTop(8).row();
+        mainTable.add(rotationOverviewTable).left().row();
         mainTable.add(summaryLabel).width(520).left().padTop(10).row();
 
         addPiece();
@@ -380,6 +386,33 @@ public class CustomGameEditor extends Scene2DPanel {
         return pieceType.rotationSet.get(selectedRotationIndex);
     }
 
+    private void rebuildRotationOverview(PieceType pieceType) {
+        rotationOverviewTable.clearChildren();
+        if (pieceType == null || pieceType.rotationSet == null || pieceType.rotationSet.size() == 0) {
+            rotationOverviewTable.add(new Label("No rotations yet.", engine.uiSkin)).left();
+            return;
+        }
+
+        rotationOverviewTable.defaults().pad(4);
+        for (int i = 0; i < pieceType.rotationSet.size(); i++) {
+            final int rotationIndex = i;
+            final Piece.Rotation rotation = pieceType.rotationSet.get(i);
+            String prefix = (rotationIndex == selectedRotationIndex) ? "> " : "";
+            TextButton button = new TextButton(prefix + "R" + rotationIndex + " (" + getFilledCellCount(rotation) + ")", engine.uiSkin);
+            button.addListener(new ClickListener() {
+                @Override
+                public void clicked(InputEvent event, float x, float y) {
+                    selectedRotationIndex = rotationIndex;
+                    refreshEditorState();
+                }
+            });
+            rotationOverviewTable.add(button).left();
+            if ((i + 1) % 4 == 0) {
+                rotationOverviewTable.row();
+            }
+        }
+    }
+
     private int getFilledCellCount(Piece.Rotation rotation) {
         return rotation == null ? 0 : rotation.blockOffsets.size();
     }
@@ -398,6 +431,7 @@ public class CustomGameEditor extends Scene2DPanel {
 
         pieceLabel.setText(pieceType == null ? "Piece: none" : "Piece: " + pieceType.name + " (" + (selectedPieceIndex + 1) + "/" + currentGameType.pieceTypes.size() + ")");
         rotationLabel.setText(rotation == null ? "Rotation: none" : "Rotation: " + selectedRotationIndex + " (" + getFilledCellCount(rotation) + " blocks)");
+        rebuildRotationOverview(pieceType);
 
         for (int y = 0; y < 4; y++) {
             for (int x = 0; x < 4; x++) {

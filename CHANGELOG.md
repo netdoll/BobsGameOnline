@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.0.6] - 2026-04-05
+
+### Added
+- **Scene2D Rotation Overview:** `CustomGameEditor.java` now builds a clickable rotation overview strip with per-rotation occupied-cell counts, allowing direct selection instead of only cycling next/previous.
+
+### Changed
+- Bumped `VERSION.md` to `2.0.6`.
+
+### Validation
+- `./gradlew compileJava` ✅
+
 ## [2.0.5] - 2026-04-05
 
 ### Added
