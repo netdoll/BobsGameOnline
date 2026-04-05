@@ -16,8 +16,10 @@ import com.bobsgame.puzzle.PieceType;
 public class CustomGameEditor extends Scene2DPanel {
     private final Table mainTable;
     private final TextButton addPieceBtn;
+    private final TextButton duplicatePieceBtn;
     private final TextButton removePieceBtn;
     private final TextButton addRotationBtn;
+    private final TextButton duplicateRotationBtn;
     private final TextButton removeRotationBtn;
     private final TextButton prevPieceBtn;
     private final TextButton nextPieceBtn;
@@ -53,8 +55,10 @@ public class CustomGameEditor extends Scene2DPanel {
         summaryLabel.setWrap(true);
 
         addPieceBtn = new TextButton("Add Piece Type", skin);
+        duplicatePieceBtn = new TextButton("Duplicate Piece", skin);
         removePieceBtn = new TextButton("Remove Piece", skin);
         addRotationBtn = new TextButton("Add Rotation", skin);
+        duplicateRotationBtn = new TextButton("Duplicate Rotation", skin);
         removeRotationBtn = new TextButton("Remove Rotation", skin);
         prevPieceBtn = new TextButton("< Piece", skin);
         nextPieceBtn = new TextButton("Piece >", skin);
@@ -65,8 +69,10 @@ public class CustomGameEditor extends Scene2DPanel {
         Table controlsRow1 = new Table();
         controlsRow1.defaults().pad(4);
         controlsRow1.add(addPieceBtn);
+        controlsRow1.add(duplicatePieceBtn);
         controlsRow1.add(removePieceBtn);
         controlsRow1.add(addRotationBtn);
+        controlsRow1.add(duplicateRotationBtn);
         controlsRow1.add(removeRotationBtn);
         controlsRow1.add(clearRotationBtn);
 
@@ -103,6 +109,13 @@ public class CustomGameEditor extends Scene2DPanel {
             }
         });
 
+        duplicatePieceBtn.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                duplicatePiece();
+            }
+        });
+
         removePieceBtn.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
@@ -114,6 +127,13 @@ public class CustomGameEditor extends Scene2DPanel {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 addRotation();
+            }
+        });
+
+        duplicateRotationBtn.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                duplicateRotation();
             }
         });
 
@@ -195,6 +215,54 @@ public class CustomGameEditor extends Scene2DPanel {
         refreshEditorState();
     }
 
+    private Piece.Rotation cloneRotation(Piece.Rotation source) {
+        Piece.Rotation clone = new Piece.Rotation();
+        for (Piece.BlockOffset offset : source.blockOffsets) {
+            clone.blockOffsets.add(new Piece.BlockOffset(offset.x, offset.y));
+        }
+        return clone;
+    }
+
+    private PieceType clonePiece(PieceType source) {
+        PieceType clone = new PieceType();
+        clone.name = (source.name == null || source.name.isEmpty()) ? "Piece Copy" : source.name + " Copy";
+        clone.description = source.description;
+        clone.color = source.color == null ? null : source.color.clone();
+        clone.rotationSet = new Piece.RotationSet(source.rotationSet == null ? "" : source.rotationSet.name);
+        if (source.rotationSet != null) {
+            for (int i = 0; i < source.rotationSet.size(); i++) {
+                clone.rotationSet.add(cloneRotation(source.rotationSet.get(i)));
+            }
+        }
+        clone.frequencySpecialPieceTypeOnceEveryNPieces = source.frequencySpecialPieceTypeOnceEveryNPieces;
+        clone.randomSpecialPieceChanceOneOutOf = source.randomSpecialPieceChanceOneOutOf;
+        clone.flashingSpecialType = source.flashingSpecialType;
+        clone.clearEveryRowPieceIsOnIfAnySingleRowCleared = source.clearEveryRowPieceIsOnIfAnySingleRowCleared;
+        clone.turnBackToNormalPieceAfterNPiecesLock = source.turnBackToNormalPieceAfterNPiecesLock;
+        clone.fadeOutOnceSetInsteadOfAddedToGrid = source.fadeOutOnceSetInsteadOfAddedToGrid;
+        clone.useAsNormalPiece = source.useAsNormalPiece;
+        clone.useAsGarbagePiece = source.useAsGarbagePiece;
+        clone.useAsPlayingFieldFillerPiece = source.useAsPlayingFieldFillerPiece;
+        clone.disallowAsFirstPiece = source.disallowAsFirstPiece;
+        clone.spriteName = source.spriteName;
+        clone.bombPiece = source.bombPiece;
+        clone.weightPiece = source.weightPiece;
+        clone.pieceRemovalShooterPiece = source.pieceRemovalShooterPiece;
+        clone.pieceShooterPiece = source.pieceShooterPiece;
+        clone.overrideBlockTypes_UUID = new java.util.ArrayList<String>(source.overrideBlockTypes_UUID);
+        return clone;
+    }
+
+    private void duplicatePiece() {
+        PieceType pieceType = getSelectedPiece();
+        if (pieceType == null) return;
+        PieceType duplicate = clonePiece(pieceType);
+        currentGameType.pieceTypes.add(selectedPieceIndex + 1, duplicate);
+        selectedPieceIndex = selectedPieceIndex + 1;
+        selectedRotationIndex = 0;
+        refreshEditorState();
+    }
+
     private void removePiece() {
         if (selectedPieceIndex < 0 || selectedPieceIndex >= currentGameType.pieceTypes.size()) return;
         final int removeIndex = selectedPieceIndex;
@@ -220,6 +288,15 @@ public class CustomGameEditor extends Scene2DPanel {
                 }
             }
         );
+    }
+
+    private void duplicateRotation() {
+        PieceType pieceType = getSelectedPiece();
+        if (pieceType == null || pieceType.rotationSet == null || pieceType.rotationSet.size() == 0) return;
+        Piece.Rotation duplicate = cloneRotation(pieceType.rotationSet.get(selectedRotationIndex));
+        pieceType.rotationSet.rotations.add(selectedRotationIndex + 1, duplicate);
+        selectedRotationIndex = selectedRotationIndex + 1;
+        refreshEditorState();
     }
 
     private void removeRotation() {

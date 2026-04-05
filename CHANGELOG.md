@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.0.5] - 2026-04-05
+
+### Added
+- **Scene2D Duplication Workflow:** `CustomGameEditor.java` now supports duplicating the selected piece and duplicating the selected rotation, making iterative ruleset authoring much faster.
+
+### Changed
+- Bumped `VERSION.md` to `2.0.5`.
+
+### Validation
+- `./gradlew compileJava` ✅
+
 ## [2.0.4] - 2026-04-05
 
 ### Changed
