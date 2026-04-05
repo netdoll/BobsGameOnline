@@ -2,6 +2,22 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.0.1] - 2026-04-05
+
+### Added
+- **Scene2D Custom Piece Editing:** `CustomGameEditor.java` now maintains a live `GameType`, supports adding piece types and rotations, and exposes an interactive 4x4 rotation grid for sketching custom puzzle pieces.
+- **Editor Summary Feedback:** Added current piece / rotation labels plus a summary line showing grid, mode, piece count, rotation count, and filled-cell count for the active rotation.
+
+### Changed
+- Bumped `VERSION.md` to `2.0.1`.
+- The Scene2D custom editor now serves as a real editing surface instead of placeholder buttons.
+
+### Validation
+- `./gradlew compileJava` still fails, but the remaining failures are pre-existing and unrelated to this editor change:
+  - `NDPuzzleGame.java` constructor/update mismatch with `GameLogic`
+  - `libs/twl-lwjgl3` `GUI` API mismatches (`handleKey`, `handleMouse`, `handleMouseWheel`)
+
+
 ## [0.1.7] - 2026-02-07
 
 ### Fixed

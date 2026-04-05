@@ -1,5 +1,40 @@
 # Session Handoff
 
+## 2026-04-05 - Scene2D Custom Puzzle Editor Parity Pass
+
+### Summary
+This session focused on the newer Scene2D `CustomGameEditor` so the Java port has a genuinely interactive custom piece-editing surface instead of placeholder buttons.
+
+### What Changed
+- Rewrote `src/main/java/com/bobsgame/client/engine/game/gui/customGameEditor/CustomGameEditor.java` into a live editor panel backed by a real `GameType` instance.
+- Added controls for:
+  - add piece type
+  - add rotation
+  - clear current rotation
+  - previous / next piece navigation
+  - previous / next rotation navigation
+- Wired the 4x4 button grid to real `Piece.Rotation` `blockOffsets` so clicks add/remove occupied cells.
+- Added summary labels showing:
+  - selected piece
+  - selected rotation
+  - total piece count
+  - total rotation count
+  - filled cell count in the current rotation
+  - current mode / grid dimensions
+
+### Validation
+- `./gradlew compileJava` was run.
+- My editor change no longer introduces compile errors.
+- Remaining compile failures are pre-existing elsewhere in the repo:
+  - `src/main/java/com/bobsgame/client/engine/nd/NDPuzzleGame.java`
+  - `libs/twl-lwjgl3/src/de/matthiasmann/twl/input/lwjgl/LWJGLInput.java`
+
+### Recommended Next Steps
+1. Fix the pre-existing `NDPuzzleGame` constructor/update drift so Java builds can go green again.
+2. Repair the TWL/LWJGL input adapter API drift (`handleKey`, `handleMouse`, `handleMouseWheel`).
+3. Extend the Scene2D editor with piece removal, rotation removal, and color/block-type controls.
+4. Bridge Scene2D custom editor state into the older TWL editor stack where useful.
+
 ## Summary
 This session focused on modernizing the internal Swing-based Editor tools (`SpriteEditor`, `MapCanvas`, `DialogueEditor`) to include features found in industry-standard tools like Aseprite and Pyxel Edit.
 
