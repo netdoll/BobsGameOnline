@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.0.11] - 2026-04-05
+
+### Added
+- **Scene2D Rotation Analytics:** `CustomGameEditor.java` now reports current rotation bounding-box size plus unique-vs-duplicate rotation counts for the selected piece, and the rotation overview buttons include bounding-box information.
+
+### Changed
+- Bumped `VERSION.md` to `2.0.11`.
+
+### Validation
+- `./gradlew compileJava` ✅
+
 ## [2.0.10] - 2026-04-05
 
 ### Added

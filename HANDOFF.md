@@ -69,6 +69,11 @@ This session focused on the newer Scene2D `CustomGameEditor` so the Java port ha
 - Added one-click Classic Drop, Cascade Puzzle, and Stack Arcade preset buttons on top of the Scene2D preset-slot workflow.
 - Bumped the Java repo version again to `2.0.10`.
 
+### Additional Follow-Up - 2026-04-05 (Rotation Analytics)
+- Added current-rotation bounding-box size and unique-vs-duplicate rotation counts to the Scene2D custom editor summary.
+- Expanded rotation overview buttons to include bounding-box information.
+- Bumped the Java repo version again to `2.0.11`.
+
 ### Recommended Next Steps
 1. Add color/block-type controls to the Scene2D editor.
 2. Bridge Scene2D custom editor state into the older TWL editor stack where useful.

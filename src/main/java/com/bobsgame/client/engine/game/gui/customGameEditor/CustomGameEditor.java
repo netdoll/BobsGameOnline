@@ -668,7 +668,7 @@ public class CustomGameEditor extends Scene2DPanel {
             final int rotationIndex = i;
             final Piece.Rotation rotation = pieceType.rotationSet.get(i);
             String prefix = (rotationIndex == selectedRotationIndex) ? "> " : "";
-            TextButton button = new TextButton(prefix + "R" + rotationIndex + " (" + getFilledCellCount(rotation) + ")", engine.uiSkin);
+            TextButton button = new TextButton(prefix + "R" + rotationIndex + " (" + getFilledCellCount(rotation) + ", " + getRotationBoundingBox(rotation) + ")", engine.uiSkin);
             button.addListener(new ClickListener() {
                 @Override
                 public void clicked(InputEvent event, float x, float y) {
@@ -685,6 +685,40 @@ public class CustomGameEditor extends Scene2DPanel {
 
     private int getFilledCellCount(Piece.Rotation rotation) {
         return rotation == null ? 0 : rotation.blockOffsets.size();
+    }
+
+    private String getRotationSignature(Piece.Rotation rotation) {
+        if (rotation == null) return "empty";
+        java.util.ArrayList<String> coords = new java.util.ArrayList<String>();
+        for (Piece.BlockOffset offset : rotation.blockOffsets) {
+            coords.add(offset.x + "," + offset.y);
+        }
+        java.util.Collections.sort(coords);
+        return String.join("|", coords);
+    }
+
+    private String getRotationBoundingBox(Piece.Rotation rotation) {
+        if (rotation == null || rotation.blockOffsets.isEmpty()) return "0x0";
+        int minX = Integer.MAX_VALUE;
+        int maxX = Integer.MIN_VALUE;
+        int minY = Integer.MAX_VALUE;
+        int maxY = Integer.MIN_VALUE;
+        for (Piece.BlockOffset offset : rotation.blockOffsets) {
+            minX = Math.min(minX, offset.x);
+            maxX = Math.max(maxX, offset.x);
+            minY = Math.min(minY, offset.y);
+            maxY = Math.max(maxY, offset.y);
+        }
+        return (maxX - minX + 1) + "x" + (maxY - minY + 1);
+    }
+
+    private int getUniqueRotationCount(PieceType pieceType) {
+        if (pieceType == null || pieceType.rotationSet == null) return 0;
+        java.util.HashSet<String> signatures = new java.util.HashSet<String>();
+        for (int i = 0; i < pieceType.rotationSet.size(); i++) {
+            signatures.add(getRotationSignature(pieceType.rotationSet.get(i)));
+        }
+        return signatures.size();
     }
 
     private void applyRuleCheckboxes() {
@@ -774,6 +808,8 @@ public class CustomGameEditor extends Scene2DPanel {
         }
 
         int currentRotationCount = pieceType != null && pieceType.rotationSet != null ? pieceType.rotationSet.size() : 0;
+        int uniqueRotationCount = getUniqueRotationCount(pieceType);
+        int duplicateRotationCount = Math.max(0, currentRotationCount - uniqueRotationCount);
         summaryLabel.setText(
             "Mode: " + currentGameType.gameMode
             + " | Grid: " + currentGameType.gridWidth + "x" + currentGameType.gridHeight
@@ -781,6 +817,8 @@ public class CustomGameEditor extends Scene2DPanel {
             + " | Rotations: " + getTotalRotationCount()
             + " | Current piece rotations: " + currentRotationCount
             + " | Filled cells in current rotation: " + getFilledCellCount(rotation)
+            + " | Current bbox: " + getRotationBoundingBox(rotation)
+            + " | Unique/duplicate rotations: " + uniqueRotationCount + "/" + duplicateRotationCount
             + " | Rules: " + getEnabledRuleSummary()
         );
     }
