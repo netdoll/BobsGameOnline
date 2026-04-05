@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.0.8] - 2026-04-05
+
+### Added
+- **Scene2D Movement / Randomizer Toggles:** `CustomGameEditor.java` now exposes Scene2D checkboxes for next-piece preview, hold piece, bag randomizer, hard-drop punch-through, and multiple kick/movement options.
+
+### Changed
+- The Java editor summary now includes enabled movement/randomizer rules together with the earlier advanced rule set.
+- Bumped `VERSION.md` to `2.0.8`.
+
+### Validation
+- `./gradlew compileJava` ✅
+
 ## [2.0.7] - 2026-04-05
 
 ### Added

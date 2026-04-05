@@ -40,6 +40,15 @@ public class CustomGameEditor extends Scene2DPanel {
     private final CheckBox chainColumnCheckbox;
     private final CheckBox chainDiagonalCheckbox;
     private final CheckBox recursiveChainCheckbox;
+    private final CheckBox nextPieceEnabledCheckbox;
+    private final CheckBox holdPieceEnabledCheckbox;
+    private final CheckBox bagRandomizerCheckbox;
+    private final CheckBox hardDropPunchCheckbox;
+    private final CheckBox twoSpaceWallKickCheckbox;
+    private final CheckBox diagonalWallKickCheckbox;
+    private final CheckBox pieceClimbingCheckbox;
+    private final CheckBox flip180Checkbox;
+    private final CheckBox floorKickCheckbox;
 
     private final GameType currentGameType = new GameType();
     private int selectedPieceIndex = -1;
@@ -68,6 +77,15 @@ public class CustomGameEditor extends Scene2DPanel {
         chainColumnCheckbox = new CheckBox(" Chain columns", skin);
         chainDiagonalCheckbox = new CheckBox(" Chain diagonals", skin);
         recursiveChainCheckbox = new CheckBox(" Recursive chain search", skin);
+        nextPieceEnabledCheckbox = new CheckBox(" Show next pieces", skin);
+        holdPieceEnabledCheckbox = new CheckBox(" Enable hold piece", skin);
+        bagRandomizerCheckbox = new CheckBox(" Use bag randomizer", skin);
+        hardDropPunchCheckbox = new CheckBox(" Hard-drop punch-through", skin);
+        twoSpaceWallKickCheckbox = new CheckBox(" Two-space wall kick", skin);
+        diagonalWallKickCheckbox = new CheckBox(" Diagonal wall kick", skin);
+        pieceClimbingCheckbox = new CheckBox(" Piece climbing", skin);
+        flip180Checkbox = new CheckBox(" Allow 180 flip", skin);
+        floorKickCheckbox = new CheckBox(" Allow floor kick", skin);
         hintLabel.setWrap(true);
         summaryLabel.setWrap(true);
 
@@ -108,6 +126,15 @@ public class CustomGameEditor extends Scene2DPanel {
         advancedRulesTable.add(chainColumnCheckbox).left().row();
         advancedRulesTable.add(chainDiagonalCheckbox).left();
         advancedRulesTable.add(recursiveChainCheckbox).left().row();
+        advancedRulesTable.add(nextPieceEnabledCheckbox).left();
+        advancedRulesTable.add(holdPieceEnabledCheckbox).left().row();
+        advancedRulesTable.add(bagRandomizerCheckbox).left();
+        advancedRulesTable.add(hardDropPunchCheckbox).left().row();
+        advancedRulesTable.add(twoSpaceWallKickCheckbox).left();
+        advancedRulesTable.add(diagonalWallKickCheckbox).left().row();
+        advancedRulesTable.add(pieceClimbingCheckbox).left();
+        advancedRulesTable.add(flip180Checkbox).left().row();
+        advancedRulesTable.add(floorKickCheckbox).left().row();
 
         Table gridTable = new Table();
         gridTable.defaults().width(44).height(44).pad(2);
@@ -218,6 +245,15 @@ public class CustomGameEditor extends Scene2DPanel {
         chainColumnCheckbox.addListener(toggleRefreshListener);
         chainDiagonalCheckbox.addListener(toggleRefreshListener);
         recursiveChainCheckbox.addListener(toggleRefreshListener);
+        nextPieceEnabledCheckbox.addListener(toggleRefreshListener);
+        holdPieceEnabledCheckbox.addListener(toggleRefreshListener);
+        bagRandomizerCheckbox.addListener(toggleRefreshListener);
+        hardDropPunchCheckbox.addListener(toggleRefreshListener);
+        twoSpaceWallKickCheckbox.addListener(toggleRefreshListener);
+        diagonalWallKickCheckbox.addListener(toggleRefreshListener);
+        pieceClimbingCheckbox.addListener(toggleRefreshListener);
+        flip180Checkbox.addListener(toggleRefreshListener);
+        floorKickCheckbox.addListener(toggleRefreshListener);
 
         mainTable.defaults().left().padBottom(8);
         mainTable.add(titleLabel).left().row();
@@ -461,6 +497,15 @@ public class CustomGameEditor extends Scene2DPanel {
         currentGameType.chainRule_CheckColumn = chainColumnCheckbox.isChecked();
         currentGameType.chainRule_CheckDiagonal = chainDiagonalCheckbox.isChecked();
         currentGameType.chainRule_CheckRecursiveConnections = recursiveChainCheckbox.isChecked();
+        currentGameType.nextPieceEnabled = nextPieceEnabledCheckbox.isChecked();
+        currentGameType.holdPieceEnabled = holdPieceEnabledCheckbox.isChecked();
+        currentGameType.currentPieceRule_getNewPiecesRandomlyOutOfBagWithOneOfEachPieceUntilEmpty = bagRandomizerCheckbox.isChecked();
+        currentGameType.hardDropPunchThroughToLowestValidGridPosition = hardDropPunchCheckbox.isChecked();
+        currentGameType.twoSpaceWallKickAllowed = twoSpaceWallKickCheckbox.isChecked();
+        currentGameType.diagonalWallKickAllowed = diagonalWallKickCheckbox.isChecked();
+        currentGameType.pieceClimbingAllowed = pieceClimbingCheckbox.isChecked();
+        currentGameType.flip180Allowed = flip180Checkbox.isChecked();
+        currentGameType.floorKickAllowed = floorKickCheckbox.isChecked();
     }
 
     private String getEnabledRuleSummary() {
@@ -471,6 +516,15 @@ public class CustomGameEditor extends Scene2DPanel {
         if (currentGameType.chainRule_CheckColumn) enabled.add("column chains");
         if (currentGameType.chainRule_CheckDiagonal) enabled.add("diagonal chains");
         if (currentGameType.chainRule_CheckRecursiveConnections) enabled.add("recursive search");
+        if (currentGameType.nextPieceEnabled) enabled.add("next preview");
+        if (currentGameType.holdPieceEnabled) enabled.add("hold piece");
+        if (currentGameType.currentPieceRule_getNewPiecesRandomlyOutOfBagWithOneOfEachPieceUntilEmpty) enabled.add("bag randomizer");
+        if (currentGameType.hardDropPunchThroughToLowestValidGridPosition) enabled.add("hard-drop punch");
+        if (currentGameType.twoSpaceWallKickAllowed) enabled.add("two-space kick");
+        if (currentGameType.diagonalWallKickAllowed) enabled.add("diagonal kick");
+        if (currentGameType.pieceClimbingAllowed) enabled.add("piece climbing");
+        if (currentGameType.flip180Allowed) enabled.add("180 flip");
+        if (currentGameType.floorKickAllowed) enabled.add("floor kick");
         return enabled.isEmpty() ? "none" : String.join(", ", enabled);
     }
 
@@ -483,7 +537,6 @@ public class CustomGameEditor extends Scene2DPanel {
     }
 
     private void refreshEditorState() {
-        applyRuleCheckboxes();
         PieceType pieceType = getSelectedPiece();
         Piece.Rotation rotation = getSelectedRotation();
 
@@ -493,6 +546,15 @@ public class CustomGameEditor extends Scene2DPanel {
         chainColumnCheckbox.setChecked(currentGameType.chainRule_CheckColumn);
         chainDiagonalCheckbox.setChecked(currentGameType.chainRule_CheckDiagonal);
         recursiveChainCheckbox.setChecked(currentGameType.chainRule_CheckRecursiveConnections);
+        nextPieceEnabledCheckbox.setChecked(currentGameType.nextPieceEnabled);
+        holdPieceEnabledCheckbox.setChecked(currentGameType.holdPieceEnabled);
+        bagRandomizerCheckbox.setChecked(currentGameType.currentPieceRule_getNewPiecesRandomlyOutOfBagWithOneOfEachPieceUntilEmpty);
+        hardDropPunchCheckbox.setChecked(currentGameType.hardDropPunchThroughToLowestValidGridPosition);
+        twoSpaceWallKickCheckbox.setChecked(currentGameType.twoSpaceWallKickAllowed);
+        diagonalWallKickCheckbox.setChecked(currentGameType.diagonalWallKickAllowed);
+        pieceClimbingCheckbox.setChecked(currentGameType.pieceClimbingAllowed);
+        flip180Checkbox.setChecked(currentGameType.flip180Allowed);
+        floorKickCheckbox.setChecked(currentGameType.floorKickAllowed);
 
         pieceLabel.setText(pieceType == null ? "Piece: none" : "Piece: " + pieceType.name + " (" + (selectedPieceIndex + 1) + "/" + currentGameType.pieceTypes.size() + ")");
         rotationLabel.setText(rotation == null ? "Rotation: none" : "Rotation: " + selectedRotationIndex + " (" + getFilledCellCount(rotation) + " blocks)");

@@ -56,6 +56,11 @@ This session focused on the newer Scene2D `CustomGameEditor` so the Java port ha
 - Expanded the Java editor summary to report enabled advanced rules.
 - Bumped the Java repo version again to `2.0.7`.
 
+### Additional Follow-Up - 2026-04-05 (Movement / Randomizer Toggles)
+- Added Scene2D checkboxes for next-piece preview, hold piece, bag randomizer, hard-drop punch-through, and movement/kick options.
+- Expanded the Java editor summary so those movement/randomizer rules are visible immediately.
+- Bumped the Java repo version again to `2.0.8`.
+
 ### Recommended Next Steps
 1. Add color/block-type controls to the Scene2D editor.
 2. Bridge Scene2D custom editor state into the older TWL editor stack where useful.
