@@ -140,6 +140,11 @@ This session focused on the newer Scene2D `CustomGameEditor` so the Java port ha
 - This is the first real bridge between built-in template browsing and Scene2D saved-slot authoring.
 - Bumped the Java repo version again to `2.0.29`.
 
+### Additional Follow-Up - 2026-04-06 (Unified Template Library)
+- Added a combined Scene2D "Template Library" table that mixes built-in starters, user-authored preset slots, and recent import history into one browsable list.
+- Implemented mixed-source badges and direct load/apply/copy action rows for every entry in the unified table.
+- Bumped the Java repo version again to `2.0.30`.
+
 ### Recommended Next Steps
 1. Bridge Scene2D custom editor state into the older TWL editor stack where useful.
 2. Replace the temporary reflection bridge with a direct adapter once the exact TWL/LWJGL API contract is fully normalized.

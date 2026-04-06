@@ -81,11 +81,13 @@ public class CustomGameEditor extends Scene2DPanel {
     private final Label recentActionsLabel;
     private final Label presetSlotsLabel;
     private final Label templateCatalogLabel;
+    private final Label unifiedLibraryLabel;
     private final Table rotationOverviewTable;
     private final Table recentHistoryTable;
     private final Table recentActionsTable;
     private final Table presetSlotsTable;
     private final Table templateCatalogTable;
+    private final Table unifiedLibraryTable;
     private final CheckBox blockUseNormalCheckbox;
     private final CheckBox blockUseGarbageCheckbox;
     private final CheckBox blockUseFillerCheckbox;
@@ -163,11 +165,13 @@ public class CustomGameEditor extends Scene2DPanel {
         recentActionsLabel = new Label("Recent Actions", skin);
         presetSlotsLabel = new Label("Saved Template Slots", skin);
         templateCatalogLabel = new Label("Template Browser", skin);
+        unifiedLibraryLabel = new Label("Unified Template Library", skin);
         rotationOverviewTable = new Table();
         recentHistoryTable = new Table();
         recentActionsTable = new Table();
         presetSlotsTable = new Table();
         templateCatalogTable = new Table();
+        unifiedLibraryTable = new Table();
         blockUseNormalCheckbox = new CheckBox(" Use in normal pieces", skin);
         blockUseGarbageCheckbox = new CheckBox(" Use as garbage", skin);
         blockUseFillerCheckbox = new CheckBox(" Use as filler", skin);
@@ -277,6 +281,10 @@ public class CustomGameEditor extends Scene2DPanel {
         presetArcadeRow.defaults().pad(4);
         presetArcadeRow.add(presetStackBtn);
         presetArcadeRow.add(presetMicroBtn);
+
+        Table unifiedLibraryRow = new Table();
+        unifiedLibraryRow.defaults().left().pad(4);
+        unifiedLibraryRow.add(unifiedLibraryTable).left();
 
         Table templateCatalogRow = new Table();
         templateCatalogRow.defaults().left().pad(4);
@@ -802,6 +810,8 @@ public class CustomGameEditor extends Scene2DPanel {
         mainTable.add(presetPuzzleRow).left().row();
         mainTable.add(presetArcadeLabel).left().row();
         mainTable.add(presetArcadeRow).left().row();
+        mainTable.add(unifiedLibraryLabel).left().row();
+        mainTable.add(unifiedLibraryRow).left().row();
         mainTable.add(templateCatalogLabel).left().row();
         mainTable.add(templateCatalogRow).left().row();
         mainTable.add(presetSlotsLabel).left().row();
@@ -1514,6 +1524,107 @@ public class CustomGameEditor extends Scene2DPanel {
             new PresetCatalogEntry("stack", "Arcade Stackers", "Stack Arcade", "Compact stack rules tuned for quick arcade rounds and pressure play.", "STACK", "6x12", "90 / 350", "3 next • hold off", "3-chain • row/column"),
             new PresetCatalogEntry("micro", "Arcade Stackers", "Micro Stack", "Tiny-grid stack challenge for dense short-form sessions.", "STACK", "5x10", "70 / 220", "2 next • hold off", "3-chain • row/column")
         };
+    }
+
+    private void rebuildUnifiedLibraryTable() {
+        unifiedLibraryTable.clearChildren();
+        unifiedLibraryTable.defaults().left().pad(3);
+
+        for (PresetCatalogEntry entry : getPresetCatalogEntries()) {
+            Label meta = new Label("Built-In Template — " + entry.family + "\n" + entry.title + "\n" + entry.description + "\n" + entry.mode + " • Grid " + entry.grid + " • Gravity/Lock " + entry.gravityLock + "\n" + entry.preview + " • " + entry.chain, engine.uiSkin);
+            meta.setWrap(true);
+            TextButton applyBtn = new TextButton("Apply", engine.uiSkin);
+            TextButton save1Btn = new TextButton("Save 1", engine.uiSkin);
+            TextButton save2Btn = new TextButton("Save 2", engine.uiSkin);
+            TextButton save3Btn = new TextButton("Save 3", engine.uiSkin);
+            final String presetKey = entry.key;
+            applyBtn.addListener(new ClickListener() {
+                @Override
+                public void clicked(InputEvent event, float x, float y) {
+                    applyPreset(presetKey);
+                }
+            });
+            save1Btn.addListener(new ClickListener() {
+                @Override
+                public void clicked(InputEvent event, float x, float y) {
+                    savePresetTemplateToSlot(presetKey, 0);
+                }
+            });
+            save2Btn.addListener(new ClickListener() {
+                @Override
+                public void clicked(InputEvent event, float x, float y) {
+                    savePresetTemplateToSlot(presetKey, 1);
+                }
+            });
+            save3Btn.addListener(new ClickListener() {
+                @Override
+                public void clicked(InputEvent event, float x, float y) {
+                    savePresetTemplateToSlot(presetKey, 2);
+                }
+            });
+            Table actions = new Table();
+            actions.defaults().pad(2);
+            actions.add(applyBtn);
+            actions.add(save1Btn);
+            actions.add(save2Btn);
+            actions.add(save3Btn);
+            unifiedLibraryTable.add(meta).width(360).left();
+            unifiedLibraryTable.add(actions).left().row();
+        }
+
+        for (int i = 0; i < presetSlots.length; i++) {
+            final int slotIndex = i;
+            GameType preset = presetSlots[i];
+            String label = preset == null
+                ? "Saved Slot — Slot " + (i + 1) + "\nEmpty"
+                : "Saved Slot — Slot " + (i + 1) + "\n" + (preset.name == null || preset.name.isEmpty() ? "Unnamed Ruleset" : preset.name)
+                    + "\n" + preset.gameMode
+                    + " • " + preset.pieceTypes.size() + " pieces"
+                    + " • " + getTotalRotationCount(preset) + " rotations";
+            Label meta = new Label(label, engine.uiSkin);
+            meta.setWrap(true);
+            unifiedLibraryTable.add(meta).width(360).left();
+            if (preset == null) {
+                unifiedLibraryTable.add(new Label("", engine.uiSkin)).left().row();
+            } else {
+                TextButton loadBtn = new TextButton("Load", engine.uiSkin);
+                loadBtn.addListener(new ClickListener() {
+                    @Override
+                    public void clicked(InputEvent event, float x, float y) {
+                        loadPresetSlot(slotIndex);
+                    }
+                });
+                unifiedLibraryTable.add(loadBtn).left().row();
+            }
+        }
+
+        for (int i = 0; i < recentHistory.size(); i++) {
+            final int historyIndex = i;
+            RecentGameHistoryEntry entry = recentHistory.get(i);
+            String when = new java.text.SimpleDateFormat("HH:mm").format(new java.util.Date(entry.timestamp));
+            Label meta = new Label("Recent " + entry.source + "\n" + entry.gameName + "\n" + entry.pieceCount + " pieces • " + entry.rotationCount + " rotations • " + when, engine.uiSkin);
+            meta.setWrap(true);
+            TextButton loadBtn = new TextButton("Load", engine.uiSkin);
+            TextButton copyBtn = new TextButton("Copy Link", engine.uiSkin);
+            loadBtn.addListener(new ClickListener() {
+                @Override
+                public void clicked(InputEvent event, float x, float y) {
+                    loadRecentHistoryEntry(historyIndex);
+                }
+            });
+            copyBtn.addListener(new ClickListener() {
+                @Override
+                public void clicked(InputEvent event, float x, float y) {
+                    copyRecentHistoryEntry(historyIndex);
+                }
+            });
+            Table actions = new Table();
+            actions.defaults().pad(2);
+            actions.add(loadBtn);
+            actions.add(copyBtn);
+            unifiedLibraryTable.add(meta).width(360).left();
+            unifiedLibraryTable.add(actions).left().row();
+        }
     }
 
     private void rebuildTemplateCatalogTable() {
@@ -2246,6 +2357,7 @@ public class CustomGameEditor extends Scene2DPanel {
         pieceLabel.setText(pieceType == null ? "Piece: none" : "Piece: " + pieceType.name + " (" + (selectedPieceIndex + 1) + "/" + currentGameType.pieceTypes.size() + ")" + " | Block override: " + selectedPieceBlockOverride);
         rotationLabel.setText(rotation == null ? "Rotation: none" : "Rotation: " + selectedRotationIndex + " (" + getFilledCellCount(rotation) + " blocks)");
         rebuildRotationOverview(pieceType);
+        rebuildUnifiedLibraryTable();
         rebuildTemplateCatalogTable();
         rebuildPresetSlotTable();
         rebuildRecentHistoryTable();

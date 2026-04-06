@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.0.30] - 2026-04-06
+
+### Added
+- **Scene2D Unified Template Library:** Added a combined Scene2D library table that displays built-in templates, preset slots, and recent history entries in a single list with mixed-source badges and direct load/apply actions.
+
+### Changed
+- Refactored Scene2D table rebuilding to support mixed-source template cards.
+- Bumped `VERSION.md` to `2.0.30`.
+
+### Validation
+- `./gradlew compileJava` ✅
+
 ## [2.0.29] - 2026-04-06
 
 ### Added
