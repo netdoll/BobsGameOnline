@@ -135,16 +135,16 @@ This session focused on the newer Scene2D `CustomGameEditor` so the Java port ha
 - Expanded block behavior reporting so field-wide consequences appear alongside the existing chain and reward hooks.
 - Bumped the Java repo version again to `2.0.24`.
 
-### Additional Follow-Up - 2026-04-06 (Template Browser)
-- Added a browsable Scene2D preset catalog table with family summaries and one-click apply buttons for the built-in starter templates.
-- The Java editor now exposes family, mode, grid, gravity/lock, preview, and chain summaries before applying a template.
-- Bumped the Java repo version again to `2.0.28`.
+### Additional Follow-Up - 2026-04-06 (Template-to-Slot Shortcuts)
+- Added direct save-to-slot actions in the Scene2D template browser so built-in starter templates can be banked into preset slots 1–3 without first overwriting the active draft.
+- This is the first real bridge between built-in template browsing and Scene2D saved-slot authoring.
+- Bumped the Java repo version again to `2.0.29`.
 
 ### Recommended Next Steps
 1. Bridge Scene2D custom editor state into the older TWL editor stack where useful.
 2. Replace the temporary reflection bridge with a direct adapter once the exact TWL/LWJGL API contract is fully normalized.
 3. Add a targeted Java regression test or smoke harness for nD puzzle bootstrap + editor launch.
-4. Consider richer saved-template browsing for user-authored slots/history next, then later more advanced block-rule depth like multi-step transformation graphs and exploding-block conversion targets.
+4. Consider richer browsing for user-authored slot/history entries next, then later more advanced block-rule depth like multi-step transformation graphs and exploding-block conversion targets.
 
 ## Summary
 This session focused on modernizing the internal Swing-based Editor tools (`SpriteEditor`, `MapCanvas`, `DialogueEditor`) to include features found in industry-standard tools like Aseprite and Pyxel Edit.

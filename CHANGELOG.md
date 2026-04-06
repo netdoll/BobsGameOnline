@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.0.29] - 2026-04-06
+
+### Added
+- **Scene2D Template-to-Slot Shortcuts:** `CustomGameEditor.java` now lets creators save built-in templates directly into preset slots 1–3 from the Scene2D template browser without first overwriting the active draft.
+
+### Changed
+- Scene2D built-in template browsing and saved-slot authoring now connect through direct slot-save actions, making the template workflow less fragmented.
+- Bumped `VERSION.md` to `2.0.29`.
+
+### Validation
+- `./gradlew compileJava` ✅
+
 ## [2.0.28] - 2026-04-06
 
 ### Added
