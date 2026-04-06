@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.0.28] - 2026-04-06
+
+### Added
+- **Scene2D Template Browser:** `CustomGameEditor.java` now renders a browsable preset catalog table with family summaries and one-click apply buttons for the built-in starter templates.
+
+### Changed
+- Scene2D preset browsing now surfaces family, mode, grid, gravity/lock, preview, and chain summaries directly in the editor instead of relying only on the top preset rows.
+- Bumped `VERSION.md` to `2.0.28`.
+
+### Validation
+- `./gradlew compileJava` ✅
+
 ## [2.0.27] - 2026-04-06
 
 ### Added

@@ -80,10 +80,12 @@ public class CustomGameEditor extends Scene2DPanel {
     private final Label recentHistoryLabel;
     private final Label recentActionsLabel;
     private final Label presetSlotsLabel;
+    private final Label templateCatalogLabel;
     private final Table rotationOverviewTable;
     private final Table recentHistoryTable;
     private final Table recentActionsTable;
     private final Table presetSlotsTable;
+    private final Table templateCatalogTable;
     private final CheckBox blockUseNormalCheckbox;
     private final CheckBox blockUseGarbageCheckbox;
     private final CheckBox blockUseFillerCheckbox;
@@ -160,10 +162,12 @@ public class CustomGameEditor extends Scene2DPanel {
         recentHistoryLabel = new Label("Recent Share / Import History", skin);
         recentActionsLabel = new Label("Recent Actions", skin);
         presetSlotsLabel = new Label("Saved Template Slots", skin);
+        templateCatalogLabel = new Label("Template Browser", skin);
         rotationOverviewTable = new Table();
         recentHistoryTable = new Table();
         recentActionsTable = new Table();
         presetSlotsTable = new Table();
+        templateCatalogTable = new Table();
         blockUseNormalCheckbox = new CheckBox(" Use in normal pieces", skin);
         blockUseGarbageCheckbox = new CheckBox(" Use as garbage", skin);
         blockUseFillerCheckbox = new CheckBox(" Use as filler", skin);
@@ -273,6 +277,10 @@ public class CustomGameEditor extends Scene2DPanel {
         presetArcadeRow.defaults().pad(4);
         presetArcadeRow.add(presetStackBtn);
         presetArcadeRow.add(presetMicroBtn);
+
+        Table templateCatalogRow = new Table();
+        templateCatalogRow.defaults().left().pad(4);
+        templateCatalogRow.add(templateCatalogTable).left();
 
         Table presetStatusRow = new Table();
         presetStatusRow.defaults().left().pad(4);
@@ -794,6 +802,8 @@ public class CustomGameEditor extends Scene2DPanel {
         mainTable.add(presetPuzzleRow).left().row();
         mainTable.add(presetArcadeLabel).left().row();
         mainTable.add(presetArcadeRow).left().row();
+        mainTable.add(templateCatalogLabel).left().row();
+        mainTable.add(templateCatalogRow).left().row();
         mainTable.add(presetSlotsLabel).left().row();
         mainTable.add(presetStatusRow).left().row();
         mainTable.add(blockControlsRow1).left().row();
@@ -1455,6 +1465,60 @@ public class CustomGameEditor extends Scene2DPanel {
         recentActions.add(0, entry);
         while (recentActions.size() > 8) recentActions.remove(recentActions.size() - 1);
         rebuildRecentActionsTable();
+    }
+
+    private static class PresetCatalogEntry {
+        public final String key;
+        public final String family;
+        public final String title;
+        public final String description;
+        public final String mode;
+        public final String grid;
+        public final String gravityLock;
+        public final String preview;
+        public final String chain;
+
+        private PresetCatalogEntry(String key, String family, String title, String description, String mode, String grid, String gravityLock, String preview, String chain) {
+            this.key = key;
+            this.family = family;
+            this.title = title;
+            this.description = description;
+            this.mode = mode;
+            this.grid = grid;
+            this.gravityLock = gravityLock;
+            this.preview = preview;
+            this.chain = chain;
+        }
+    }
+
+    private PresetCatalogEntry[] getPresetCatalogEntries() {
+        return new PresetCatalogEntry[] {
+            new PresetCatalogEntry("classic", "Competitive Drop", "Classic Drop", "Balanced modern drop rules with hold and bag randomizer enabled.", "DROP", "10x20", "100 / 500", "3 next • hold on", "4-chain • row focus"),
+            new PresetCatalogEntry("sprint", "Competitive Drop", "Sprint Drop", "Fast preview-heavy drop tuning for speed clears and quick retries.", "DROP", "10x20", "40 / 240", "5 next • hold on", "4-chain • row focus"),
+            new PresetCatalogEntry("cascade", "Puzzle Chainers", "Cascade Puzzle", "Compact chain-oriented board with recursive cascade checks enabled.", "DROP", "8x16", "120 / 450", "3 next • hold off", "3-chain • row/column/diag"),
+            new PresetCatalogEntry("zen", "Puzzle Chainers", "Zen Garden", "Slower forgiving chain sandbox for calm experimentation and pattern setup.", "DROP", "10x18", "220 / 900", "5 next • hold on", "4-chain • recursive"),
+            new PresetCatalogEntry("stack", "Arcade Stackers", "Stack Arcade", "Compact stack rules tuned for quick arcade rounds and pressure play.", "STACK", "6x12", "90 / 350", "3 next • hold off", "3-chain • row/column"),
+            new PresetCatalogEntry("micro", "Arcade Stackers", "Micro Stack", "Tiny-grid stack challenge for dense short-form sessions.", "STACK", "5x10", "70 / 220", "2 next • hold off", "3-chain • row/column")
+        };
+    }
+
+    private void rebuildTemplateCatalogTable() {
+        templateCatalogTable.clearChildren();
+        templateCatalogTable.defaults().left().pad(3);
+        for (PresetCatalogEntry entry : getPresetCatalogEntries()) {
+            Label meta = new Label(entry.family + " — " + entry.title + "\n" + entry.description + "\n" + entry.mode + " • Grid " + entry.grid + " • Gravity/Lock " + entry.gravityLock + "\n" + entry.preview + " • " + entry.chain, engine.uiSkin);
+            meta.setWrap(true);
+            TextButton applyBtn = new TextButton("Apply", engine.uiSkin);
+            final String presetKey = entry.key;
+            applyBtn.addListener(new ClickListener() {
+                @Override
+                public void clicked(InputEvent event, float x, float y) {
+                    applyPreset(presetKey);
+                }
+            });
+            templateCatalogTable.add(meta).width(360).left();
+            templateCatalogTable.add(applyBtn).left().row();
+        }
     }
 
     private void rebuildPresetSlotTable() {
@@ -2141,6 +2205,7 @@ public class CustomGameEditor extends Scene2DPanel {
         pieceLabel.setText(pieceType == null ? "Piece: none" : "Piece: " + pieceType.name + " (" + (selectedPieceIndex + 1) + "/" + currentGameType.pieceTypes.size() + ")" + " | Block override: " + selectedPieceBlockOverride);
         rotationLabel.setText(rotation == null ? "Rotation: none" : "Rotation: " + selectedRotationIndex + " (" + getFilledCellCount(rotation) + " blocks)");
         rebuildRotationOverview(pieceType);
+        rebuildTemplateCatalogTable();
         rebuildPresetSlotTable();
         rebuildRecentHistoryTable();
         rebuildRecentActionsTable();
