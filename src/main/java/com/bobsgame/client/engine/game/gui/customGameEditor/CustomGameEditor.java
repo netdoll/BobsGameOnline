@@ -76,9 +76,11 @@ public class CustomGameEditor extends Scene2DPanel {
     private final Label rotationOverviewLabel;
     private final Label recentHistoryLabel;
     private final Label recentActionsLabel;
+    private final Label presetSlotsLabel;
     private final Table rotationOverviewTable;
     private final Table recentHistoryTable;
     private final Table recentActionsTable;
+    private final Table presetSlotsTable;
     private final CheckBox blockUseNormalCheckbox;
     private final CheckBox blockUseGarbageCheckbox;
     private final CheckBox blockUseFillerCheckbox;
@@ -154,9 +156,11 @@ public class CustomGameEditor extends Scene2DPanel {
         rotationOverviewLabel = new Label("Rotation Overview", skin);
         recentHistoryLabel = new Label("Recent Share / Import History", skin);
         recentActionsLabel = new Label("Recent Actions", skin);
+        presetSlotsLabel = new Label("Saved Template Slots", skin);
         rotationOverviewTable = new Table();
         recentHistoryTable = new Table();
         recentActionsTable = new Table();
+        presetSlotsTable = new Table();
         blockUseNormalCheckbox = new CheckBox(" Use in normal pieces", skin);
         blockUseGarbageCheckbox = new CheckBox(" Use as garbage", skin);
         blockUseFillerCheckbox = new CheckBox(" Use as filler", skin);
@@ -251,6 +255,10 @@ public class CustomGameEditor extends Scene2DPanel {
         presetQuickRow.add(presetClassicBtn);
         presetQuickRow.add(presetCascadeBtn);
         presetQuickRow.add(presetStackBtn);
+
+        Table presetStatusRow = new Table();
+        presetStatusRow.defaults().left().pad(4);
+        presetStatusRow.add(presetSlotsTable).left();
 
         Table blockControlsRow1 = new Table();
         blockControlsRow1.defaults().pad(4);
@@ -745,6 +753,8 @@ public class CustomGameEditor extends Scene2DPanel {
         mainTable.add(hintLabel).width(520).left().row();
         mainTable.add(presetRow).left().row();
         mainTable.add(presetQuickRow).left().row();
+        mainTable.add(presetSlotsLabel).left().row();
+        mainTable.add(presetStatusRow).left().row();
         mainTable.add(blockControlsRow1).left().row();
         mainTable.add(blockControlsRow2).left().row();
         mainTable.add(blockRewardRow).left().row();
@@ -1131,6 +1141,7 @@ public class CustomGameEditor extends Scene2DPanel {
         applyRuleCheckboxes();
         presetSlots[slotIndex] = deepCloneGameType(currentGameType);
         summaryLabel.setText("Saved current ruleset to preset slot " + (slotIndex + 1));
+        rebuildPresetSlotTable();
         pushRecentAction("Saved the current ruleset to preset slot " + (slotIndex + 1) + ".");
     }
 
@@ -1215,6 +1226,7 @@ public class CustomGameEditor extends Scene2DPanel {
         selectedPieceIndex = currentGameType.pieceTypes.isEmpty() ? -1 : 0;
         selectedRotationIndex = 0;
         refreshEditorState();
+        rebuildPresetSlotTable();
         pushRecentAction("Loaded preset slot " + (slotIndex + 1) + ".");
     }
 
@@ -1321,6 +1333,21 @@ public class CustomGameEditor extends Scene2DPanel {
         recentActions.add(0, entry);
         while (recentActions.size() > 8) recentActions.remove(recentActions.size() - 1);
         rebuildRecentActionsTable();
+    }
+
+    private void rebuildPresetSlotTable() {
+        presetSlotsTable.clearChildren();
+        presetSlotsTable.defaults().left().pad(2);
+        for (int i = 0; i < presetSlots.length; i++) {
+            GameType preset = presetSlots[i];
+            String label = preset == null
+                ? "Slot " + (i + 1) + ": Empty"
+                : "Slot " + (i + 1) + ": " + (preset.name == null || preset.name.isEmpty() ? "Unnamed Ruleset" : preset.name)
+                    + " • " + preset.gameMode
+                    + " • " + preset.pieceTypes.size() + " pieces"
+                    + " • " + getTotalRotationCount(preset) + " rotations";
+            presetSlotsTable.add(new Label(label, engine.uiSkin)).left().row();
+        }
     }
 
     private void rebuildRecentActionsTable() {
@@ -1992,6 +2019,7 @@ public class CustomGameEditor extends Scene2DPanel {
         pieceLabel.setText(pieceType == null ? "Piece: none" : "Piece: " + pieceType.name + " (" + (selectedPieceIndex + 1) + "/" + currentGameType.pieceTypes.size() + ")" + " | Block override: " + selectedPieceBlockOverride);
         rotationLabel.setText(rotation == null ? "Rotation: none" : "Rotation: " + selectedRotationIndex + " (" + getFilledCellCount(rotation) + " blocks)");
         rebuildRotationOverview(pieceType);
+        rebuildPresetSlotTable();
         rebuildRecentHistoryTable();
         rebuildRecentActionsTable();
 

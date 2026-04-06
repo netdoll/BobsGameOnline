@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.0.26] - 2026-04-06
+
+### Added
+- **Scene2D Saved Template Slot Summaries:** `CustomGameEditor.java` now renders compact preset-slot status rows so each in-memory slot advertises its stored ruleset name, mode, piece count, and rotation count.
+
+### Changed
+- Preset slot saves/loads now refresh a dedicated Scene2D template summary table, reducing guesswork when authoring multiple rulesets in one session.
+- Bumped `VERSION.md` to `2.0.26`.
+
+### Validation
+- `./gradlew compileJava` ✅
+
 ## [2.0.25] - 2026-04-05
 
 ### Added
