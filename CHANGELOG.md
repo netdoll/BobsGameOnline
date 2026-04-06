@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.0.27] - 2026-04-06
+
+### Added
+- **Scene2D Compact Preset Families:** `CustomGameEditor.java` now groups starter presets into clearer family rows and adds curated `Sprint Drop`, `Zen Garden`, and `Micro Stack` templates alongside the original presets.
+
+### Changed
+- Expanded preset application so the Scene2D editor now seeds gravity, lock delay, and next-piece preview counts more explicitly for each family starter.
+- Bumped `VERSION.md` to `2.0.27`.
+
+### Validation
+- `./gradlew compileJava` ✅
+
 ## [2.0.26] - 2026-04-06
 
 ### Added

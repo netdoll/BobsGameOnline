@@ -135,16 +135,17 @@ This session focused on the newer Scene2D `CustomGameEditor` so the Java port ha
 - Expanded block behavior reporting so field-wide consequences appear alongside the existing chain and reward hooks.
 - Bumped the Java repo version again to `2.0.24`.
 
-### Additional Follow-Up - 2026-04-06 (Saved Template Slot Summaries)
-- Added compact Scene2D preset-slot status rows so each slot now advertises its stored ruleset name, mode, piece count, and rotation count.
-- Preset slot saves/loads now refresh a dedicated saved-template summary table, reducing guesswork when juggling multiple rulesets during one editor session.
-- Bumped the Java repo version again to `2.0.26`.
+### Additional Follow-Up - 2026-04-06 (Compact Preset Families)
+- Grouped starter presets into clearer Scene2D family rows for competitive drop, puzzle chainers, and arcade stackers.
+- Added new curated family templates: `Sprint Drop`, `Zen Garden`, and `Micro Stack`.
+- Expanded preset application so those templates also seed gravity, lock delay, and next-piece preview counts more deliberately.
+- Bumped the Java repo version again to `2.0.27`.
 
 ### Recommended Next Steps
 1. Bridge Scene2D custom editor state into the older TWL editor stack where useful.
 2. Replace the temporary reflection bridge with a direct adapter once the exact TWL/LWJGL API contract is fully normalized.
 3. Add a targeted Java regression test or smoke harness for nD puzzle bootstrap + editor launch.
-4. Consider compact preset families, then later more advanced block-rule depth like multi-step transformation graphs and exploding-block conversion targets.
+4. Consider richer saved-template browsing, then later more advanced block-rule depth like multi-step transformation graphs and exploding-block conversion targets.
 
 ## Summary
 This session focused on modernizing the internal Swing-based Editor tools (`SpriteEditor`, `MapCanvas`, `DialogueEditor`) to include features found in industry-standard tools like Aseprite and Pyxel Edit.
