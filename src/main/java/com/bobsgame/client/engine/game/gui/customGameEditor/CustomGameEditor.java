@@ -94,6 +94,8 @@ public class CustomGameEditor extends Scene2DPanel {
     private final CheckBox blockDiamondColorFieldCheckbox;
     private final TextButton assignBlockRewardBtn;
     private final TextButton clearBlockRewardBtn;
+    private final TextButton addBlockConversionBtn;
+    private final TextButton clearBlockConversionsBtn;
     private final CheckBox cascadeGravityCheckbox;
     private final CheckBox disconnectedGravityCheckbox;
     private final CheckBox chainRowCheckbox;
@@ -213,6 +215,8 @@ public class CustomGameEditor extends Scene2DPanel {
         clearPieceBlockBtn = new TextButton("Clear Piece Block", skin);
         assignBlockRewardBtn = new TextButton("Use Selected Piece as Reward", skin);
         clearBlockRewardBtn = new TextButton("Clear Reward", skin);
+        addBlockConversionBtn = new TextButton("Add Conversion Pair", skin);
+        clearBlockConversionsBtn = new TextButton("Clear Conversions", skin);
         addPieceBtn = new TextButton("Add Piece Type", skin);
         duplicatePieceBtn = new TextButton("Duplicate Piece", skin);
         removePieceBtn = new TextButton("Remove Piece", skin);
@@ -284,6 +288,8 @@ public class CustomGameEditor extends Scene2DPanel {
         blockRewardRow.defaults().pad(4);
         blockRewardRow.add(assignBlockRewardBtn);
         blockRewardRow.add(clearBlockRewardBtn);
+        blockRewardRow.add(addBlockConversionBtn);
+        blockRewardRow.add(clearBlockConversionsBtn);
 
         Table controlsRow1 = new Table();
         controlsRow1.defaults().pad(4);
@@ -577,6 +583,18 @@ public class CustomGameEditor extends Scene2DPanel {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 clearSelectedBlockReward();
+            }
+        });
+        addBlockConversionBtn.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                addConversionPairToSelectedBlock();
+            }
+        });
+        clearBlockConversionsBtn.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                clearConversionPairsFromSelectedBlock();
             }
         });
 
@@ -1000,6 +1018,76 @@ public class CustomGameEditor extends Scene2DPanel {
         blockType.makePieceTypeWhenCleared_UUID.clear();
         refreshEditorState();
         pushRecentAction("Cleared reward piece for " + (blockType.name == null || blockType.name.isEmpty() ? "selected block" : blockType.name) + ".");
+    }
+
+    private void addConversionPairToSelectedBlock() {
+        final BlockType blockType = getSelectedBlock();
+        if (blockType == null) return;
+        Engine.GUIManager().showStringDialog(
+            "From block name",
+            "",
+            new Scene2DStringDialog.StringDialogListener() {
+                @Override
+                public void onResult(final String fromText) {
+                    final BlockType fromBlock = currentGameType.getBlockTypeByName(fromText == null ? "" : fromText.trim());
+                    if (fromBlock == null) {
+                        pushRecentAction("Conversion pair cancelled: unknown source block.");
+                        refreshEditorState();
+                        return;
+                    }
+                    Engine.GUIManager().showStringDialog(
+                        "To block name",
+                        "",
+                        new Scene2DStringDialog.StringDialogListener() {
+                            @Override
+                            public void onResult(String toText) {
+                                BlockType toBlock = currentGameType.getBlockTypeByName(toText == null ? "" : toText.trim());
+                                if (toBlock == null) {
+                                    pushRecentAction("Conversion pair cancelled: unknown target block.");
+                                    refreshEditorState();
+                                    return;
+                                }
+                                BlockType.TurnFromBlockTypeToType pair = new BlockType.TurnFromBlockTypeToType();
+                                pair.fromType_UUID = fromBlock.uuid;
+                                pair.toType_UUID = toBlock.uuid;
+                                blockType.whenSetTurnAllTouchingBlocksOfFromTypesIntoToTypeAndFadeOut.add(pair);
+                                refreshEditorState();
+                                pushRecentAction("Added conversion pair " + fromBlock.name + " -> " + toBlock.name + " for " + (blockType.name == null || blockType.name.isEmpty() ? "selected block" : blockType.name) + ".");
+                            }
+
+                            @Override
+                            public void onCancel() {
+                            }
+                        }
+                    );
+                }
+
+                @Override
+                public void onCancel() {
+                }
+            }
+        );
+    }
+
+    private void clearConversionPairsFromSelectedBlock() {
+        final BlockType blockType = getSelectedBlock();
+        if (blockType == null) return;
+        if (blockType.whenSetTurnAllTouchingBlocksOfFromTypesIntoToTypeAndFadeOut.isEmpty()) return;
+        Engine.GUIManager().showYesNoDialog(
+            "Clear all conversion pairs from '" + (blockType.name == null || blockType.name.isEmpty() ? "selected block" : blockType.name) + "'?",
+            new Scene2DYesNoDialog.YesNoDialogListener() {
+                @Override
+                public void onYes() {
+                    blockType.whenSetTurnAllTouchingBlocksOfFromTypesIntoToTypeAndFadeOut.clear();
+                    refreshEditorState();
+                    pushRecentAction("Cleared conversion pairs for " + (blockType.name == null || blockType.name.isEmpty() ? "selected block" : blockType.name) + ".");
+                }
+
+                @Override
+                public void onNo() {
+                }
+            }
+        );
     }
 
     private void addPiece() {
@@ -1862,6 +1950,17 @@ public class CustomGameEditor extends Scene2DPanel {
             }
         }
 
+        String conversionSummary = "none";
+        if (blockType != null && blockType.whenSetTurnAllTouchingBlocksOfFromTypesIntoToTypeAndFadeOut != null && !blockType.whenSetTurnAllTouchingBlocksOfFromTypesIntoToTypeAndFadeOut.isEmpty()) {
+            java.util.ArrayList<String> conversionLabels = new java.util.ArrayList<String>();
+            for (BlockType.TurnFromBlockTypeToType pair : blockType.whenSetTurnAllTouchingBlocksOfFromTypesIntoToTypeAndFadeOut) {
+                BlockType fromBlock = currentGameType.getBlockTypeByUUID(pair.fromType_UUID);
+                BlockType toBlock = currentGameType.getBlockTypeByUUID(pair.toType_UUID);
+                conversionLabels.add((fromBlock != null && fromBlock.name != null && !fromBlock.name.isEmpty() ? fromBlock.name : "Unknown From") + "->" + (toBlock != null && toBlock.name != null && !toBlock.name.isEmpty() ? toBlock.name : "Unknown To"));
+            }
+            conversionSummary = String.join(", ", conversionLabels);
+        }
+
         blockLabel.setText(blockType == null ? "Block: none" : "Block: " + (blockType.name == null || blockType.name.isEmpty() ? "Unnamed Block" : blockType.name) + " (" + (selectedBlockIndex + 1) + "/" + currentGameType.blockTypes.size() + ")" + " | Reward: " + clearReward);
         String palette = "";
         if (blockType != null && blockType.colors != null) {
@@ -1888,6 +1987,7 @@ public class CustomGameEditor extends Scene2DPanel {
                 + (blockType.removeAllBlocksOfColorOnFieldBlockIsSetOn ? "remove-color-field " : "")
                 + (blockType.changeAllBlocksOfColorOnFieldBlockIsSetOnToDiamondColor ? "diamond-color-field " : "")
                 + "| Chance/Frequency: " + blockType.randomSpecialBlockChanceOneOutOf + "/" + blockType.frequencySpecialBlockTypeOnceEveryNPieces
+                + " | Conversions: " + conversionSummary
         );
         pieceLabel.setText(pieceType == null ? "Piece: none" : "Piece: " + pieceType.name + " (" + (selectedPieceIndex + 1) + "/" + currentGameType.pieceTypes.size() + ")" + " | Block override: " + selectedPieceBlockOverride);
         rotationLabel.setText(rotation == null ? "Rotation: none" : "Rotation: " + selectedRotationIndex + " (" + getFilledCellCount(rotation) + " blocks)");
@@ -1926,6 +2026,7 @@ public class CustomGameEditor extends Scene2DPanel {
             + " | Symmetry: " + symmetry
             + " | Unique/duplicate rotations: " + uniqueRotationCount + "/" + duplicateRotationCount
             + " | Block reward: " + clearReward
+            + " | Block conversions: " + conversionSummary
             + " | Rules: " + getEnabledRuleSummary()
         );
     }

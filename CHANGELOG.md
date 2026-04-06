@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.0.25] - 2026-04-05
+
+### Added
+- **Scene2D Conversion-Pair Editing:** `CustomGameEditor.java` now supports focused first-pass touching-block conversion authoring with add/clear conversion flows and visible conversion summaries.
+
+### Changed
+- Expanded block detail and summary reporting so conversion-pair data appears alongside reward, chain, palette, and field-effect authoring.
+- Bumped `VERSION.md` to `2.0.25`.
+
+### Validation
+- `./gradlew compileJava` ✅
+
 ## [2.0.24] - 2026-04-05
 
 ### Added
