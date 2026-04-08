@@ -1526,6 +1526,45 @@ public class CustomGameEditor extends Scene2DPanel {
         };
     }
 
+    private void deletePresetSlot(final int slotIndex) {
+        if (presetSlots[slotIndex] == null) return;
+        Engine.GUIManager().showYesNoDialog(
+            "Delete saved template in slot " + (slotIndex + 1) + "?",
+            new Scene2DYesNoDialog.YesNoDialogListener() {
+                @Override
+                public void onYes() {
+                    presetSlots[slotIndex] = null;
+                    refreshEditorState();
+                    pushRecentAction("Deleted preset slot " + (slotIndex + 1) + ".");
+                }
+
+                @Override
+                public void onNo() {
+                }
+            }
+        );
+    }
+
+    private void deleteRecentHistoryEntry(final int historyIndex) {
+        if (historyIndex < 0 || historyIndex >= recentHistory.size()) return;
+        final RecentGameHistoryEntry entry = recentHistory.get(historyIndex);
+        Engine.GUIManager().showYesNoDialog(
+            "Delete history entry: " + entry.gameName + "?",
+            new Scene2DYesNoDialog.YesNoDialogListener() {
+                @Override
+                public void onYes() {
+                    recentHistory.remove(historyIndex);
+                    refreshEditorState();
+                    pushRecentAction("Deleted history entry: " + entry.gameName + ".");
+                }
+
+                @Override
+                public void onNo() {
+                }
+            }
+        );
+    }
+
     private void rebuildUnifiedLibraryTable() {
         unifiedLibraryTable.clearChildren();
         unifiedLibraryTable.defaults().left().pad(3);
@@ -1587,14 +1626,25 @@ public class CustomGameEditor extends Scene2DPanel {
             if (preset == null) {
                 unifiedLibraryTable.add(new Label("", engine.uiSkin)).left().row();
             } else {
+                Table actions = new Table();
+                actions.defaults().pad(2);
                 TextButton loadBtn = new TextButton("Load", engine.uiSkin);
+                TextButton deleteBtn = new TextButton("Delete", engine.uiSkin);
                 loadBtn.addListener(new ClickListener() {
                     @Override
                     public void clicked(InputEvent event, float x, float y) {
                         loadPresetSlot(slotIndex);
                     }
                 });
-                unifiedLibraryTable.add(loadBtn).left().row();
+                deleteBtn.addListener(new ClickListener() {
+                    @Override
+                    public void clicked(InputEvent event, float x, float y) {
+                        deletePresetSlot(slotIndex);
+                    }
+                });
+                actions.add(loadBtn);
+                actions.add(deleteBtn);
+                unifiedLibraryTable.add(actions).left().row();
             }
         }
 
@@ -1606,6 +1656,7 @@ public class CustomGameEditor extends Scene2DPanel {
             meta.setWrap(true);
             TextButton loadBtn = new TextButton("Load", engine.uiSkin);
             TextButton copyBtn = new TextButton("Copy Link", engine.uiSkin);
+            TextButton deleteBtn = new TextButton("Delete", engine.uiSkin);
             loadBtn.addListener(new ClickListener() {
                 @Override
                 public void clicked(InputEvent event, float x, float y) {
@@ -1618,10 +1669,17 @@ public class CustomGameEditor extends Scene2DPanel {
                     copyRecentHistoryEntry(historyIndex);
                 }
             });
+            deleteBtn.addListener(new ClickListener() {
+                @Override
+                public void clicked(InputEvent event, float x, float y) {
+                    deleteRecentHistoryEntry(historyIndex);
+                }
+            });
             Table actions = new Table();
             actions.defaults().pad(2);
             actions.add(loadBtn);
             actions.add(copyBtn);
+            actions.add(deleteBtn);
             unifiedLibraryTable.add(meta).width(360).left();
             unifiedLibraryTable.add(actions).left().row();
         }

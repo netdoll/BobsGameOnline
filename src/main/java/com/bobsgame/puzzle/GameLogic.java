@@ -693,7 +693,31 @@ public class GameLogic {
 
     private void setPiece() {
         grid.setPiece(currentPiece);
-        pieceSetAtBottom = true; piecesPlacedTotal++; lastPiece = currentPiece; 
+
+        // Turn all touching blocks of from types into to type and fade out
+        for (Block block : currentPiece.blocks) {
+            ArrayList<BlockType.TurnFromBlockTypeToType> rules = block.blockType.whenSetTurnAllTouchingBlocksOfFromTypesIntoToTypeAndFadeOut;
+            if (rules != null && !rules.isEmpty()) {
+                ArrayList<Block> neighbors = grid.getConnectedBlocksUpDownLeftRight(block);
+                for (Block neighbor : neighbors) {
+                    for (BlockType.TurnFromBlockTypeToType rule : rules) {
+                        if (neighbor.blockType.uuid.equals(rule.fromType_UUID)) {
+                            BlockType toType = currentGameType.getBlockTypeByUUID(rule.toType_UUID);
+                            if (toType != null) {
+                                neighbor.blockType = toType;
+                                neighbor.fadingOut = true;
+                                neighbor.disappearingAlpha = 1.0f;
+                                if (!fadingOutBlocks.contains(neighbor)) {
+                                    fadingOutBlocks.add(neighbor);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        pieceSetAtBottom = true; piecesPlacedTotal++; lastPiece = currentPiece;
         currentPiece = null;
     }
 
