@@ -181,3 +181,20 @@ This session focused on modernizing the internal Swing-based Editor tools (`Spri
 *   **Undo System:** The undo system works (`CompoundEdit`) but could be more robust (limit stack size, memory usage).
 *   **Animation Features:** Timeline view, Tags (Idle, Walk).
 *   **Visual Dialogue Graph:** The current editor is text-based with preview. A node-based editor would be a massive improvement.
+
+---
+
+## Handoff - Google Jules (Version 2.0.31)
+
+### Action Taken
+1.  **Documentation Updates:** Created `VISION.md`, `MEMORY.md`, `DEPLOY.md`, `TODO.md` in the root.
+2.  **LLM Instructions:** Appended universal instructions link to agent files.
+3.  **Submodules:** Added git submodules for `defold`, `love2d`, `phaser`, and `bobui`.
+4.  **Version Bump:** Bumped the version to `2.0.31` in `VERSION.md` and updated `CHANGELOG.md`.
+
+### Next Steps
+- Port the legacy Swing `bgeditor` to JavaFX and/or C++ (Qt6) using `bobui`.
+- Port bgeditor to Web.
+- Implement advanced selection tools (Polygon Lasso) in the Sprite Editor.
+- Build the UI for Generative AI tools (Text-to-Sprite, Image-to-Sprite).
+- Integrate submodules related to generative AI.

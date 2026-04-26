@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.0.31] - 2026-04-26
+
+### Added
+- Created `VISION.md`, `MEMORY.md`, `DEPLOY.md`, and `TODO.md` to comprehensively document project goals, observations, deployment steps, and upcoming tasks.
+- Added new references for Defold, Love2D, Phaser, and `bobui` to the git submodules for feature analysis and integration.
+- Updated `AGENTS.md`, `CLAUDE.md`, `GEMINI.md`, `GPT.md`, `copilot-instructions.md`, and `LLM_INSTRUCTIONS.md` to point to the universal LLM instructions.
+
+### Changed
+- Bumped `VERSION.md` to `2.0.31`.
+
 ## [2.0.30] - 2026-04-06
 
 ### Added

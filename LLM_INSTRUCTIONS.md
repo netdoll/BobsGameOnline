@@ -14,3 +14,6 @@ This is the Java (LibGDX) implementation of the unified puzzle engine.
 - Refer to [AGENTS.md](AGENTS.md) for agent roles.
 - Refer to [VERSION.md](VERSION.md) for the current version.
 - Refer to [CHANGELOG.md](CHANGELOG.md) for historical changes.
+
+## 4. Universal Omni-Workspace Instructions
+For workspace-wide context, rules on merging, and cross-repo interactions, refer to the root [docs/UNIVERSAL_LLM_INSTRUCTIONS.md](docs/UNIVERSAL_LLM_INSTRUCTIONS.md).
