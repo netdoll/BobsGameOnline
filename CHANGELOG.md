@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.0.31] - 2026-04-27
+
+### Fixed
+- Stabilized documentation and submodule sync loop.
+
 ## [2.0.31] - 2026-04-26
 
 ### Added

@@ -136,3 +136,6 @@
 [submodule "libs/bobui"]
 	path = libs/bobui
 	url = https://github.com/robertpelloni/bobui
+[submodule "references/voidsprite"]
+	path = references/voidsprite
+	url = https://github.com/counter185/voidsprite
