@@ -5,3 +5,6 @@ build/
 *.tmp
 
 references/grafx2/doc/quickstart.rtf
+out/
+bin/
+*.bak
