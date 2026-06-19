@@ -135,7 +135,7 @@
 	url = https://github.com/phaserjs/phaser
 [submodule "libs/bobui"]
 	path = libs/bobui
-	url = https://github.com/robertpelloni/bobui
+	url = https://github.com/robertpelloni/bqt
 [submodule "references/voidsprite"]
 	path = references/voidsprite
 	url = https://github.com/counter185/voidsprite
