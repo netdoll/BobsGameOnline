@@ -124,9 +124,6 @@
 [submodule "bobcoin"]
 	path = bobcoin
 	url = https://github.com/robertpelloni/bobcoin
-[submodule "references/defold"]
-	path = references/defold
-	url = https://github.com/defold/defold
 [submodule "references/love2d"]
 	path = references/love2d
 	url = https://github.com/love2d/love
@@ -139,3 +136,6 @@
 [submodule "references/voidsprite"]
 	path = references/voidsprite
 	url = https://github.com/counter185/voidsprite
+[submodule "references/defold"]
+	path = references/defold
+	url = https://github.com/defold/defold.git
