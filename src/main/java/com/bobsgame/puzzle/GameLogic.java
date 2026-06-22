@@ -25,7 +25,26 @@ public class GameLogic {
 
     public int blockWidth = 1;
     public int blockHeight = 1;
-    public static final int aboveGridBuffer = 5;
+    public static final int aboveGridBuffer = 4;
+
+    public boolean dontResetNextPieces = false;
+    public boolean canPressRotateCW = true;
+    public boolean canPressRotateCCW = true;
+    public boolean canPressRight = true;
+    public boolean canPressLeft = true;
+    public boolean canPressDown = true;
+    public boolean canPressUp = true;
+    public boolean canPressHoldRaise = true;
+    public boolean canPressSlam = true;
+
+    public boolean repeatStartedRotateCW = false;
+    public boolean repeatStartedRotateCCW = false;
+    public boolean repeatStartedHoldRaise = false;
+    public boolean repeatStartedUp = false;
+    public boolean repeatStartedDown = false;
+    public boolean repeatStartedLeft = false;
+    public boolean repeatStartedRight = false;
+    public boolean repeatStartedSlam = false;
 
     public long lockInputCountdownTicks = 0;
     
@@ -35,6 +54,41 @@ public class GameLogic {
     public long lineClearDelayTicksCounter = 0;
     public long moveDownLineTicksCounter = 0;
     public long removeBlocksTicksCounter = 0;
+
+    public boolean gravityThisFrame = false;
+    public boolean firstDeath = true;
+    public int manualStackRiseSoundToggle = 0;
+    public int timesToFlashScreenQueue = 0;
+    public boolean flashScreenOnOffToggle = false;
+    public int flashScreenTimesPerLevel = 0;
+    public boolean startedDeathSequence = false;
+    public boolean startedWinSequence = false;
+    public boolean startedLoseSequence = false;
+    public boolean creditScreenInitialized = false;
+    public boolean madeBeginnerStackAnnouncement = false;
+    public boolean extraStage1 = false;
+    public boolean extraStage2 = false;
+    public boolean extraStage3 = false;
+    public boolean extraStage4 = false;
+    public String playingMusic = "";
+
+    public ArrayList<Piece> nextPieceSpecialBuffer = new ArrayList<>();
+    public int blocksMadeTotal = 0;
+    public int piecesMadeTotal = 0;
+    public int lastPiecesMadeTotal = 0;
+    public int createdPiecesCounterForFrequencyPieces = 0;
+    public boolean waitingForStart = true;
+    public boolean waitingForReady = true;
+    public boolean playedReadySound = false;
+    public boolean forceGravityThisFrame = false;
+    public String previousGameString = "";
+    public boolean mute = false;
+    public boolean testing = false;
+
+    public boolean slamLock = true;
+    public boolean singleDownLock = false;
+    public boolean doubleDownLock = true;
+
 
     public boolean won = false;
     public boolean lost = false;
@@ -671,6 +725,20 @@ public class GameLogic {
         else if (currentGameType.scoreType == ScoreType.PIECES_MADE && piecesMadeThisLevel >= amount) { currentLevel++; piecesMadeThisLevel -= amount; }
     }
 
+    public long flashScreenTicksCounter = 0;
+    public long flashScreenSpeedTicks = 100;
+
+    public void flashScreen() {
+        flashScreenTicksCounter += ticks();
+        if (flashScreenTicksCounter > flashScreenSpeedTicks) {
+            flashScreenTicksCounter = 0;
+            flashScreenOnOffToggle = !flashScreenOnOffToggle;
+            if (flashScreenOnOffToggle) {
+                timesToFlashScreenQueue--;
+            }
+        }
+    }
+
     public void flashChainBlocks() {
         flashBlocksTicksCounter += ticks();
         if (flashBlocksTicksCounter > flashBlockSpeedTicks) {
@@ -742,7 +810,16 @@ public class GameLogic {
     public int cellH() { return blockHeight + currentGameType.gridPixelsBetweenRows; }
     public int gridW() { return currentGameType.gridWidth; }
     public int gridH() { return currentGameType.gridHeight + aboveGridBuffer; }
-    private void updateSpecialPiecesAndBlocks() { if (currentPiece != null) currentPiece.update(); if (holdPiece != null) holdPiece.update(); }
+    private void updateSpecialPiecesAndBlocks() {
+        if (currentPiece != null) currentPiece.update();
+        if (holdPiece != null) holdPiece.update();
+        if (nextPieces != null) {
+            for (Piece p : nextPieces) p.update();
+        }
+        if (nextPieceSpecialBuffer != null) {
+            for (Piece p : nextPieceSpecialBuffer) p.update();
+        }
+    }
     private void resetNextPieces() { currentPiece = null; holdPiece = null; nextPieces.clear(); }
     private void checkForFastMusic() { playingFastMusic = grid.isAnythingAboveThreeQuarters(); }
 
@@ -837,4 +914,40 @@ public class GameLogic {
     public void renderBackground() {}
     public void renderBlocks() {}
     public void renderForeground() {}
+
+    // Networking Stubs mapped from GameLogicNetwork.cpp
+    public long storePacketsTicksCounter = 0;
+    public int lastSentPacketID = 0;
+    public boolean waitingForNetworkFrames = false;
+    public boolean theyForfeit = false;
+    public boolean pauseMiniMenuShowing = false;
+    public long lastIncomingTrafficTime = 0;
+
+    public void sendPacketsToOtherPlayers() {
+        if (manager != null && manager.isNetworkGame()) {
+            // Note: the Java BobsGame client delegates actual packet
+            // string-generation and Netty IO via GameLogicListener/BobNet
+        }
+    }
+
+    public void incoming_FramePacket(String s) {
+        lastIncomingTrafficTime = System.currentTimeMillis();
+        // The Java implementation of this loop and state management is deferred to BobsGame network parsers.
+    }
+
+    public long getLastTimeGotIncomingTraffic() {
+        return lastIncomingTrafficTime;
+    }
+
+    public void setLastTimeGotIncomingTraffic() {
+        this.lastIncomingTrafficTime = System.currentTimeMillis();
+    }
+
+    public boolean getTheyForfeit() {
+        return theyForfeit;
+    }
+
+    public void setTheyForfeit(boolean b) {
+        this.theyForfeit = b;
+    }
 }

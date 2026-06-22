@@ -11,6 +11,16 @@ public class GameSequence implements Serializable {
     public boolean randomizeSequence = true;
     public String currentDifficultyName = "Beginner";
 
+    public boolean downloaded = false;
+    public long creatorUserID = 0;
+    public String creatorUserName = "";
+    public long dateCreated = 0;
+    public long lastModified = 0;
+    public long howManyTimesUpdated = 0;
+    public long upVotes = 0;
+    public long downVotes = 0;
+    public String yourVote = "";
+
     public GameSequence() {
         this.uuid = java.util.UUID.randomUUID().toString();
     }
