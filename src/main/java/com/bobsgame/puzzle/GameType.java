@@ -151,6 +151,9 @@ public class GameType implements Serializable {
     public boolean stackDontPutSameBlockTypeNextToEachOther = false;
     public boolean stackDontPutSameColorDiagonalOrNextToEachOtherReturnNull = false;
     public boolean stackLeaveAtLeastOneGapPerRow = false;
+    public boolean randomlyFillGrid = false;
+    public int randomlyFillGridStartY = 10;
+    public int randomlyFillGridAmount = 30;
 
     public CursorType stackCursorType = CursorType.ONE_BLOCK_PICK_UP;
 

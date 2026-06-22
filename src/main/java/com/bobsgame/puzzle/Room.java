@@ -43,7 +43,7 @@ public class Room implements Serializable {
     public float multiplayer_GarbageMultiplier = 1.0f;
     public int multiplayer_GarbageLimit = 0;
     public boolean multiplayer_GarbageScaleByDifficulty = true;
-    public GameType.SendGarbageToRule multiplayer_SendGarbageTo = GameType.SendGarbageToRule.SEND_GARBAGE_TO_ALL_PLAYERS;
+    public int multiplayer_SendGarbageTo = 0; // GameType.SendGarbageToRule
 
     public int floorSpinLimit = -1;
     public int totalYLockDelayLimit = -1;
