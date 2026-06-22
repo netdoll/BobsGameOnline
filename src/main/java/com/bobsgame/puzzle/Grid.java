@@ -388,7 +388,7 @@ public class Grid {
     }
     public PieceType getRandomPieceTypeFromArrayExcludingSpecialPieceTypes(ArrayList<PieceType> arr) {
         if (arr.isEmpty()) return null;
-        if (game.currentGameType.pieceRule_useBagRandomizer && !randomBag.isEmpty()) {
+        if (game.currentGameType.currentPieceRule_getNewPiecesRandomlyOutOfBagWithOneOfEachPieceUntilEmpty && !randomBag.isEmpty()) {
             PieceType b = randomBag.get(game.getRandomIntLessThan(randomBag.size(), "getRandomPieceTypeFromArrayExcludingSpecialPieceTypes"));
             randomBag.remove(b);
             return b;
