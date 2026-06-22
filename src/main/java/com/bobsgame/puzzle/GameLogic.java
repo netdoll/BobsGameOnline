@@ -208,8 +208,8 @@ public class GameLogic {
             Collections.sort(otherPlayers, Comparator.comparing(a -> a.uuid));
 
             if (isNetworkGame()) {
-                if (getRoom().multiplayer_SendGarbageTo != SendGarbageToRule.SEND_GARBAGE_TO_ALL_PLAYERS) {
-                    getRoom().multiplayer_SendGarbageTo = SendGarbageToRule.SEND_GARBAGE_TO_ALL_PLAYERS;
+                if (getRoom().multiplayer_SendGarbageTo != 0) {
+                    getRoom().multiplayer_SendGarbageTo = 0;
                 }
             } else {
                 ArrayList<GameLogic> alivePlayers = new ArrayList<>();
@@ -218,7 +218,7 @@ public class GameLogic {
                 }
 
                 if (!alivePlayers.isEmpty()) {
-                    if (getRoom().multiplayer_SendGarbageTo == SendGarbageToRule.SEND_GARBAGE_TO_EACH_PLAYER_IN_ROTATION) {
+                    if (getRoom().multiplayer_SendGarbageTo == 1) {
                         if (queuedVSGarbageAmountToSend > 0) {
                             lastSentGarbageToPlayerIndex++;
                             if (lastSentGarbageToPlayerIndex >= alivePlayers.size()) lastSentGarbageToPlayerIndex = 0;
@@ -228,7 +228,7 @@ public class GameLogic {
                             queuedVSGarbageAmountToSend = 0;
                         }
                     }
-                    if (getRoom().multiplayer_SendGarbageTo == SendGarbageToRule.SEND_GARBAGE_TO_PLAYER_WITH_LEAST_BLOCKS) {
+                    if (getRoom().multiplayer_SendGarbageTo == 2) {
                         if (queuedVSGarbageAmountToSend > 0) {
                             GameLogic leastBlocksPlayer = alivePlayers.get(0);
                             int leastBlocks = alivePlayers.get(0).grid.getNumberOfFilledCells();
@@ -243,7 +243,7 @@ public class GameLogic {
                             queuedVSGarbageAmountToSend = 0;
                         }
                     }
-                    if (getRoom().multiplayer_SendGarbageTo == SendGarbageToRule.SEND_GARBAGE_TO_RANDOM_PLAYER) {
+                    if (getRoom().multiplayer_SendGarbageTo == 3) {
                         if (queuedVSGarbageAmountToSend > 0) {
                             GameLogic g2 = alivePlayers.get(random.nextInt(alivePlayers.size()));
                             g2.gotVSGarbageFromOtherPlayer(queuedVSGarbageAmountToSend);
@@ -254,7 +254,7 @@ public class GameLogic {
                 }
             }
 
-            if (getRoom().multiplayer_SendGarbageTo == SendGarbageToRule.SEND_GARBAGE_TO_ALL_PLAYERS) {
+            if (getRoom().multiplayer_SendGarbageTo == 0) {
                 if (!isNetworkGame()) {
                     if (queuedVSGarbageAmountToSend > 0) {
                         for (GameLogic g2 : otherPlayers) {
@@ -274,7 +274,7 @@ public class GameLogic {
                 }
             }
 
-            if (getRoom().multiplayer_SendGarbageTo == SendGarbageToRule.SEND_GARBAGE_TO_ALL_PLAYERS_50_PERCENT_CHANCE) {
+            if (getRoom().multiplayer_SendGarbageTo == 4) {
                 if (!isNetworkGame()) {
                     if (queuedVSGarbageAmountToSend > 0) {
                         for (GameLogic g2 : otherPlayers) {
