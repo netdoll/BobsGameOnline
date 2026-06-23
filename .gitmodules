@@ -139,6 +139,3 @@
 [submodule "references/voidsprite"]
 	path = references/voidsprite
 	url = https://github.com/counter185/voidsprite
-[submodule "okgame"]
-	path = okgame
-	url = https://github.com/robertpelloni/okgame

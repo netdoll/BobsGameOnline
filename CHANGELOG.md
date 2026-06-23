@@ -446,4 +446,3 @@ All notable changes to this project will be documented in this file.
     - `new-feature-branch`
 - Updated all submodules to latest upstream versions.
 - Fixed `cpp_repo` submodule issue.
-* **Version 2.0.32:** Comprehensive C++ (`okgame`) to Java puzzle logic parity port for core models. Added `okgame` submodule. Refactored `GameLogic`, `GameType`, `DifficultyType`, `Grid`, `Room`, `Piece`, `PieceType`, `Block`, and `BlockType` to fully align with C++ engine.
