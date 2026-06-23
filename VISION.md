@@ -1,11 +1,13 @@
-# VISION: The Ultimate Omni-Engine
+# Vision Document: Jules Task Queue & Autopilot Orchestrator
 
-The ultimate goal of this project is to create the absolute most complete, robust, useful, and functional game engine and editor in existence—an "omni-engine" capable of matching and exceeding the 1:1 functionality of every other major 2D game engine (Defold, LÖVE, Phaser, Construct, GameMaker, RPG Maker).
+## 1. Ultimate Goal
+To build the most powerful, over-engineered, and scalable autonomous multi-agent operating system for the "Jules" coding assistant ecosystem. Jules Autopilot exists to solve the underlying bottleneck of AI development: strict rate limits and isolated execution loops.
 
-The project aims to synthesize the best features from dozens of specialized sprite editors, tilemap editors, and voxel tools, integrating them into a cohesive, cross-platform, multi-language suite. It encompasses:
-1.  **A high-performance C++ core** (integrated with Ultimate++).
-2.  **A modernized Java backend and client** (Java 21, LWJGL 3, Netty 4).
-3.  **A versatile Web port** capable of 30-player cross-platform multiplayer.
-4.  **Advanced Generative AI tools** for sprite generation, animation interpolation, and 3D voxel creation.
+## 2. Core Philosophy
+The core philosophy revolves around three principles:
+- **Set It and Forget It:** An engineer should be able to create an infinitely complex, 20-step epic issue on GitHub, label it "Jules", and walk away for 48 hours while the system orchestrates 5 different LLM models to autonomously research, plan, write, test, and deploy the feature.
+- **Extreme Telemetry:** Every single token, API request, terminal output string, and AST modification must be deterministically logged, tracked, and attributed to a workspace budget to prevent cost overruns.
+- **Agent Symphony:** Hard boundaries between the *Architecural Agent* (Claude, reasoning), the *Execution Agent* (Gemini, speed/large context), and the *Auditor Agent* (GPT-4o, AST verification).
 
-This omni-engine will support seamless game editing, live multiplayer server deployments (e.g., to Hetzner), and global leaderboards.
+## 3. Future Horizon (v1.0.0 and beyond)
+We envision Jules evolving into a Kubernetes-native swarm capable of spinning up ephemeral Docker WebContainers per agent node. It will feature real-time visual workflow tracing (via native WebSockets) and proactive, background "Shadow Pilot" capabilities where agents silently fix regressions and zero-day vulnerabilities in the codebase before a human even files a ticket.

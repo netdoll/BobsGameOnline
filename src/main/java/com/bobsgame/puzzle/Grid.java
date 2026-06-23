@@ -7,41 +7,11 @@ import java.util.Random;
 public class Grid {
     public GameLogic game;
     public Block[][] blocks;
-    public float screenX = 0;
-    public float screenY = 0;
-
-    public int wigglePlayingFieldTicksSpeed = 300;
-    public int wigglePlayingFieldMaxX = 5;
-    public float wigglePlayingFieldX = 0;
-    public float wigglePlayingFieldY = 0;
-    public boolean wigglePlayingFieldLeftRightToggle = true;
-
-    public int shakePlayingFieldScreenTicksCounter = 0;
-    public int shakePlayingFieldTicksDuration = 300;
-    public int shakePlayingFieldMaxX = 2;
-    public int shakePlayingFieldMaxY = 2;
-    public int shakePlayingFieldTicksPerShake = 40;
-    public int shakePlayingFieldTicksPerShakeXCounter = 0;
-    public boolean shakePlayingFieldLeftRightToggle = true;
-    public int shakePlayingFieldTicksPerShakeYCounter = 0;
-    public boolean shakePlayingFieldUpDownToggle = true;
-    public int shakePlayingFieldX = 0;
-    public int shakePlayingFieldY = 0;
-
-    public long scrollPlayingFieldBackgroundTicks = 0;
-    public long shakePlayingFieldStartTime = 0;
-    public long wigglePlayingFieldTicks = 0;
-    public int scrollPlayingFieldBackgroundTicksSpeed = 30;
-    public int backgroundScrollX = 0;
-    public int backgroundScrollY = 0;
-
-    public int deadX = 0;
-    public int deadY = 0;
+    public int screenX = 0;
+    public int screenY = 0;
 
     public int lastGarbageHoleX = 0;
     public boolean garbageHoleDirectionToggle = true;
-
-    public ArrayList<PieceType> randomBag = new ArrayList<>();
 
     public float scrollPlayingFieldY = 0;
     public float scrollBlockIncrement = 100;
@@ -354,47 +324,9 @@ public class Grid {
     }
 
     public Piece getRandomPiece() {
-        ArrayList<PieceType> pieceTypes = game.currentGameType.getNormalPieceTypes(game.getCurrentDifficulty());
-        ArrayList<BlockType> blockTypes = game.currentGameType.getNormalBlockTypes(game.getCurrentDifficulty());
-        return getRandomPiece(pieceTypes, blockTypes);
-    }
-
-    public Piece getRandomPiece(ArrayList<PieceType> pieceTypes, ArrayList<BlockType> blockTypes) {
-        return new Piece(game, this, getRandomPieceType(pieceTypes), blockTypes);
-    }
-
-    public PieceType getRandomPieceType(ArrayList<PieceType> pieceTypes) {
-        return getRandomPieceTypeFromArrayExcludingSpecialPieceTypes(pieceTypes);
-    }
-
-    public PieceType getRandomSpecialPieceTypeFromArrayExcludingNormalPiecesOrNull(ArrayList<PieceType> arr) {
-        if (arr.isEmpty()) return null;
-        ArrayList<PieceType> specials = new ArrayList<>();
-        for (PieceType pt : arr) if (!pt.useAsNormalPiece) specials.add(pt);
-        if (specials.isEmpty()) return null;
-        return specials.get(game.getRandomIntLessThan(specials.size(), "getRandomSpecialPiece"));
-    }
-
-    public ArrayList<Piece> getBagOfOneOfEachNonRandomNormalPieces() {
-        ArrayList<Piece> bag = new ArrayList<>();
-        ArrayList<PieceType> pts = game.currentGameType.getNormalPieceTypes(game.getCurrentDifficulty());
-        ArrayList<BlockType> bts = game.currentGameType.getNormalBlockTypes(game.getCurrentDifficulty());
-        for (PieceType pt : pts) {
-            if (pt.randomSpecialPieceChanceOneOutOf == 0 && pt.frequencySpecialPieceTypeOnceEveryNPieces == 0) {
-                bag.add(new Piece(game, this, pt, bts));
-            }
-        }
-        return bag;
-    }
-    public PieceType getRandomPieceTypeFromArrayExcludingSpecialPieceTypes(ArrayList<PieceType> arr) {
-        if (arr.isEmpty()) return null;
-        if (game.currentGameType.currentPieceRule_getNewPiecesRandomlyOutOfBagWithOneOfEachPieceUntilEmpty && !randomBag.isEmpty()) {
-            PieceType b = randomBag.get(game.getRandomIntLessThan(randomBag.size(), "getRandomPieceTypeFromArrayExcludingSpecialPieceTypes"));
-            randomBag.remove(b);
-            return b;
-        } else {
-            return arr.get(game.getRandomIntLessThan(arr.size(), "getRandomPieceTypeFromArrayExcludingSpecialPieceTypes"));
-        }
+        ArrayList<PieceType> pt = game.currentGameType.getNormalPieceTypes(game.getCurrentDifficulty());
+        ArrayList<BlockType> bt = game.currentGameType.getNormalBlockTypes(game.getCurrentDifficulty());
+        return new Piece(game, this, pt.get((int)(Math.random() * pt.size())), bt);
     }
 
     public Piece putOneBlockPieceInGridCheckingForFillRules(int x, int y, ArrayList<PieceType> pt, ArrayList<BlockType> bt) {
