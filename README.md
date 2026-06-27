@@ -1,96 +1,57 @@
-🛠️ ALPHA SOFTWARE UNDER CONSTRUCTION — Use at your own risk. Backwards compatibility not guaranteed.
+# Jules Autopilot (Go Primary Runtime)
 
-# EXTREME WIP ALPHA DEVELOPED "IN THE OPEN," DON'T BOTHER TRYING TO USE IT UNLESS YOU PLAN ON HACKING ON IT TO GET IT WORKING
+> **The ultra-fast, autonomous command center for Google Jules.**
 
-# bob's game
+Jules Autopilot is a high-performance, minimalist orchestration platform for the Google Jules AI agent. It replaces slow official interfaces with a unified, real-time dashboard, powered by a robust Go backend runtime.
 
-This repository contains the modernized source code for "Bob's Game" (2012), updated to run on modern Java 21 infrastructure.
+## 🚀 The Stack
 
-## Architecture
+This project has been pivoted to a Go-first architecture to ensure maximum performance, operational reliability, and zero friction:
 
-The project is split into three Gradle modules:
+- **Backend/Runtime:** [Go](https://go.dev) (High-performance API, WebSocket server, Scheduler, and Static SPA host)
+- **Frontend:** [Vite](https://vitejs.dev) + [React 19](https://react.dev) (Pure SPA, no SSR overhead)
+- **Database:** [GORM](https://gorm.io) + SQLite (Zero-config local persistence)
+- **Queue & Automation:** Native Go task queue and RAG indexer
+- **Styling:** [TailwindCSS v4](https://tailwindcss.com)
 
-- **`:client`**: The game client (LWJGL 3, OpenGL, OpenAL).
-- **`:server`**: The backend infrastructure (Game Server, Index Server, STUN Server).
-- **`:shared`**: Shared logic, networking packets, and utilities.
+## 🛠️ Getting Started
 
-For a detailed breakdown of the project structure and dependencies, see [STRUCTURE.md](STRUCTURE.md).
+### Prerequisites
+- [Go 1.21+](https://go.dev) installed.
+- [Node.js](https://nodejs.org) and [pnpm](https://pnpm.io) for frontend development.
 
-## Prerequisites
-
-- JDK 21
-- Docker (optional, for server deployment)
-
-## Building
-
-To build all modules:
-
+### Installation
 ```bash
-./gradlew build
+# Clone the repository
+git clone https://github.com/your-repo/jules-autopilot.git
+cd jules-autopilot
+
+# Install frontend dependencies
+pnpm install
+
+# Build the frontend and shared packages
+pnpm run build
 ```
 
-## Running the Client
+### Running the Command Center
+You can run the entire stack via the Go backend (which serves the built frontend):
 
-```bash
-./gradlew :client:run
+1. **Start the Go Runtime:**
+   ```bash
+   cd backend-go
+   go run main.go
+   ```
+   *The dashboard will be available at `http://localhost:8080`.*
+
+2. **Frontend Dev Mode (Optional):**
+   ```bash
+   pnpm run dev
+   ```
+
+## 🏗️ Architecture
+
 ```
-
-## Running the Editor
-
-To run the legacy Swing-based Level Editor:
-
-```bash
-./gradlew :client:runEditor
-```
-
-**New Editor Features:**
-- **Select All (Ctrl+A)**: Selects the entire map, sprite, or tileset in the respective editors.
-- **Replace Color**: New menu item in "Palette Tools" to swap a color index globally across the tileset.
-
-## Running the Server
-
-You can run the server locally or via Docker.
-
-### Local
-
-```bash
-./gradlew :server:run
-```
-
-### Docker
-
-Build and start the full stack (Game Server, STUN Server, MySQL Database):
-
-```bash
-docker-compose up --build
-```
-
-Configuration is handled via Environment Variables (see `docker-compose.yml`) or a `server.properties` file in the working directory.
-
-## Features
-
-- **Modern Tech Stack**: Java 21, Gradle 8.5, LWJGL 3, Netty 4, HikariCP.
-- **Security**: BCrypt password hashing with automatic legacy migration.
-- **Containerization**: Full Docker support.
-- **CI/CD**: GitHub Actions workflow included.
-
-## Changelog
-
-### Modernization Phase (Current)
-- **Migrated to Gradle**: Multi-module project structure.
-- **Updated Java**: Targeted Java 21.
-- **Upgraded LWJGL**: Migrated from 2 to 3 (GLFW, OpenAL, STB).
-- **Upgraded Netty**: Migrated from 3 to 4.
-- **Security**: Added BCrypt password hashing.
-- **Infrastructure**: Added Docker and CI/CD support.
-- **Editor**: Re-enabled legacy Swing Editor, added 'Select All' and 'Replace Color' features.
-
-## Roadmap
-
-- [x] Modernize Build System (Gradle)
-- [x] Upgrade Java to 21
-- [x] Migrate Networking to Netty 4
-- [x] Migrate Graphics to LWJGL 3
-- [x] Re-enable Level Editor
-- [ ] Port Editor to LibGDX / Scene2D (Future)
-- [ ] Implement remaining TODO items
+┌──────────────────────────────────────────┐
+│          Browser (Vite SPA)              │
+│  http://localhost:3006 (Dev)             │
+│  http://localhost:8080 (Prod)
