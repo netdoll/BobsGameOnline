@@ -8,7 +8,7 @@
 ## Editor Enhancements
 - [x] Implement advanced selection tools (Polygon Lasso) in the Sprite Editor.
 - [ ] Build the UI for Generative AI tools (Text-to-Sprite, Image-to-Sprite).
-- [ ] Finalize the Undo/Redo robust Command pattern across all editor tabs.
+- [x] Finalize the Undo/Redo robust Command pattern across all editor tabs.
 - [ ] Port the legacy Swing `bgeditor` to JavaFX and/or C++ (Qt6).
 - [ ] Port bgeditor to Web.
 
