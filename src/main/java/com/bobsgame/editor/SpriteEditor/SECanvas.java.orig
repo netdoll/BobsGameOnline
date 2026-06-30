@@ -272,17 +272,6 @@ public class SECanvas extends MTECanvas
 		SE.editCanvasScrollPane.validate();
 	}
 
-	//===============================================================================================
-	@Override
-	public void mouseMoved(MouseEvent me)
-	{//===============================================================================================
-		super.mouseMoved(me);
-		int x = (me.getX() / zoom);
-		int y = (me.getY() / zoom);
-		if(currentBrush != null) {
-			currentBrush.onMouseMove(this, x, y, SpriteEditor.controlPanel.paletteCanvas.colorSelected, me.getModifiersEx());
-		}
-	}
 
 	//===============================================================================================
 	public void zoomIn()
@@ -584,7 +573,7 @@ public class SECanvas extends MTECanvas
 		int x = me.getX() / zoom;
 		int y = me.getY() / zoom;
 		mousePressed = true;
-		
+
 		currentEdit = new CompoundEdit();
 
 		if((me.getModifiersEx() == rightMask || me.getModifiersEx() == ctrlClickMask))
@@ -671,13 +660,13 @@ public class SECanvas extends MTECanvas
 			// Brush Release
 			currentBrush.onMouseRelease(this, x, y, SpriteEditor.controlPanel.paletteCanvas.colorSelected, me.getModifiersEx());
 		}
-		
+
 		if(currentEdit != null) {
 			currentEdit.end();
 			if(currentEdit.isSignificant()) undoManager.addEdit(currentEdit);
 			currentEdit = null;
 		}
-		
+
 		setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
 	}
 
