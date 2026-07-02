@@ -9,4 +9,5 @@ public interface Brush {
     void onMouseDrag(SECanvas canvas, int x, int y, int color, int modifiers);
     void onMouseRelease(SECanvas canvas, int x, int y, int color, int modifiers);
     void onPaint(Graphics g, SECanvas canvas);
+    default void onMouseMove(SECanvas canvas, int x, int y, int color, int modifiers) {}
 }

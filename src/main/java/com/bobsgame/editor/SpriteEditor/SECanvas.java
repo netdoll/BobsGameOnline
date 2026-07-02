@@ -184,6 +184,8 @@ public class SECanvas extends MTECanvas
 				G.setColor(Color.RED);
 				G.drawRect(getSelectionBox().x1 * zoom, getSelectionBox().y1 * zoom, (getSelectionBox().x2 - getSelectionBox().x1) * zoom - 1, (getSelectionBox().y2 - getSelectionBox().y1) * zoom - 1);
 			}
+
+			currentBrush.onPaint(G, this);
 			G.dispose();
 		}
 
@@ -270,6 +272,17 @@ public class SECanvas extends MTECanvas
 		SE.editCanvasScrollPane.validate();
 	}
 
+	//===============================================================================================
+	@Override
+	public void mouseMoved(MouseEvent me)
+	{//===============================================================================================
+		super.mouseMoved(me);
+		int x = (me.getX() / zoom);
+		int y = (me.getY() / zoom);
+		if(currentBrush != null) {
+			currentBrush.onMouseMove(this, x, y, SpriteEditor.controlPanel.paletteCanvas.colorSelected, me.getModifiersEx());
+		}
+	}
 
 	//===============================================================================================
 	public void zoomIn()

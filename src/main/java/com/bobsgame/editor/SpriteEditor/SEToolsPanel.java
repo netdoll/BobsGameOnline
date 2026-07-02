@@ -13,6 +13,7 @@ import com.bobsgame.editor.SpriteEditor.Tools.EraserBrush;
 import com.bobsgame.editor.SpriteEditor.Tools.FillBrush;
 import com.bobsgame.editor.SpriteEditor.Tools.MagicWandBrush;
 import com.bobsgame.editor.SpriteEditor.Tools.PixelBrush;
+import com.bobsgame.editor.SpriteEditor.Tools.PolygonLassoBrush;
 
 public class SEToolsPanel extends JPanel implements ActionListener {
 
@@ -23,6 +24,7 @@ public class SEToolsPanel extends JPanel implements ActionListener {
 	private JToggleButton eraserButton;
 	private JToggleButton fillButton;
 	private JToggleButton magicWandButton;
+	private JToggleButton polygonLassoButton;
 	private JToggleButton pixelPerfectButton; // Not in group, toggle option
 	private ButtonGroup toolGroup;
 
@@ -57,6 +59,11 @@ public class SEToolsPanel extends JPanel implements ActionListener {
 		magicWandButton.addActionListener(this);
 		toolGroup.add(magicWandButton);
 		add(magicWandButton);
+
+		polygonLassoButton = new JToggleButton("Polygon Lasso");
+		polygonLassoButton.addActionListener(this);
+		toolGroup.add(polygonLassoButton);
+		add(polygonLassoButton);
 	}
 
 	@Override
@@ -82,6 +89,8 @@ public class SEToolsPanel extends JPanel implements ActionListener {
 			SE.editCanvas.currentBrush = new FillBrush();
 		} else if(e.getSource() == magicWandButton) {
 			SE.editCanvas.currentBrush = new MagicWandBrush();
+		} else if(e.getSource() == polygonLassoButton) {
+			SE.editCanvas.currentBrush = new PolygonLassoBrush();
 		}
 	}
 
