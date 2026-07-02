@@ -8,3 +8,5 @@ references/grafx2/doc/quickstart.rtf
 out/
 bin/
 *.bak
+backend-go
+backend-go/backend-go

@@ -1,0 +1,22 @@
+name: Shadow Pilot Auto-Fix
+
+on:
+  check_run:
+    types: [completed]
+
+jobs:
+  autofix:
+    if: ${{ github.event.check_run.conclusion == 'failure' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.26.0'
+
+      - name: Run Shadow Pilot Auto-Fix Orchestrator
+        run: |
+          cd backend-go/autofix
+          go run autofix.go --diff-source="ci-failure" --apply-heuristics
