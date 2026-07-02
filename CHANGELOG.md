@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.0.32] - 2026-05-01
+### Added
+- Implemented Polygon Lasso tool in Sprite Editor using ray-casting point-in-polygon mask generation. Added `onMouseMove` to `Brush` interface to support interactive previews.
+
 ## [2.0.31] - 2026-04-27
 
 ### Fixed
