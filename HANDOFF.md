@@ -193,22 +193,8 @@ This session focused on modernizing the internal Swing-based Editor tools (`Spri
 4.  **Version Bump:** Bumped the version to `2.0.31` in `VERSION.md` and updated `CHANGELOG.md`.
 
 ### Next Steps
-- Continue resolving TODOs and ROADMAP features (Undo/Redo finalization, JavaFX port).
 - Port the legacy Swing `bgeditor` to JavaFX and/or C++ (Qt6) using `bobui`.
 - Port bgeditor to Web.
-- Build the UI for Generative AI tools (Text-to-Sprite, Image-to-Sprite).
-- Integrate submodules related to generative AI.
-
-
-## Handoff - Google Jules (Version 2.0.33)
-
-### Action Taken
-1.  **Polygon Lasso Feature:** Implemented `PolygonLassoBrush` for the Sprite Editor, including `onMouseMove` wiring in `SECanvas` and `Brush` interface for interactive previews.
-2.  **Map Editor Undo/Redo:** Added `MapHistoryPanel` to the `EditorMain` control tabs so MapCanvas users can see and interact with their undo stack just like in SpriteEditor. Verified `UndoManager` stack size constraint limit.
-3.  **Documentation:** Updated `TODO.md`, `ROADMAP_EDITOR.md`, `CHANGELOG.md`, `VERSION.md`, and `HANDOFF.md` to reflect the completed features.
-
-### Next Steps
-- Port the legacy Swing `bgeditor` to JavaFX and/or C++ (Qt6) using `bobui`.
-- Port bgeditor to Web.
+- Implement advanced selection tools (Polygon Lasso) in the Sprite Editor.
 - Build the UI for Generative AI tools (Text-to-Sprite, Image-to-Sprite).
 - Integrate submodules related to generative AI.

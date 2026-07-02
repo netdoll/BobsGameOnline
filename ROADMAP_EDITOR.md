@@ -30,7 +30,7 @@ Tools that speed up the creation process.
 
 5.  **Selection Tools** [COMPLETED]
     *   **Description:** Robust selection capabilities beyond rectangles.
-    *   **Status:** Implemented `MagicWandBrush`, `PolygonLassoBrush`, and mask-based `SelectionArea`.
+    *   **Status:** Implemented `MagicWandBrush` and mask-based `SelectionArea`.
     *   **Goal:** Magic Wand (Color Select), Polygon Lasso, "Select All of Color".
 
 6.  **Symmetry / Mirror Drawing** [COMPLETED]

@@ -16,7 +16,6 @@ import com.bobsgame.editor.Dialogs.NumberDialog;
 import com.bobsgame.editor.Dialogs.RenameWindow;
 import com.bobsgame.editor.Dialogs.YesNoWindow;
 import com.bobsgame.editor.MapCanvas.MapCanvas;
-import com.bobsgame.editor.MapCanvas.MapHistoryPanel;
 import com.bobsgame.editor.MultipleTileEditor.*;
 import com.bobsgame.editor.Project.Project;
 import com.bobsgame.editor.Project.AudioEditor;
@@ -191,7 +190,6 @@ public class EditorMain extends JFrame implements ActionListener, ItemListener, 
 
 	public static ControlPanel controlPanel;
 	public static MapCanvas mapCanvas;
-	public static MapHistoryPanel mapHistoryPanel;
 	public static TileCanvas tileCanvas;
 	public static JComponent lastActiveCanvas;
 	public static SpriteEditor spriteEditor;
@@ -1420,11 +1418,6 @@ public class EditorMain extends JFrame implements ActionListener, ItemListener, 
 		//--------------------------------------------------------------
 				controlPanel = new ControlPanel(this);
 
-				mapHistoryPanel = new MapHistoryPanel(mapCanvas);
-				JTabbedPane controlTabs = new JTabbedPane();
-				controlTabs.addTab("Control Panel", controlPanel);
-				controlTabs.addTab("History", mapHistoryPanel);
-
 		//--------------------------------------------------------------
 		//INFO LABEL PANE
 		//--------------------------------------------------------------
@@ -1454,7 +1447,7 @@ public class EditorMain extends JFrame implements ActionListener, ItemListener, 
 
 			panel.add(mapScrollPane, BorderLayout.CENTER);
 			panel.add(tileScrollPane, BorderLayout.WEST);
-			panel.add(controlTabs, BorderLayout.EAST);
+			panel.add(controlPanel, BorderLayout.EAST);
 			panel.add(menuPanel, BorderLayout.NORTH);
 			panel.add(infoLabelPanel, BorderLayout.SOUTH);
 
