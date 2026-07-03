@@ -1,23 +1,20 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
 	"os"
 
+	"bobsgameonlinejava/backend-go/api"
 	"bobsgameonlinejava/backend-go/services"
 )
 
 func main() {
 	services.GlobalDiffMonitor.Start()
+	services.GlobalSubmoduleMonitor.Start()
 
-	http.HandleFunc("/api/system/diff-status", func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Content-Type", "application/json")
-		diffs := services.GlobalDiffMonitor.GetRecentDiffs()
-		json.NewEncoder(w).Encode(diffs)
-	})
+	http.HandleFunc("/api/system/status", api.HandleSystemStatus)
 
 	port := os.Getenv("PORT")
 	if port == "" {

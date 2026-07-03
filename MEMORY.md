@@ -51,3 +51,5 @@ a3470e0 chore: add .suno_new_session/ to gitignore
 4eb0a03 sec: upgrade axios@^1.12.0, esbuild@latest
 4431d37 Merge branch 'feat-shadow-pilot-git-diff-ui-12323440949671972104'
 68b0a18 chore: cleanup jules-autopilot dirty state\n\n- Untrack packages/shared/dist/ (built outputs), add to .gitignore\n- Commit security upgrades (package.json, pnpm-lock.yaml)
+-   **CI Pipeline Auto-Fix:** Auto-fix logic implemented in `backend-go/autofix/autofix.go`. Github actions workflow added.
+-   **Submodule Status Check:** Real-time submodule git status is fully wired to `/system/status` UI through the `SubmoduleMonitor` service.
