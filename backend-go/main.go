@@ -15,6 +15,8 @@ func main() {
 	services.GlobalSubmoduleMonitor.Start()
 
 	http.HandleFunc("/api/system/status", api.HandleSystemStatus)
+	http.HandleFunc("/api/system/ws", api.HandleWebSocket)
+	http.HandleFunc("/api/system/autofix", api.HandleAutofix)
 
 	port := os.Getenv("PORT")
 	if port == "" {

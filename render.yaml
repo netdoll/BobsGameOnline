@@ -1,0 +1,8 @@
+services:
+  - type: web
+    name: backend-go
+    env: go
+    plan: free
+    buildCommand: "cd backend-go && go build -o bobsgame-backend ./main.go"
+    startCommand: "cd backend-go && ./bobsgame-backend"
+    goVersion: "1.26.0"
