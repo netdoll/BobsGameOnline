@@ -23,7 +23,7 @@ func HandleWebSocket(w http.ResponseWriter, r *http.Request) {
 	}
 	defer conn.Close()
 
-	// Stream diff updates periodically
+	// Stream diff updates and submodule status periodically
 	ticker := time.NewTicker(2 * time.Second)
 	defer ticker.Stop()
 
@@ -31,9 +31,12 @@ func HandleWebSocket(w http.ResponseWriter, r *http.Request) {
 		select {
 		case <-ticker.C:
 			diffs := services.GlobalDiffMonitor.GetRecentDiffs()
+			submodules := services.GlobalSubmoduleMonitor.GetRecentStatuses()
+
 			if err := conn.WriteJSON(map[string]interface{}{
 				"type": "diff_update",
 				"data": diffs,
+				"submodules": submodules,
 			}); err != nil {
 				log.Printf("WebSocket write failed: %v", err)
 				return
