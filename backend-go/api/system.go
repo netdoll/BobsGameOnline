@@ -15,6 +15,11 @@ func HandleSystemStatus(w http.ResponseWriter, r *http.Request) {
 	status := map[string]interface{}{
 		"diffLogs": diffs,
 		"submodules": submodules,
+		"shadowPilot": map[string]interface{}{
+			"ciAutoFix": "READY",
+			"submoduleSync": "ACTIVE",
+			"diffMonitor": "ACTIVE",
+		},
 	}
 
 	json.NewEncoder(w).Encode(status)

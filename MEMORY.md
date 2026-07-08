@@ -14,9 +14,9 @@ The `server/` directory and backend-only JS dependencies have been removed.
 2.  **Deployment Challenges:**
     -   The Go version in `backend-go/go.mod` must match the build environment exactly (currently pinned to `1.26.0` for Render).
 3.  **Missing/Incomplete Features (Identified for Implementation):**
-    -   **Git Diff Monitoring:** Background Shadow Pilot anomaly detection is missing native git diff monitoring.
-    -   **CI Pipeline Auto-Fix:** Shadow Pilot has anomaly logging but the CI pipeline auto-fix is incomplete.
-    -   **Submodule Status Check:** Real-time submodule git status checks in the Go backend are not fully wired to the `/system/status` UI.
+    -   **Git Diff Monitoring:** (COMPLETED) Background Shadow Pilot anomaly detection is now equipped with native git diff monitoring.
+    -   **CI Pipeline Auto-Fix:** (COMPLETED) Auto-fix logic implemented in `backend-go/autofix/autofix.go`. Github actions workflow added.
+    -   **Submodule Status Check:** (COMPLETED) Real-time submodule git status checks in the Go backend are fully wired to the `/system/status` UI and WebSocket.
 
 ### Design Preferences
 -   **No SSR:** The frontend relies exclusively on Client-Side Rendering (SPA mode) to avoid Next.js overhead.
@@ -45,11 +45,7 @@ JULES AGENT LAST 5 MESSAGES:
 0a950f0 feat: nudge sends instructions+docs+agent msgs+commits, no recovery guidance
 03f22a3 feat: recovery prompt structured as instructions+docs+agent msgs+commits+instructions
 ea9bfed feat: skip nudge if last message from user, include last 5 agent msgs + docs + commits in recovery
-7b3bcf5 chore: register services, change port 8081->8082, add Windows service scripts
-a3470e0 chore: add .suno_new_session/ to gitignore
-06b74a2 chore: cleanup dirty state
-4eb0a03 sec: upgrade axios@^1.12.0, esbuild@latest
 4431d37 Merge branch 'feat-shadow-pilot-git-diff-ui-12323440949671972104'
 68b0a18 chore: cleanup jules-autopilot dirty state\n\n- Untrack packages/shared/dist/ (built outputs), add to .gitignore\n- Commit security upgrades (package.json, pnpm-lock.yaml)
--   **CI Pipeline Auto-Fix:** Auto-fix logic implemented in `backend-go/autofix/autofix.go`. Github actions workflow added.
--   **Submodule Status Check:** Real-time submodule git status is fully wired to `/system/status` UI through the `SubmoduleMonitor` service.
+    -   **CI Pipeline Auto-Fix:** (COMPLETED) Auto-fix logic implemented in `backend-go/autofix/autofix.go`. Github actions workflow added.
+    -   **Submodule Status Check:** (COMPLETED) Real-time submodule git status checks in the Go backend are fully wired to the `/system/status` UI and WebSocket.
