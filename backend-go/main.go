@@ -17,6 +17,7 @@ func main() {
 	http.HandleFunc("/api/system/status", api.HandleSystemStatus)
 	http.HandleFunc("/api/system/ws", api.HandleWebSocket)
 	http.HandleFunc("/api/system/autofix", api.HandleAutofix)
+	http.HandleFunc("/api/fleet/summary", api.HandleFleetSummary)
 
 	port := os.Getenv("PORT")
 	if port == "" {
